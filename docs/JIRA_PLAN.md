@@ -4,6 +4,17 @@ Linux devamı: aşağıdaki ilk durum özeti Windows bootstrap anına aittir. G�
 çalışma ve kanıtlar: [STATUS.md](STATUS.md), [LINUX_VALIDATION.md](LINUX_VALIDATION.md).
 Onur artık GitHub @pondilungs ile ekipte; PR #1 birleştirildi.
 
+Güncel durum Jira'dan tekrar okunarak doğrulandı:
+
+- Tamamlandı: KAN-7, KAN-8, KAN-11, KAN-24, KAN-25, KAN-26.
+- İncelemede: yeni Compose/Mosquitto uygulamaları KAN-36/KAN-37; Gabriel review.
+- Önceki tamamlanan KAN-12/KAN-61/KAN-62 değiştirilmedi.
+- [PR #2](https://github.com/sicloid/OmniGuard-eAI/pull/2): Linux doğrulaması,
+  platform kurulumu, ekip/sözleşme kayıtları. Windows/Linux/platform CI başarılı.
+
+## İlk bootstrap durum kaydı (tarihsel)
+
+
 Kullanıcı isteğiyle KAN board üzerinde 6 epik, V2 kaynağındaki 54 görev, 1 yerel bootstrap görevi ve 1 şema uygulama alt görevi oluşturuldu. Toplam 62 kart. Tüm atamalar/epik ilişkileri/ana görev hedef tarihleri Jira'dan tekrar okunarak doğrulandı.
 
 Roller: Şükrü Lead/R2; Onur R1/ML; Gabriel R3/platform. G1=10 Eylül, G15=30 Eylül; hafta sonları hariç. Tarihler planlama hedefidir. Onur'un fiili başlangıcı gecikirse R1 hedefleri yeniden planlanır.

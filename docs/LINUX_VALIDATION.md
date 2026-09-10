@@ -71,3 +71,12 @@ parsing/CLI, contract roundtrip, frozen `0.1.0` and rejection of the old draft.
 Ruff lint/format pass. The deterministic smoke reports G8/G10 false as intended.
 The CI workflow adds the unprivileged platform smoke; no privileged lab test is
 scheduled on shared GitHub runners. Current PR Checks is the hosted CI authority.
+
+## Publication and Jira readback
+
+[PR #2](https://github.com/sicloid/OmniGuard-eAI/pull/2), implementation `281cf32`.
+Both push and PR workflows passed Windows, Linux (including ShellCheck), and
+platform jobs: [PR run](https://github.com/sicloid/OmniGuard-eAI/actions/runs/34449640577).
+CODEOWNERS errors API returned an empty list for the published feature branch.
+Jira descriptions were updated with evidence and read back: KAN-7/8/11/24/25/26
+are Done; new KAN-36/37 are In Review for Gabriel. PR #2 remains open for review.
