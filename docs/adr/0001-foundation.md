@@ -1,6 +1,7 @@
 # ADR-0001: Initial contract and repository foundation
 
-Date: 2026-09-10. Status: PROPOSED — needs Lead + R1 + R2/R3 review.
+Date: 2026-09-10. Status: ACCEPTED — Şükrü explicitly confirmed approval by
+Onur, Gabriel and himself in the Linux continuation session on this date.
 
 The repository was empty. The latest `ChatGPT Plus Tanıtımı` discussion replaces
 Huawei dependencies with local inference and a self-hosted telemetry platform.
@@ -11,13 +12,14 @@ not higher-priority assistant instructions. Older cloud plans are superseded.
 
 Implement five immutable runtime envelopes and deterministic stubs first. Keep
 network capture/enforcement and ML/platform implementations in their owners' scope.
-Schema is explicitly `0.1.0-draft` until team review; no completed G1 sign-off is inferred
-from unchecked checklists. Keep placeholder features in a separate `stub-0.1` namespace.
+Schema is frozen as `0.1.0` following that explicit team confirmation, with the
+same fields and semantics as `0.1.0-draft`. The former wire version is rejected;
+regenerate fixture events. Placeholder features remain in `stub-0.1`.
 
 Draft details absent from V2: UTC Unix numeric timestamps, half-open windows,
 numeric IP protocol, nullable missing MAC/ports, [0,1] RF score with inclusive
 threshold, and a versioned telemetry envelope with run/event identities.
-These are reviewable proposals, not changes to an existing approved contract.
+These choices were included in the now-approved proposal.
 
 The installed Python 3.14.7 is the bootstrap reference, pinned with Ruff 0.15.6
 and setuptools 82.0.1. Full scientific/platform dependency locking is pending
@@ -25,10 +27,11 @@ R1/R3 installation and wheel validation on x86 and ARM64. Do not treat this as
 completion of the full Environment pinning backlog item. Revisit Python choice
 with actual scikit-learn/dpkt compatibility evidence before G2 freeze.
 
-## Review questions
+## Ownership and remaining implementation
 
-1. Confirm exact envelope fields and timestamp/fragment semantics with R1/R2/R3.
-2. User confirmed Onur = R1 and Gabriel = R3; add Onur's GitHub handle when available.
+1. Envelope fields and timestamp/fragment semantics are approved; feature catalog
+   and model artifact compatibility remain separate work.
+2. GitHub access verified: Onur = @pondilungs; Gabriel = @Gabi8347; Şükrü = @sicloid.
 3. R1 owns feature catalog and artifact compatibility; R2 owns transition policy;
    R3 owns telemetry framing/topic/deduplication and complete dependency lock.
 

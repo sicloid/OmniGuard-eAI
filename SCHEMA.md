@@ -1,7 +1,10 @@
-# OmniGuard runtime contracts — 0.1.0-draft
+# OmniGuard runtime contracts — 0.1.0
 
-Status: proposed, not team-approved or frozen. Sources: the supplied V2 planning
-documents. Exact draft choices are recorded in [ADR-0001](docs/adr/0001-foundation.md).
+Status: team-approved and frozen on 2026-09-10. Şükrü confirmed that Onur,
+Gabriel and Şükrü approved the existing architecture and contracts. Sources:
+the supplied V2 planning documents and [ADR-0001](docs/adr/0001-foundation.md).
+The initial draft is promoted to `0.1.0` without changing fields or semantics.
+Consumers reject the former `0.1.0-draft` wire identifier; regenerate stub events.
 
 All contracts are immutable Python dataclasses in `core/schema.py`. Constructors
 reject malformed required fields, invalid enums and nonfinite numeric values.

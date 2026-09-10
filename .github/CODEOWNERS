@@ -1,8 +1,11 @@
-# R1: Onur (GitHub handle pending). R2/Lead: Sukru. R3: Gabriel.
+# R1: Onur. R2/Lead: Sukru. R3: Gabriel. All collaborator access verified.
 * @sicloid
-/core/schema.py @sicloid
-/SCHEMA.md @sicloid
-/docs/adr/ @sicloid
+/core/features.py @pondilungs
+/model/ @pondilungs
+/data/ @pondilungs
+/core/schema.py @sicloid @pondilungs @Gabi8347
+/SCHEMA.md @sicloid @pondilungs @Gabi8347
+/docs/adr/ @sicloid @pondilungs @Gabi8347
 /platform/ @Gabi8347
 /telemetry/ @Gabi8347
 /measure/ @Gabi8347
