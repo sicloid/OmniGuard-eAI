@@ -1,0 +1,66 @@
+# OmniGuard runtime contracts — 0.1.0-draft
+
+Status: proposed, not team-approved or frozen. Sources: the supplied V2 planning
+documents. Exact draft choices are recorded in [ADR-0001](docs/adr/0001-foundation.md).
+
+All contracts are immutable Python dataclasses in `core/schema.py`. Constructors
+reject malformed required fields, invalid enums and nonfinite numeric values.
+They do not perform capture, inference, state policy, firewall or network I/O.
+
+| Contract | Producer → consumer | Fields / meaning |
+|---|---|---|
+| PacketTuple | R2 source → R1 extractor | timestamp, device_id, src_mac, src_ip, src_port, dst_ip, dst_port, protocol, tcp_flags, packet_length, direction |
+| FeatureVector | R1 extractor → model | device_id, window_start, window_end, feature_schema_version, feature_order, values |
+| DetectionResult | model → R2 state machine | device_id, window_ts, model_id, model_version, score, classification, threshold |
+| StateEvent | R2 state machine → enforcement / telemetry | device_id, previous_state, new_state, reason, timestamp, expires_at |
+| TelemetryPayload | R3 adapter → consumer | schema_version, run_id, event_id, nested StateEvent |
+
+## Network and time semantics
+
+- Packet length is L3 IP length in bytes, excluding Ethernet headers. IPv6
+  jumbograms are outside this initial draft.
+- Protocol is the IP protocol number; flags are a TCP bitmask, zero for non-TCP.
+- Ports are null when unavailable (e.g. ICMP or noninitial fragments); they must
+  never be inferred by filling in a guessed transport port.
+- `src_mac` may be null for captures lacking Ethernet metadata. MAC normalization
+  belongs to the future source adapter.
+- EGRESS: source in configured LAN, destination outside. INGRESS: reverse.
+  LOCAL: both inside. Both outside must be excluded by the adapter, not relabeled.
+- `device_id` is an internal stable mapping, not an ML feature. Primary extraction
+  will use EGRESS. Mapping and LAN membership are R2 responsibilities.
+- Event/packet timestamps are UTC Unix seconds. Feature windows are half-open
+  `[window_start, window_end)`; baseline duration is 5 seconds, aligned to Unix epoch.
+  `window_ts` denotes window start. Runtime performance durations will use a
+  separate monotonic clock; never subtract timestamps from different clock domains.
+
+## Features and model output
+
+Feature names and values are ordered tuples of equal nonzero length with unique
+names and finite numeric values. The actual feature catalog remains R1's G2 task.
+`stub-0.1` with `stub_packet_count, stub_l3_bytes` is synthetic integration data,
+not the production feature catalog or an implementation of the shared extractor.
+
+RF score draft range is [0,1]; `score >= threshold` means ANOMALOUS, otherwise
+NORMAL. This does not imply a calibrated probability. A future Isolation Forest
+requires an explicit score contract decision. Models never emit state/firewall decisions.
+
+States are NORMAL, SUSPICIOUS, QUARANTINED. StateEvent validates the envelope and
+expiry ordering, not the allowable transition graph or N policy. R2 owns those
+rules. A synthetic QUARANTINED event is never proof that traffic stopped.
+
+## Telemetry
+
+`TelemetryPayload.to_dict()` produces JSON-compatible data with nested event fields.
+No raw packet, IP/MAC or payload bytes are included. Consumer must reject unknown
+schema versions. The producer must preserve event_id across retries; real UUID
+generation, deduplication, UDS framing and MQTT topic/QoS policy remain R2/R3 work.
+Stable stub IDs are fixture-only, not suitable for real repeated experiment runs.
+
+## Model artifact contract — specified, implementation pending R1
+
+`model.joblib` + `model.meta.json` must contain model_id/version, schema_version,
+feature_schema_version, feature_order, window_seconds/semantics, threshold,
+training manifest SHA-256, Python/sklearn/numpy versions. R1 must implement and
+test fail-fast compatibility checks before model deserialization/inference.
+Only trusted locally produced artifacts may be loaded. This bootstrap supplies
+no trained model, artifact loader or compatibility claim.
