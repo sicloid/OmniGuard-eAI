@@ -19,7 +19,8 @@
 
 `feat/foundation-contracts`: draft contracts, deterministic stubs, safe local tests,
 CI definition, ownership fallback, original planning documents and developer setup.
-No remote pushes, PR notifications or Jira writes have been performed.
+No remote pushes or PR notifications have been performed. Subsequently, at the
+user's request, the full Jira backlog was populated and assigned; see JIRA_PLAN.md.
 
 ## Remaining sequence
 
