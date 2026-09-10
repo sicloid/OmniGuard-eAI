@@ -19,8 +19,10 @@
 
 `feat/foundation-contracts`: draft contracts, deterministic stubs, safe local tests,
 CI definition, ownership fallback, original planning documents and developer setup.
-No remote pushes or PR notifications have been performed. Subsequently, at the
-user's request, the full Jira backlog was populated and assigned; see JIRA_PLAN.md.
+The full Jira backlog was populated and assigned at the user's request; see
+JIRA_PLAN.md. The subsequent R2 week-one work and existing foundation are now
+published for review in [draft PR #1](https://github.com/sicloid/OmniGuard-eAI/pull/1).
+Main is an empty review base; no application code has been merged.
 
 ## Remaining sequence
 
@@ -44,3 +46,6 @@ Editable package install succeeded in a fresh Python 3.14.7 virtual environment.
 Nine unit tests, Ruff lint/format and deterministic smoke passed on Windows.
 GitHub Actions workflow is defined, but no hosted CI run or Linux execution is
 claimed. ML and platform dependencies remain outside this foundation validation.
+
+The paragraph above records the initial foundation snapshot. For the subsequent
+PCAP adapter, Linux lab scripts and hosted CI evidence, see [WEEK_ONE_R2.md](WEEK_ONE_R2.md).
