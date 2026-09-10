@@ -6,6 +6,13 @@ GitHub collaborators verified: sicloid, pondilungs (Onur), Gabi8347 (Gabriel).
 three teammates. ADR-0001 is accepted; contracts are promoted to frozen `0.1.0`.
 The former draft wire identifier is rejected; regenerate synthetic event fixtures.
 
+## KAN-27 live adapter follow-up
+
+Linux LAN ingress capture now shares PacketNormalizer with PCAP and fails on
+socket loss/truncation/timestamp faults. Real isolated capture/drop/release counts
+and forced overflow are recorded in [LIVE_VALIDATION.md](LIVE_VALIDATION.md).
+Owner review and future observation-health/window integration remain separate.
+
 ## Completed technical validation
 
 - PCAP adapter and contracts: 21 unit tests, Ruff lint/format and synthetic smoke
@@ -27,7 +34,7 @@ See [Linux evidence](LINUX_VALIDATION.md), [lab runbook](../lab/README.md),
 
 1. R1: feature catalog/data audit, artifact compatibility, extractor and actual
    capture-aware train/validation/test split; train RF and calibrate on validation.
-2. R2: live adapter, windows, detector interface, state machine, runtime
+2. R2: live health/window integration, windows, detector interface, state machine, runtime
    enforcement/release, replay/leakage and UDS bridge.
 3. R3: full dependency lock (KAN-10), telemetry adapter, migrations, MQTT consumer,
    PostgreSQL datasource/dashboard and measurement harnesses.
