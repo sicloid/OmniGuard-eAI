@@ -13,6 +13,14 @@ socket loss/truncation/timestamp faults. Real isolated capture/drop/release coun
 and forced overflow are recorded in [LIVE_VALIDATION.md](LIVE_VALIDATION.md).
 Owner review and future observation-health/window integration remain separate.
 
+## KAN-32 replay follow-up
+
+Prepared-PCAP replay, unique run manifests and separate monotonic/reference timing
+are implemented and validated twice against independent capture/sink counts.
+See [REPLAY_VALIDATION.md](REPLAY_VALIDATION.md) and the
+[R2 independent-work audit](R2_INDEPENDENT_WORK.md). Source send return is not
+containment; owner review and dataset preparation remain separate.
+
 ## Completed technical validation
 
 - PCAP adapter and contracts: 21 unit tests, Ruff lint/format and synthetic smoke
