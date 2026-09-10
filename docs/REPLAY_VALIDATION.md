@@ -32,3 +32,18 @@ hosted Linux CI additionally runs ShellCheck.
 Scope: prepared unidirectional Ethernet/IPv4 lab traffic only. Real dataset
 conversion/label audit, sink leakage correlation, runtime enforcement/ACK,
 trained RF, G8/G10 and ARM64 remain separate. See [runbook](../lab/REPLAY.md).
+
+## Final code verification
+
+After adding regular-file input validation, the committed code `42331f4` was
+retested with the same command. Both runs again produced 100 sent / 100 capture /
+100 sink and the same prepared hash, scheduled span and reference index:
+
+| Run | Maximum schedule lag |
+|---|---:|
+| 90bfafbb-34a1-4ae7-bb3f-d1af48d13bd4 | 1,442,777ns |
+| fd3e508d-3feb-4769-b0ea-349b66147237 | 1,219,214ns |
+
+Evidence: `artifacts/replay.XNsakaAB/replay-validation/`. The increased lag is
+retained; the harness makes no real-time bound or benchmark claim. Host refusal,
+parent rules/routes and namespace cleanup also passed again.
