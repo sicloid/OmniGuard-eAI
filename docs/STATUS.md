@@ -38,3 +38,11 @@ See [Linux evidence](LINUX_VALIDATION.md), [lab runbook](../lab/README.md),
 
 Pi hardware, data/ML implementation and real integration gates remain separate
 work; none is claimed complete from synthetic fixtures or this x86_64 lab run.
+
+## V3 architecture review (documentation only)
+
+The follow-up [2026 review](architecture/REVIEW_2026.md) and [target architecture](../ARCHITECTURE.md)
+add a proposed design for observation health, bounded lease/application evidence,
+and user-disruption metrics. [ADR-0002](adr/0002-bounded-containment.md) remains PROPOSED;
+no runtime schema, service configuration, Jira status or acceptance result changed
+in this documentation revision. The original V2 documents remain historical sources.

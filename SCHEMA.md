@@ -67,3 +67,11 @@ training manifest SHA-256, Python/sklearn/numpy versions. R1 must implement and
 test fail-fast compatibility checks before model deserialization/inference.
 Only trusted locally produced artifacts may be loaded. This bootstrap supplies
 no trained model, artifact loader or compatibility claim.
+
+## V3 follow-up proposals (not part of 0.1.0)
+
+[ADR-0002](docs/adr/0002-bounded-containment.md) proposes ObservationHealth,
+EnforcementResult and separate detection/health telemetry records. None is added
+to these dataclasses by the architecture review. StateEvent describes a policy
+transition; it is not evidence of successful firewall application. Current
+TelemetryPayload cannot carry anomaly scores or enforcement results implicitly.
