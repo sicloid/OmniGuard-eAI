@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.env
+.env.*
+!.env.example
+*.joblib
+*.pcap
+*.pcapng
+!tests/fixtures/*.pcap
+data/raw/
+data/samplepack/*
+!data/samplepack/README.md

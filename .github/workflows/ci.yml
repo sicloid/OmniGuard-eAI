@@ -1,0 +1,26 @@
+name: Unprivileged foundation checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  contracts:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14.7'
+      - run: python -m pip install -e ".[dev]"
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: python -m unittest discover -s tests -v
+      - run: python -m stubs
+      - name: Check lab shell syntax (no privileged execution)
+        if: runner.os == 'Linux'
+        run: |
+          for script in lab/*.sh; do bash -n "$script"; done
+          shellcheck -x lab/*.sh

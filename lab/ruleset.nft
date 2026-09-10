@@ -1,0 +1,16 @@
+# Loaded only via: ip netns exec og-b nft -f lab/ruleset.nft
+# Deliberately no flush ruleset and no flowtable/offload.
+table inet omniguard {
+    set quarantined_v4 {
+        type ipv4_addr
+    }
+    counter quarantine_drops {
+    }
+    chain forward {
+        type filter hook forward priority -10; policy drop;
+        # Evaluate quarantine before the established/related allow.
+        iifname "og-b0" oifname "og-b1" ip saddr @quarantined_v4 counter name quarantine_drops drop
+        ct state established,related accept
+        iifname "og-b0" oifname "og-b1" ip saddr 10.203.1.0/24 ip daddr 10.203.2.0/24 accept
+    }
+}
