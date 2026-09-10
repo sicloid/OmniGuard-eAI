@@ -10,8 +10,10 @@ and ARM64 validation target; laptop development remains possible.
 
 Initial G1 foundation: five validated draft runtime contracts, three deterministic
 stubs, unit tests, Windows/Linux CI definition and versioned planning documents.
-Real capture, feature extraction, model training, containment and telemetry services
-are not implemented yet. G5/G8/G10 are **not passed**.
+The PCAP adapter is implemented and locally tested. Isolated Linux lab and
+quarantine smoke scripts are implemented but await privileged Linux execution.
+Live capture, feature extraction, model training, runtime containment and telemetry
+services remain pending. G5/G8/G10 are **not passed**.
 
 ## Run locally
 
@@ -53,7 +55,7 @@ Gabriel's GitHub access (@Gabi8347) was verified. Onur is joining later. AI work
 supports human module owners; every change still needs owner review.
 
 Next: review [SCHEMA.md](SCHEMA.md) and [ADR-0001](docs/adr/0001-foundation.md),
-then R1 feature catalog/data audit, R2 isolated A→B→C Linux lab, R3 pinned platform
+then R1 feature catalog/data audit, R2 isolated A→B→C Linux lab validation, R3 pinned platform
 dependencies and Compose smoke test. Full roadmap: [development status](docs/STATUS.md).
 
 ## Engineering rules
@@ -66,3 +68,6 @@ Privileged integration tests run only on the dedicated Linux lab host.
 
 The `platform/` directory will contain deployment configuration, not a Python
 package: do not add `platform/__init__.py` and shadow the standard library.
+
+R2 commands and limitations: [PCAP adapter](sources/README.md),
+[Linux lab](lab/README.md). Team review checklist: [G1 review](docs/G1_REVIEW.md).
