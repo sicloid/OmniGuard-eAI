@@ -8,12 +8,12 @@ and ARM64 validation target; laptop development remains possible.
 
 ## Current implementation
 
-Initial G1 foundation: five validated draft runtime contracts, three deterministic
-stubs, unit tests, Windows/Linux CI definition and versioned planning documents.
-The PCAP adapter is implemented and locally tested. Isolated Linux lab and
-quarantine smoke scripts are implemented but await privileged Linux execution.
-Live capture, feature extraction, model training, runtime containment and telemetry
-services remain pending. G5/G8/G10 are **not passed**.
+G1 contracts are team-approved and frozen as `0.1.0`; PR #1 is merged.
+The PCAP adapter, deterministic stubs and 21 unit tests pass on Linux.
+The isolated A→B→C lab passes real UDP quarantine/conntrack/release checks.
+Mosquitto, PostgreSQL and Grafana run in Compose with health/authentication smoke
+tests. Live capture, feature extraction, model training, runtime state/enforcement,
+telemetry consumer and dashboards remain pending. G5/G8/G10 are **not passed**.
 
 ## Run locally
 
@@ -28,7 +28,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m stubs
 ```
 
-Linux (same reference interpreter):
+Linux (Python 3.14.x; CachyOS verified with 3.14.6, CI reference 3.14.7):
 
 ```sh
 python3 -m venv .venv
@@ -48,15 +48,28 @@ end-to-end detection pipeline. Do not cite its output as research measurements.
 | Role | Scope | Confirmed person |
 |---|---|---|
 | Lead + R2 | contracts coordination, sources/, gateway/, lab/ | Şükrü (@sicloid); user states security ownership |
-| R1 | core/features.py, model/, dataset/sample pack | Onur; GitHub handle pending |
+| R1 | core/features.py, model/, dataset/sample pack | Onur (@pondilungs) |
 | R3 | platform/, telemetry/, measure/ | Gabriel (@Gabi8347) |
 
-Gabriel's GitHub access (@Gabi8347) was verified. Onur is joining later. AI work
+All three collaborators were verified on 2026-09-10. AI work
 supports human module owners; every change still needs owner review.
 
-Next: review [SCHEMA.md](SCHEMA.md) and [ADR-0001](docs/adr/0001-foundation.md),
-then R1 feature catalog/data audit, R2 isolated A→B→C Linux lab validation, R3 pinned platform
-dependencies and Compose smoke test. Full roadmap: [development status](docs/STATUS.md).
+Next: R1 feature catalog/data audit/artifact compatibility; R2 live capture and
+windowing; R3 telemetry adapter, database schema/consumer and dashboards.
+Full roadmap: [development status](docs/STATUS.md).
+
+Docker lab and platform (from the repository root):
+
+```sh
+bash lab/run_docker.sh
+python3 platform/init_secrets.py
+docker compose -f platform/compose.yaml up -d --wait
+python3 platform/smoke.py
+```
+
+Grafana: [localhost:3000](http://127.0.0.1:3000), user `admin`; password in
+`platform/.secrets/grafana_password`. Access/shutdown: [platform runbook](platform/README.md).
+Network-test logs: `artifacts/linux-lab.*`; [Linux evidence](docs/LINUX_VALIDATION.md).
 
 ## Engineering rules
 

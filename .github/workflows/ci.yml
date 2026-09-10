@@ -24,3 +24,16 @@ jobs:
         run: |
           for script in lab/*.sh; do bash -n "$script"; done
           shellcheck -x lab/*.sh
+  platform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14.7'
+      - run: python platform/init_secrets.py
+      - run: docker compose -f platform/compose.yaml up -d --wait --wait-timeout 180
+      - run: python platform/smoke.py
+      - name: Clean up this job's services and volumes
+        if: always()
+        run: docker compose -f platform/compose.yaml down -v

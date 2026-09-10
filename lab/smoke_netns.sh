@@ -37,7 +37,14 @@ sleep 1
 kill -0 "$source_pid" "$sink_pid" || fail 'probe process exited'
 before=$(wc -l <"$LOGS/sink.txt")
 ((before > 0)) || fail 'no baseline sink traffic'
-ip netns exec og-b conntrack -L -p udp --orig-src 10.203.1.2 --orig-dst 10.203.2.2 >"$LOGS/conntrack-before.txt"
+# UDP stream assurance may require several seconds on newer kernels. Poll the
+# actual state instead of assuming that one second of echo traffic is enough.
+for ((attempt=0; attempt<50; attempt++)); do
+    ip netns exec og-b conntrack -L -p udp --orig-src 10.203.1.2 --orig-dst 10.203.2.2 >"$LOGS/conntrack-before.txt" 2>"$LOGS/conntrack.err"
+    if grep -q ASSURED "$LOGS/conntrack-before.txt"; then break; fi
+    kill -0 "$source_pid" "$sink_pid" || fail 'probe exited before flow assurance'
+    sleep 0.1
+done
 grep -q ASSURED "$LOGS/conntrack-before.txt" || fail 'bidirectional established flow not observed'
 bash "$HERE/quarantine.sh" apply
 # Allow already-in-flight packets to drain; this is not a leakage measurement.
@@ -47,6 +54,8 @@ sleep 1
 blocked_end=$(wc -l <"$LOGS/sink.txt")
 kill -0 "$source_pid" "$sink_pid" || fail 'probe died while quarantined'
 [[ "$blocked_start" == "$blocked_end" ]] || fail 'established traffic bypasses quarantine'
+ip netns exec og-b conntrack -L -p udp --orig-src 10.203.1.2 --orig-dst 10.203.2.2 >"$LOGS/conntrack-quarantined.txt" 2>>"$LOGS/conntrack.err"
+grep -q ASSURED "$LOGS/conntrack-quarantined.txt" || fail 'established state was not preserved'
 ip netns exec og-b nft -j list counter inet omniguard quarantine_drops >"$LOGS/drops.json"
 python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); assert any(x.get("counter",{}).get("packets",0)>0 for x in d["nftables"])' "$LOGS/drops.json" || fail 'no drop evidence'
 bash "$HERE/quarantine.sh" release

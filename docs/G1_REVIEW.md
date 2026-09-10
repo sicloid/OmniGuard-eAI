@@ -1,6 +1,8 @@
 # KAN-7 / KAN-8 — Ekip karar ve inceleme paketi
 
-Durum: uygulama ve teknik inceleme hazırlığı; toplantı veya ekip onayı gerçekleştiği iddia edilmez.
+Durum: 2026-09-10 tarihinde Şükrü, bu oturumda Onur, Gabriel ve kendisinin
+mevcut mimari ve sözleşmeleri onayladığını açıkça doğruladı. PR #1 birleştirildi.
+Bu kayıt kullanıcının ekip onayı beyanıdır; ayrıca toplantı yapıldığı iddia edilmez.
 
 ## Kayıtlı proje tercihleri
 
@@ -22,7 +24,7 @@ V2 belgeleri ve kullanıcının son rol doğrulaması esas alınmıştır:
 | Gabriel | TelemetryPayload, StateEvent, SCHEMA.md | Event kimliği, retry/dedup ve UDS/MQTT framing için sonraki ADR kapsamı |
 | Şükrü | lab/*.sh, lab/ruleset.nft, sources/* | İzolasyon, namespace sahipliği, conntrack sırası, LAN/device mapping ve parser hata politikası |
 
-## Açık kararlar
+## Onaylanan kararlar
 
 1. UTC Unix zamanları, half-open epoch-aligned pencereler ve nullable port/MAC semantiği kabul mü?
 2. LOCAL cihaz kimliği gönderen LAN cihazıdır; INGRESS kimliği alıcı LAN cihazıdır.
@@ -35,9 +37,10 @@ V2 belgeleri ve kullanıcının son rol doğrulaması esas alınmıştır:
 
 | Rol | Karar | Tarih / kanıt |
 |---|---|---|
-| R1 Onur | Bekliyor | — |
-| R2/Lead Şükrü | Bekliyor | — |
-| R3 Gabriel | Bekliyor | — |
+| R1 Onur (@pondilungs) | Onaylandı | 2026-09-10, Şükrü'nün açık ekip onayı beyanı |
+| R2/Lead Şükrü (@sicloid) | Onaylandı | 2026-09-10, doğrudan kullanıcı onayı; PR #1 merge |
+| R3 Gabriel (@Gabi8347) | Onaylandı | 2026-09-10, Şükrü'nün açık ekip onayı beyanı |
 
-KAN-7 karar/onay kaydı tamamlanınca; KAN-8 ADR onayı ve sürüm kararıyla kapanabilir.
-AI tarafından testlerin geçmesi bu onayların yerine geçmez.
+KAN-7 için karar/onay kaydı tamamlandı. KAN-8 kapsamında ADR-0001 kabul edildi ve
+sözleşme sürümü alan/semantik değişmeden `0.1.0` olarak sabitlendi. Stub özellikleri
+gerçek özellik kataloğu değildir; model/telemetri uygulama görevleri ayrı kalır.

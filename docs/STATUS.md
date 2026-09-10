@@ -1,51 +1,40 @@
-# Development status — 2026-09-10
+# Development status — 2026-09-10 (Linux continuation)
 
-## Evidence and scope
+PR #1 merged into main at 02:45:52 UTC. Its Windows/Linux CI checks passed.
+GitHub collaborators verified: sicloid, pondilungs (Onur), Gabi8347 (Gabriel).
+Şükrü explicitly confirmed approval of the existing architecture/contracts by all
+three teammates. ADR-0001 is accepted; contracts are promoted to frozen `0.1.0`.
+The former draft wire identifier is rejected; regenerate synthetic event fixtures.
 
-- Read seven supplied V2 documents and the latest three turns of
-  `ChatGPT Plus Tanıtımı`; self-hosted revision supersedes older Huawei cloud plans.
-- Cloned `sicloid/OmniGuard-eAI`: repository was empty. Verified collaborators
-  sicloid and Gabi8347. No pre-existing contracts or source code to preserve.
-- Jira connector is reachable. `text ~ "OmniGuard"` and `project = KAN` returned
-  no visible issues; this is not proof that no issues exist elsewhere. No issue
-  IDs, completed tasks, assignments or workflow transitions have been invented.
-- Project discovery subsequently confirmed `KAN` is named `OMNIGUARD eAI`, with
-  `totalIssueCount: 0` reported by Jira. The supplied backlog is currently a plan,
-  not populated Jira cards in this connected project.
-- Docker CLI exists, but Docker Desktop Linux engine was unavailable during setup.
-- User confirmed: Sukru = Lead/R2, Onur = R1/ML, Gabriel = R3/platform and telemetry.
+## Completed technical validation
 
-## This branch
+- PCAP adapter and contracts: 21 unit tests, Ruff lint/format and synthetic smoke
+  pass on CachyOS Python 3.14.6. Hosted reference remains Python 3.14.7.
+- KAN-24/KAN-25: real A→B→C namespaces, no public route, ASSURED UDP state
+  before/during quarantine, sink stop, positive drops and release restore.
+  Container setup/teardown is idempotent; parent rules/routes remain unchanged.
+- KAN-36/KAN-37: digest-pinned Compose services, generated local credentials,
+  Mosquitto QoS1 pub/sub/auth/ACL checks, PostgreSQL query and Grafana HTTP/login.
+  Restart and repeated secret initialization preserve working credentials/state.
+  New platform implementation needs Gabriel's PR review.
+- Docker/WSL environment blockers from Windows are resolved on this Linux device.
 
-`feat/foundation-contracts`: draft contracts, deterministic stubs, safe local tests,
-CI definition, ownership fallback, original planning documents and developer setup.
-The full Jira backlog was populated and assigned at the user's request; see
-JIRA_PLAN.md. The subsequent R2 week-one work and existing foundation are now
-published for review in [draft PR #1](https://github.com/sicloid/OmniGuard-eAI/pull/1).
-Main is an empty review base; no application code has been merged.
+See [Linux evidence](LINUX_VALIDATION.md), [lab runbook](../lab/README.md),
+[platform runbook](../platform/README.md), and [team decision](G1_REVIEW.md).
+[WEEK_ONE_R2.md](WEEK_ONE_R2.md) is retained as the historical Windows snapshot.
 
 ## Remaining sequence
 
-1. G1/G2: team contract review, role assignment, complete environment lock,
-   model artifact compatibility implementation, feature catalog, dataset audit,
-   Linux lab isolation, platform Compose smoke test.
-2. G3–G5: same pure extractor for offline/live inputs, adapters, capture-aware
-   split, RF baseline, telemetry consumer, initial dashboards and measurements.
-3. G6–G8: R2 state machine/enforcement, conntrack regression, replay/leakage;
-   prove sink stop and release restore with the real model and no telemetry dependency.
-4. G10: real StateEvent → UDS → MQTT → PostgreSQL → Grafana.
-5. G11–G15: validation-only threshold experiments, N/FPR/leakage measurements,
-   separate ARM64 validation, results freeze and reproducible laptop fallback demo.
+1. R1: feature catalog/data audit, artifact compatibility, extractor and actual
+   capture-aware train/validation/test split; train RF and calibrate on validation.
+2. R2: live adapter, windows, detector interface, state machine, runtime
+   enforcement/release, replay/leakage and UDS bridge.
+3. R3: full dependency lock (KAN-10), telemetry adapter, migrations, MQTT consumer,
+   PostgreSQL datasource/dashboard and measurement harnesses.
+4. G5/G8: integrate actual traffic/extractor/RF/state/enforcement, prove sink stop
+   and release restore independently of telemetry. The lab probe is not this gate.
+5. G10: real StateEvent→UDS→MQTT→PostgreSQL→Grafana. Service health is not this gate.
+6. ARM64/Pi validation, experiments, results freeze and reproducible final demo.
 
-Acceptance still pending: G1 approval, model artifact compatibility, platform
-smoke, G5, G8, G10, G13 and G15. Synthetic fixtures do not satisfy these gates.
-
-## Local verification
-
-Editable package install succeeded in a fresh Python 3.14.7 virtual environment.
-Nine unit tests, Ruff lint/format and deterministic smoke passed on Windows.
-GitHub Actions workflow is defined, but no hosted CI run or Linux execution is
-claimed. ML and platform dependencies remain outside this foundation validation.
-
-The paragraph above records the initial foundation snapshot. For the subsequent
-PCAP adapter, Linux lab scripts and hosted CI evidence, see [WEEK_ONE_R2.md](WEEK_ONE_R2.md).
+Pi hardware, data/ML implementation and real integration gates remain separate
+work; none is claimed complete from synthetic fixtures or this x86_64 lab run.

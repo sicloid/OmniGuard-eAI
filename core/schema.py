@@ -5,7 +5,7 @@ from enum import StrEnum
 from ipaddress import ip_address
 from math import isfinite
 
-SCHEMA_VERSION = "0.1.0-draft"
+SCHEMA_VERSION = "0.1.0"
 
 
 class Direction(StrEnum):

@@ -1,5 +1,9 @@
 # Jira Kanban planı — 10 Eylül 2026
 
+Linux devamı: aşağıdaki ilk durum özeti Windows bootstrap anına aittir. Güncel
+çalışma ve kanıtlar: [STATUS.md](STATUS.md), [LINUX_VALIDATION.md](LINUX_VALIDATION.md).
+Onur artık GitHub @pondilungs ile ekipte; PR #1 birleştirildi.
+
 Kullanıcı isteğiyle KAN board üzerinde 6 epik, V2 kaynağındaki 54 görev, 1 yerel bootstrap görevi ve 1 şema uygulama alt görevi oluşturuldu. Toplam 62 kart. Tüm atamalar/epik ilişkileri/ana görev hedef tarihleri Jira'dan tekrar okunarak doğrulandı.
 
 Roller: Şükrü Lead/R2; Onur R1/ML; Gabriel R3/platform. G1=10 Eylül, G15=30 Eylül; hafta sonları hariç. Tarihler planlama hedefidir. Onur'un fiili başlangıcı gecikirse R1 hedefleri yeniden planlanır.

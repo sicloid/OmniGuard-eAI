@@ -119,6 +119,12 @@ class ContractTests(unittest.TestCase):
         with self.assertRaises(StopIteration):
             detector.predict(fake_features())
 
+    def test_frozen_wire_version_rejects_draft(self):
+        payload = fake_telemetry()[0]
+        self.assertEqual(payload.to_dict()["schema_version"], "0.1.0")
+        with self.assertRaises(ValueError):
+            replace(payload, schema_version="0.1.0-draft")
+
 
 if __name__ == "__main__":
     unittest.main()

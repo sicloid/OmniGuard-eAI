@@ -1,0 +1,75 @@
+name: omniguard
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0.22@sha256:212f89e1eaeb2c322d6441b64396e3346026674db8fa9c27beac293405c32b3c
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MQTT_PORT:-1883}:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto.acl:/mosquitto/config/acl:ro
+      - mqtt_data:/mosquitto/data
+    secrets:
+      - mqtt_password
+      - mqtt_password_file
+    healthcheck:
+      test: [CMD-SHELL, 'mosquitto_pub -h 127.0.0.1 -u omniguard -P "$$(cat /run/secrets/mqtt_password)" -t omniguard/health -m ok -q 1']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks: [telemetry, local_access]
+  postgres:
+    image: postgres:17.6-alpine@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: omniguard
+      POSTGRES_USER: omniguard
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets: [postgres_password]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U omniguard -d omniguard']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks: [telemetry]
+  grafana:
+    image: grafana/grafana:12.1.1@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    secrets: [grafana_password]
+    volumes:
+      - grafana_data:/var/lib/grafana
+    healthcheck:
+      test: [CMD-SHELL, 'wget -q -O - http://127.0.0.1:3000/api/health | grep -q ''"database": "ok"''']
+      interval: 5s
+      timeout: 3s
+      retries: 24
+    networks: [telemetry, local_access]
+networks:
+  telemetry:
+    internal: true
+  local_access: {}
+volumes:
+  mqtt_data:
+  postgres_data:
+  grafana_data:
+secrets:
+  mqtt_password:
+    file: ./.secrets/mqtt_password
+  mqtt_password_file:
+    file: ./.secrets/mqtt_password_file
+  postgres_password:
+    file: ./.secrets/postgres_password
+  grafana_password:
+    file: ./.secrets/grafana_password

@@ -5,6 +5,25 @@ fixed-device quarantine/release, and established UDP-flow smoke test.
 
 ## Dedicated Linux host commands
 
+CachyOS with Docker running, from the repository root:
+
+```sh
+bash lab/run_docker.sh
+```
+
+The validated runner creates a disposable container with `--network none`, adds
+NET_ADMIN/SYS_ADMIN capabilities and unconfines system paths for namespace-local
+sysctl writes. No host filesystem/socket/network/PID namespace is mounted.
+This is for the reviewed benign probes, not a sandbox for untrusted code.
+Logs/counters survive success or failure in `artifacts/linux-lab.*`; the runner
+removes its own container. Docker access is required; sudo is not.
+The base image digest is pinned; distro packages follow Bookworm updates and
+executed tool versions are printed in evidence.
+
+For direct dedicated CachyOS execution, equivalent packages are:
+`sudo pacman -S --needed iproute2 nftables conntrack-tools iputils util-linux python procps-ng`.
+The recorded run used Docker on CachyOS; the direct-host path is documented below.
+
 Requires root, Bash, iproute2, nftables, conntrack, iputils-ping, util-linux
 (flock), Python 3, procps (sysctl), coreutils, awk and grep. Debian/Ubuntu packages:
 
@@ -50,9 +69,12 @@ idempotent for an owned lab; teardown refuses namespaces with live processes and
 never kills unrelated processes. Stop captures/probes before cleanup. If a host
 crashes during setup, inspect any orphan namespaces manually; do not adopt them.
 
-## Current validation limit
+## Validation — 2026-09-10
 
-Windows unit tests and Bash syntax validation can run here. Real namespace/nftables
-execution requires the dedicated Linux host. This PC currently has no WSL distro,
-and Docker Desktop startup fails. Do not mark KAN-24/KAN-25 or G8 passed from static
-checks. Generic shared CI intentionally does not run privileged lab scripts.
+Real Linux container execution passed on CachyOS kernel 7.1.6: A→B→C ping,
+no default/public route, ASSURED UDP before/during quarantine, zero quarantine
+sink growth, positive drops, and release restore. Setup/teardown idempotence,
+namespace cleanup and unchanged parent rules/routes passed. The test now polls
+up to five seconds for UDP assurance. See [evidence](../docs/LINUX_VALIDATION.md).
+This is KAN-24/KAN-25 proof, not G8, general runtime enforcement, TCP/IPv6 coverage,
+throughput or a containment-leakage measurement.
