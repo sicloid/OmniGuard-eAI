@@ -83,5 +83,6 @@ bu saldırı yüzeyini görünür kılar, tek başına çözmez. Farklı tercihl
 - [ ] R3: envelope/topic migration, correlation/order, spool/DB dedup ve UI.
 - [ ] Lead: somut policy parametreleri ve minimum G8/G10 kabul matrisi.
 
-İmzalar bu doküman yazıldığı için doldurulmaz. Bu inceleme mevcut Jira kartlarını
-yeniden açmaz, yeni kart oluşturmaz veya takvim/assignee değiştirmez.
+İmzalar bu doküman yazıldığı için doldurulmaz. KAN-63 ekip incelemesini izler;
+mevcut kartlara önerilen kabul ölçütleri eklendi. Takvim ve sahipler korunur.
+Gabriel’in KAN-38 UDS/framing ADR’siyle birlikte kayıt/topic migration kararı alınır.

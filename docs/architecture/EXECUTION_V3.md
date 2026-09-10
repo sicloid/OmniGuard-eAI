@@ -1,6 +1,6 @@
 # V3 uygulama sırası ve rol haritası
 
-10 Eylül 2026. Bu plan bir mimari öneridir; Jira değişikliği yapılmadı ve aşağıdaki
+10 Eylül 2026. Bu plan bir mimari öneridir; Jira kabul maddeleri güncellendi (bkz. [kayıt](JIRA_SYNC_V3.md)); aşağıdaki
 kabul maddelerinin tamamlandığı iddia edilmez. Mevcut G1/G2 doğrulamaları korunur.
 Takvimden önce bağımlılık/kanıt sırası gelir; eski 15 iş günü hedefi garanti değildir.
 
@@ -8,7 +8,7 @@ Takvimden önce bağımlılık/kanıt sırası gelir; eski 15 iş günü hedefi 
 
 | Sıra | Sahip | Mevcut kartlar | V3 ile somutlaştırılan teslim |
 |---|---|---|---|
-| 0 | Lead + ekip | Yeni ADR incelemesi, henüz Jira kartı yok | ADR-0002 kayıt/timeout/health kararlarını incele; V2 kartlarını geçmiş onay olarak tut |
+| 0 | Lead + ekip | KAN-63: yeni ADR ekip incelemesi | ADR-0002 kayıt/timeout/health kararlarını incele; V2 kartlarını geçmiş onay olarak tut |
 | 1 | Onur + Şükrü | KAN-13/14/15 | PCAP görünürlüğü/yönü, device-label-time eşlemesi, parent capture grupları, feature catalog ve manifest |
 | 2 | Onur + Gabriel | KAN-9/10 | Artifact hash + environment check; deployment interpreter/architecture kilidi; güvenilir deserialization sınırı |
 | 3 | Onur | KAN-16/17/18 | Tek extractor, sabit grup split, leakage-free RF ve basit rate-rule karşılaştırması |
@@ -24,7 +24,8 @@ Takvimden önce bağımlılık/kanıt sırası gelir; eski 15 iş günü hedefi 
 
 Aynı sıra numaralı işler bağımsız ilerleyebilir. Rol başına bir büyük aktif iş;
 stub bir bileşenin bağımsız gelişmesini sağlar ama gate kanıtı olmaz.
-R3'ün KAN-36/KAN-37 kodu PR #2'de review aşamasında; tekrar yazılmaz.
+R3'ün KAN-36/KAN-37 kodu PR #2 ile birleşti; kartlar Tamamlandı. Gabriel'in
+sıradaki planı KAN-38 ve UDS/framing ADR'sidir; V3 kayıt önerileri bu incelemeyle koordine edilir.
 
 ## İlk uygulanacak küçük paket
 

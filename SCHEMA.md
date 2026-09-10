@@ -6,6 +6,10 @@ the supplied V2 planning documents and [ADR-0001](docs/adr/0001-foundation.md).
 The initial draft is promoted to `0.1.0` without changing fields or semantics.
 Consumers reject the former `0.1.0-draft` wire identifier; regenerate stub events.
 
+Approval provenance update: Gabriel explicitly accepted in his PR #2 review;
+Onur approval remains Lead-reported, with direct R1 evidence pending in KAN-63.
+See [G1 review](docs/G1_REVIEW.md). This does not approve proposed ADR-0002.
+
 All contracts are immutable Python dataclasses in `core/schema.py`. Constructors
 reject malformed required fields, invalid enums and nonfinite numeric values.
 They do not perform capture, inference, state policy, firewall or network I/O.

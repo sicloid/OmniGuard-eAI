@@ -26,7 +26,7 @@ V2 belgeleri ve kullanıcının son rol doğrulaması esas alınmıştır:
 
 ## Onaylanan kararlar
 
-1. UTC Unix zamanları, half-open epoch-aligned pencereler ve nullable port/MAC semantiği kabul mü?
+1. UTC Unix zamanları, half-open epoch-aligned pencereler ve nullable port/MAC semantiği kabul edildi.
 2. LOCAL cihaz kimliği gönderen LAN cihazıdır; INGRESS kimliği alıcı LAN cihazıdır.
 3. Eksik device mapping sessiz yeni kimlik üretmez: sayaçla filtrelenir. Bozuk/truncated IP hata verir.
 4. PCAP adapterı klasik PCAP destekler; PCAPNG açıkça reddedilir. IPv6 jumbogram yok.
@@ -37,10 +37,14 @@ V2 belgeleri ve kullanıcının son rol doğrulaması esas alınmıştır:
 
 | Rol | Karar | Tarih / kanıt |
 |---|---|---|
-| R1 Onur (@pondilungs) | Onaylandı | 2026-09-10, Şükrü'nün açık ekip onayı beyanı |
+| R1 Onur (@pondilungs) | Lead tarafından onay bildirildi; doğrudan R1 kaydı bekleniyor | 2026-09-10, Şükrü'nün açık ekip onayı beyanı; doğrudan kayıt takibi KAN-63 |
 | R2/Lead Şükrü (@sicloid) | Onaylandı | 2026-09-10, doğrudan kullanıcı onayı; PR #1 merge |
-| R3 Gabriel (@Gabi8347) | Onaylandı | 2026-09-10, Şükrü'nün açık ekip onayı beyanı |
+| R3 Gabriel (@Gabi8347) | Onaylandı (inceleme metninde açık kabul) | 2026-09-10, [PR #2 inceleme eki](https://github.com/user-attachments/files/32051716/pr2review.md); GitHub review durumu COMMENTED |
 
 KAN-7 için karar/onay kaydı tamamlandı. KAN-8 kapsamında ADR-0001 kabul edildi ve
 sözleşme sürümü alan/semantik değişmeden `0.1.0` olarak sabitlendi. Stub özellikleri
 gerçek özellik kataloğu değildir; model/telemetri uygulama görevleri ayrı kalır.
+
+Gabriel’in doğrudan incelemesi bu kaydın kaynağını düzeltir. Onur adına yeni bir
+onay üretilmez; önceki Lead beyanı korunur, doğrudan R1 kaydı KAN-63’te izlenir.
+KAN-7/KAN-8 geçmiş kapanışları ve wire 0.1.0 korunur. V3 için yeni ekip incelemesi gerekir.
