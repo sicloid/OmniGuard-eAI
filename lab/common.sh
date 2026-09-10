@@ -10,7 +10,7 @@ og_preflight() {
         command -v "$tool" >/dev/null || { echo "Missing: $tool" >&2; exit 2; }
     done
     [[ ! -L "$OG_STATE" ]] || { echo 'Unsafe state symlink' >&2; exit 2; }
-    mkdir -p -m 700 "$OG_STATE"
+    if [[ ! -d "$OG_STATE" ]]; then mkdir -m 700 "$OG_STATE"; fi
     [[ $(stat -c '%u:%a' "$OG_STATE") == 0:700 ]] || { echo 'Unsafe state owner/mode' >&2; exit 2; }
     [[ ! -L "$OG_STATE/lock" ]] || exit 2
     exec 9>"$OG_STATE/lock"

@@ -13,6 +13,22 @@ from core.schema import PacketTuple
 from sources.packets import PacketError, PacketNormalizer, UnsupportedLinkType
 
 
+class _BoundedCaptureStream:
+    """Reject absurd PCAP record lengths before allocation and detect short reads."""
+
+    def __init__(self, stream):
+        self.stream = stream
+        self.name = stream.name
+
+    def read(self, size):
+        if not 0 <= size <= 1_048_576:
+            raise ValueError("PCAP record exceeds 1 MiB safety bound")
+        data = self.stream.read(size)
+        if data and len(data) != size:
+            raise ValueError("truncated PCAP header/record")
+        return data
+
+
 def read_pcap(path: str | Path, normalizer: PacketNormalizer) -> Iterator[PacketTuple]:
     """Fail fast on malformed records; emit one canonical tuple per relevant IP packet.
 
@@ -23,7 +39,7 @@ def read_pcap(path: str | Path, normalizer: PacketNormalizer) -> Iterator[Packet
         if stream.read(4) == b"\x0a\x0d\x0d\x0a":
             raise ValueError("PCAPNG unsupported; convert to classic PCAP per interface")
         stream.seek(0)
-        capture = dpkt.pcap.Reader(stream)
+        capture = dpkt.pcap.Reader(_BoundedCaptureStream(stream))
         linktype = capture.datalink()
         if linktype not in (1, 12, 101, 113, 276):
             raise UnsupportedLinkType(f"unsupported linktype {linktype}")

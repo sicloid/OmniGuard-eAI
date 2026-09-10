@@ -153,6 +153,15 @@ class PcapTests(unittest.TestCase):
                 with self.assertRaises((ValueError, dpkt.UnpackError)):
                     list(read_pcap(path, self.normalizer()))
 
+    def test_reject_oversized_record_before_read_and_missing_padding(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "bad.pcap"
+            header = struct.pack("<IHHIIII", 0xA1B2C3D4, 2, 4, 0, 0, 65535, 1)
+            for length, frame in ((2**31, b""), (64, ethernet(ipv4()))):
+                path.write_bytes(header + struct.pack("<IIII", 0, 0, length, length) + frame)
+                with self.assertRaises(ValueError):
+                    list(read_pcap(path, self.normalizer()))
+
 
 if __name__ == "__main__":
     unittest.main()
