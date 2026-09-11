@@ -1,0 +1,21 @@
+# Resolved runtime and development dependencies for OmniGuard eAI.
+#
+# Install with hash verification, then the project itself without resolution:
+#   python -m pip install --require-hashes -r requirements.lock
+#   python -m pip install -e . --no-deps --no-build-isolation
+#
+# Regenerate: see docs/ENVIRONMENT.md. Interpreter is pinned in .python-version.
+# Hashes cover the platforms this team actually uses: Windows x86_64,
+# manylinux x86_64 and manylinux aarch64. Wheels for other platforms are not
+# listed because they are not validated here.
+
+setuptools==82.0.1 \
+    --hash=sha256:a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb
+
+dpkt==1.9.8 \
+    --hash=sha256:4da4d111d7bf67575b571f5c678c71bddd2d8a01a3d57d489faf0a92c748fbfd
+
+ruff==0.15.6 \
+    --hash=sha256:aee25bc84c2f1007ecb5037dff75cef00414fdf17c23f07dc13e577883dca406 \
+    --hash=sha256:98893c4c0aadc8e448cfa315bd0cc343a5323d740fe5f28ef8a3f9e21b381f7e \
+    --hash=sha256:13f4594b04e42cd24a41da653886b04d2ff87adbf57497ed4f728b0e8a4866f8

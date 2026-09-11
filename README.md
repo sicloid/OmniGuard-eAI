@@ -17,22 +17,27 @@ telemetry consumer and dashboards remain pending. G5/G8/G10 are **not passed**.
 
 ## Run locally
 
-Reference interpreter: Python 3.14.7. Windows PowerShell:
+Reference interpreter: Python 3.14.7, pinned in `.python-version`. Dependencies
+are hash-locked in [requirements.lock](requirements.lock); details and the
+regeneration procedure are in [environment notes](docs/ENVIRONMENT.md).
+Windows PowerShell:
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.\.venv\Scripts\python.exe -m pip install --require-hashes -r requirements.lock
+.\.venv\Scripts\python.exe -m pip install -e . --no-deps --no-build-isolation
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 .\.venv\Scripts\ruff.exe check .
 .\.venv\Scripts\ruff.exe format --check .
 .\.venv\Scripts\python.exe -m stubs
 ```
 
-Linux (Python 3.14.x; CachyOS verified with 3.14.6, CI reference 3.14.7):
+Linux (Python 3.14.7 or a newer 3.14.x; CI reference 3.14.7):
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install -e '.[dev]'
+.venv/bin/python -m pip install --require-hashes -r requirements.lock
+.venv/bin/python -m pip install -e . --no-deps --no-build-isolation
 .venv/bin/python -m unittest discover -s tests -v
 .venv/bin/ruff check .
 .venv/bin/ruff format --check .
