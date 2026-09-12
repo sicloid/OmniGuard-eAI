@@ -6,6 +6,8 @@ database evidence is a separate Compose run under KAN-50.
 
 import io
 import json
+import os
+import socket
 import tempfile
 import threading
 import time
@@ -52,6 +54,16 @@ from telemetry.publisher import (
     topic_for,
 )
 from telemetry.spool import JOURNAL_FILENAME, BoundedSpool, SpoolScope
+from telemetry.uds import (
+    HAS_PEER_CREDENTIALS,
+    HAS_UNIX_SOCKETS,
+    AdapterError,
+    DecodeError,
+    InvalidEvent,
+    PeerVerification,
+    UnixSocketAdapter,
+    decode_state_event,
+)
 
 PRODUCER = ProducerIdentity("gateway-01", "3f2b0c0e-0000-4000-8000-000000000001", 1_700_000_000.0)
 SCOPE = SpoolScope(PRODUCER.producer_id, PRODUCER.boot_id, PRODUCER.boot_started_at)
@@ -806,6 +818,244 @@ class HandoffTests(unittest.TestCase):
             self.assertEqual(publisher.counters.spooled, 1)
             self.assertEqual(publisher.counters.drained, 1)
             self.assertEqual(handoff.counters.processed, 2)
+
+
+class RecordingSink:
+    """Stands in for the handoff: records what the adapter offered it."""
+
+    def __init__(self, outcome=HandoffOutcome.ACCEPTED):
+        self.submitted: list[tuple[StateEvent, float]] = []
+        self.outcome = outcome
+
+    def submit(self, event, *, now):
+        self.submitted.append((event, now))
+        return self.outcome
+
+
+def an_event_document(**overrides) -> dict:
+    """The 0.1.0 StateEvent document the gateway puts on the wire."""
+    document = {
+        "device_id": "lan-device-07",
+        "expires_at": None,
+        "new_state": "QUARANTINED",
+        "previous_state": "NORMAL",
+        "reason": "policy_n_of_m",
+        "timestamp": 1_700_000_123.5,
+    }
+    document.update(overrides)
+    return document
+
+
+def framed(document: dict) -> bytes:
+    return encode_frame(canonical_bytes(document))
+
+
+class UnixSocketDecodeTests(unittest.TestCase):
+    """Nothing the gateway sends is trusted to be a 0.1.0 StateEvent."""
+
+    def test_a_well_formed_document_becomes_a_state_event(self):
+        event = decode_state_event(canonical_bytes(an_event_document()))
+        self.assertEqual(event.device_id, "lan-device-07")
+        self.assertIs(event.previous_state, DeviceState.NORMAL)
+        self.assertIs(event.new_state, DeviceState.QUARANTINED)
+
+    def test_a_body_that_is_not_utf8_json_is_refused(self):
+        for body in (b"\xff\xfe not utf8", b"{not json", b'"a string"', b"[]"):
+            with self.assertRaises(DecodeError):
+                decode_state_event(body)
+
+    def test_an_unknown_field_is_refused_rather_than_ignored(self):
+        document = an_event_document()
+        document["applied_state"] = "QUARANTINED"
+        with self.assertRaises(InvalidEvent):
+            decode_state_event(canonical_bytes(document))
+
+    def test_a_missing_field_is_refused(self):
+        document = an_event_document()
+        del document["reason"]
+        with self.assertRaises(InvalidEvent):
+            decode_state_event(canonical_bytes(document))
+
+    def test_values_the_contract_rejects_are_refused(self):
+        cases = (
+            {"new_state": "MELTDOWN"},
+            {"new_state": "NORMAL"},  # equal states are not a transition
+            {"device_id": ""},
+            {"timestamp": "yesterday"},
+            {"expires_at": 1.0},  # expiry before the timestamp
+        )
+        for overrides in cases:
+            with self.subTest(overrides=overrides), self.assertRaises(InvalidEvent):
+                decode_state_event(canonical_bytes(an_event_document(**overrides)))
+
+
+class UnixSocketStreamTests(unittest.TestCase):
+    """The stream half needs no socket, so it is proved on every platform."""
+
+    def adapter(self, sink, **kwargs):
+        kwargs.setdefault("require_peer_credentials", False)
+        return UnixSocketAdapter(Path("unused.sock"), sink, clock=lambda: 10.0, **kwargs)
+
+    def test_frames_reach_the_sink_in_order(self):
+        sink = RecordingSink()
+        adapter = self.adapter(sink)
+        stream = io.BytesIO(
+            framed(an_event_document()) + framed(an_event_document(timestamp=1_700_000_124.5))
+        )
+        adapter.serve_stream(stream)
+        self.assertEqual([now for _, now in sink.submitted], [10.0, 10.0])
+        self.assertEqual(
+            [event.timestamp for event, _ in sink.submitted],
+            [1_700_000_123.5, 1_700_000_124.5],
+        )
+        self.assertEqual(adapter.counters.accepted, 2)
+        self.assertEqual(adapter.counters.frames, 2)
+
+    def test_a_bad_document_is_refused_without_dropping_the_frames_behind_it(self):
+        sink = RecordingSink()
+        adapter = self.adapter(sink)
+        stream = io.BytesIO(
+            framed(an_event_document(new_state="MELTDOWN")) + framed(an_event_document())
+        )
+        adapter.serve_stream(stream)
+        self.assertEqual(len(sink.submitted), 1, "framing survived one bad message")
+        self.assertEqual(adapter.counters.invalid_events, 1)
+        self.assertEqual(adapter.counters.accepted, 1)
+
+    def test_an_oversized_declaration_ends_the_connection(self):
+        sink = RecordingSink()
+        adapter = self.adapter(sink)
+        header = (MAX_FRAME + 1).to_bytes(4, "big")
+        stream = CountingStream(header + b"x" * 4096 + framed(an_event_document()))
+        adapter.serve_stream(stream)
+        self.assertEqual(adapter.counters.oversized_frames, 1)
+        self.assertEqual(sink.submitted, [], "nothing after a lost boundary is guessed at")
+        self.assertEqual(stream.consumed, 4, "the oversized body was never read")
+
+    def test_a_truncated_frame_ends_the_connection(self):
+        sink = RecordingSink()
+        adapter = self.adapter(sink)
+        adapter.serve_stream(io.BytesIO(framed(an_event_document())[:-3]))
+        self.assertEqual(adapter.counters.incomplete_frames, 1)
+        self.assertEqual(sink.submitted, [])
+
+    def test_a_clean_end_of_stream_is_not_an_error(self):
+        sink = RecordingSink()
+        adapter = self.adapter(sink)
+        adapter.serve_stream(io.BytesIO(framed(an_event_document())))
+        counters = adapter.counters
+        self.assertEqual(counters.accepted, 1)
+        self.assertEqual((counters.oversized_frames, counters.incomplete_frames), (0, 0))
+
+    def test_a_refusing_sink_is_counted_at_this_boundary_too(self):
+        sink = RecordingSink(outcome=HandoffOutcome.OVERFLOWED)
+        adapter = self.adapter(sink)
+        adapter.serve_stream(io.BytesIO(framed(an_event_document())))
+        self.assertEqual(adapter.counters.refused_by_sink, 1)
+        self.assertEqual(adapter.counters.accepted, 0)
+
+    def test_the_adapter_reads_no_clock_of_its_own(self):
+        sink = RecordingSink()
+        ticks = iter([100.0, 200.0])
+        adapter = UnixSocketAdapter(
+            Path("unused.sock"),
+            sink,
+            clock=lambda: next(ticks),
+            require_peer_credentials=False,
+        )
+        adapter.serve_stream(io.BytesIO(framed(an_event_document()) + framed(an_event_document())))
+        self.assertEqual([now for _, now in sink.submitted], [100.0, 200.0])
+
+
+class UnixSocketPlatformTests(unittest.TestCase):
+    """The limits are asserted, so no run can be written up as more than it was."""
+
+    def test_requiring_peer_credentials_fails_loudly_where_they_do_not_exist(self):
+        if HAS_PEER_CREDENTIALS:
+            self.skipTest("this platform provides SO_PEERCRED")
+        with self.assertRaises(AdapterError):
+            UnixSocketAdapter(Path("unused.sock"), RecordingSink(), clock=lambda: 1.0)
+
+    def test_peer_verification_starts_unavailable_and_is_never_assumed(self):
+        adapter = UnixSocketAdapter(
+            Path("unused.sock"),
+            RecordingSink(),
+            clock=lambda: 1.0,
+            require_peer_credentials=False,
+        )
+        self.assertIs(adapter.counters.peer_verification, PeerVerification.UNAVAILABLE)
+
+    def test_binding_is_refused_where_this_python_has_no_unix_sockets(self):
+        if HAS_UNIX_SOCKETS:
+            self.skipTest("this Python exposes socket.AF_UNIX")
+        adapter = UnixSocketAdapter(
+            Path("unused.sock"),
+            RecordingSink(),
+            clock=lambda: 1.0,
+            require_peer_credentials=False,
+        )
+        with self.assertRaises(AdapterError):
+            adapter.bind()
+
+
+@unittest.skipUnless(HAS_UNIX_SOCKETS, "socket.AF_UNIX is unavailable on this Python")
+class UnixSocketServerTests(unittest.TestCase):
+    """Linux-only: binding, file mode and a real connection carrying real frames."""
+
+    def adapter(self, directory, sink):
+        return UnixSocketAdapter(
+            Path(directory) / "omniguard.sock",
+            sink,
+            clock=lambda: 10.0,
+            require_peer_credentials=HAS_PEER_CREDENTIALS,
+            timeout=5.0,
+        )
+
+    def test_the_socket_is_created_owner_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            sink = RecordingSink()
+            adapter = self.adapter(directory, sink)
+            adapter.bind()
+            try:
+                mode = adapter.path.stat().st_mode & 0o777
+                self.assertEqual(mode, 0o600, f"socket mode is {mode:o}")
+            finally:
+                adapter.close()
+
+    def test_an_existing_regular_file_is_never_removed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "omniguard.sock"
+            path.write_text("not a socket", encoding="utf-8")
+            adapter = UnixSocketAdapter(
+                path,
+                RecordingSink(),
+                clock=lambda: 1.0,
+                require_peer_credentials=HAS_PEER_CREDENTIALS,
+            )
+            with self.assertRaises(AdapterError):
+                adapter.bind()
+            self.assertEqual(path.read_text(encoding="utf-8"), "not a socket")
+
+    def test_a_real_connection_delivers_a_state_event(self):
+        with tempfile.TemporaryDirectory() as directory:
+            sink = RecordingSink()
+            adapter = self.adapter(directory, sink)
+            adapter.bind()
+            try:
+                served = threading.Thread(target=adapter.accept_once)
+                served.start()
+                client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                client.connect(os.fspath(adapter.path))
+                client.sendall(framed(an_event_document()))
+                client.close()
+                served.join(timeout=10.0)
+                self.assertFalse(served.is_alive())
+            finally:
+                adapter.close()
+            self.assertEqual(len(sink.submitted), 1)
+            self.assertEqual(sink.submitted[0][0].device_id, "lan-device-07")
+            self.assertEqual(adapter.counters.connections, 1)
+            self.assertIs(adapter.counters.peer_verification, PeerVerification.VERIFIED)
 
 
 if __name__ == "__main__":

@@ -44,11 +44,52 @@ kullanılır; iki yerde farklı kodlama kullanmak kimliği platforma bağımlı 
 - Eksik veya kısmi çerçeve hatadır. Yarım bir kayıt asla işlenmez.
 - Yazma timeout'ludur ve bloklamaz; timeout drop sayacına yazılır.
 - Socket dosyası `0600`, yalnız sahibine açık.
+- Socket `0600` olarak **umask ile yaratılır**. Önce bind edip sonra `chmod`
+  yapmak, socket'in kısa bir süre herkese açık kaldığı bir pencere bırakır.
+- Var olan yol bir socket değilse **silinmez**; adapter başlamayı reddeder.
+  Bayat bir socket dosyası kaldırılır, gerçek bir dosya asla.
 - **Peer credentials:** Linux'ta `SO_PEERCRED` ile uid/gid doğrulanır.
-  Windows `AF_UNIX` destekler ama `SO_PEERCRED` sağlamaz; bu kontrol geliştirme
-  makinesinde (Windows) çalıştırılamaz ve testi Linux'a işaretlidir. Bilinen
-  sınırlama olarak kayda geçer, "doğrulandı" diye raporlanmaz.
+  Windows'ta bu kontrol yapılamaz. **Düzeltme (12 Eylül 2026):** bu ADR daha
+  önce "Windows `AF_UNIX` destekler" diyordu. İşletim sistemi için doğru, ama
+  bizim yorumlayıcımız için değil: Windows üzerinde CPython `socket.AF_UNIX`
+  sembolünü hiç sunmuyor (3.14.7 üzerinde ölçüldü). Yani socket yarısı
+  geliştirme makinesinde **hiç çalıştırılamaz**, yalnız Linux'ta koşar.
+- Bu yüzden adapter ikiye ayrılmıştır: socket gerektirmeyen **stream yarısı**
+  (framing, decode, sink'e devir) her platformda test edilir; **socket yarısı**
+  (bind, izin, peer credentials) Linux'a işaretlidir ve orada atlanan test
+  "geçti" sayılmaz.
+- `peer_verification` alanı yalnız kimlik bilgileri gerçekten okunup
+  doğrulandığında `VERIFIED` olur; aksi halde `UNAVAILABLE`. `UNAVAILABLE`,
+  `VERIFIED`'ın hafif hâli değildir: peer hakkında hiçbir iddia kurulamaz.
+  `require_peer_credentials=True` iken platform destek vermiyorsa adapter
+  **sesli biçimde başlamayı reddeder**.
 - Docker lab ile socket görünürlüğü ayrı mount ve izin tasarımıdır; KAN-50 kapsamı.
+
+#### 2.1 UDS mesaj gövdesi
+
+Gövde, bölüm 1'deki canonical kodlamayla yazılmış bir **0.1.0 StateEvent
+dokümanıdır** ve yalnız şu alanları taşır: `device_id`, `previous_state`,
+`new_state`, `reason`, `timestamp`, `expires_at`.
+
+- `event_id`, `run_id`, producer/boot/sequence ve envelope **host tarafında**
+  atanır. Gateway'in gönderdiği hiçbir şey kimlik taşıdığı varsayımıyla
+  kullanılmaz.
+- **Bilinmeyen alan reddedilir, yok sayılmaz.** Fazladan bir anahtar,
+  producer'ın bu consumer'ın review edilmediği bir sözleşmeyi konuştuğu
+  anlamına gelir; sessizce atmak semantik değişikliğin fark edilmeden
+  girmesinin yoludur.
+- Eksik alan, tanınmayan enum değeri ve sözleşmeye uymayan değer de reddedilir.
+
+#### 2.2 İki hata sınıfı ayrı tutulur
+
+| Sınıf | Örnek | Davranış |
+|---|---|---|
+| **Framing** | Aşırı büyük uzunluk bildirimi, kesik gövde | Çerçeve sınırı kaybolmuştur; sonraki çerçevenin nerede başladığı bilinemez. **Bağlantı kapatılır.** Okumaya devam etmek tahmin yürütmek olur. |
+| **İçerik** | JSON olmayan gövde, geçersiz StateEvent | Framing sağlamdır. Çerçeve sayılır ve reddedilir, **bağlantı açık kalır**; bir producer'ın tek bozuk mesajı arkasındakileri düşürmek için gerekçe değildir. |
+
+Her reddin kendi sayacı vardır. Sink kuyruğu taşarsa bu da sınırda ayrıca
+sayılır: okumaya devam eden bir alıcı, bir şeyin teslim edildiğinin kanıtı
+değildir.
 
 ### 3. Producer kimliği ve sıralama
 
@@ -233,6 +274,39 @@ Kurallar:
 - Ne onaylanan ne de saklanabilen olay `dropped` olarak raporlanır ve sayaca
   yazılır. Kayıp, diğer tüm alanların boş olmasından **çıkarsanmaz**.
 
+#### 7.2 Gerçek transport ve bekleyen bağımlılık (R2 notu)
+
+**Kayda geçsin — 12 Eylül 2026.** KAN-38'in son eksiği gerçek StateEvent→MQTT
+teslim kanıtıdır ve bunun için bir MQTT istemcisi gerekir. Şu an depoda yok:
+`paho` kurulu değil, `requirements.lock` ve `requirements-ml.lock` içinde
+geçmiyor.
+
+**Lock'u R2 (Şükrü) üretir.** Kendi talebi üzerine buraya not düşülmüştür; R3
+lock dosyalarına dokunmaz (CODEOWNERS: `*` → `@sicloid`).
+
+Eklerken bilinmesi gerekenler:
+
+- Paket `requirements-ml.lock` içine girmelidir. CI yalnız o dosyayı kurar
+  (`pip install --require-hashes -r requirements-ml.lock`); `requirements.lock`
+  hiç kurulmuyor, dolayısıyla oraya eklenen bir bağımlılık CI'da **import
+  edilemez**.
+- Hash doğrulamalı olmalı, mevcut `--generate-hashes` düzeniyle uyumlu.
+
+Transport'un karşılaması gereken sözleşme bölüm 7.1'de tanımlıdır ve istemci
+seçimi bunu **yapabilir olmalıdır**; ölçüt budur:
+
+- İstemcinin yerel kuyruğa almayı başarıyla kabul etmesi `QUEUED` döndürür.
+  Yayın çağrısının hatasız dönmesi tek başına `ACKED` **değildir**.
+- `ACKED` yalnız o mesajın PUBACK'i alındıktan sonra döndürülür; istemci mesaj
+  kimliği (mid) bazında yayın onayını raporlayabilmelidir.
+- PUBACK bekleme worker thread'inde yapılır, producer'ın kritik yolunda asla;
+  sınır `telemetry/handoff.py`'dir.
+- İstemci mesajı kabul etmezse `TransportError` atılır ve publisher spool'lar.
+
+Bu bağımlılık gelene kadar yalnız enjekte edilebilir sahte transport vardır ve o
+**yalnız arıza davranışını** kanıtlar, teslimi değil. Hiçbir yerde teslim
+iddiası yoktur.
+
 ### 8. Consumer dedup ilkesi
 
 `event_id` üzerinde UNIQUE constraint ve `INSERT ... ON CONFLICT DO NOTHING`.
@@ -272,6 +346,14 @@ ikisini birden okur; biri sıfır diye kayıp yok denmez.
 3. Canonical serialization platformdan bağımsız olarak aynı baytları verir.
 4. `MAX_FRAME` aşımı gövde okunmadan reddedilir ve sayaç artar.
 5. Kısmi çerçeve hata verir; yarım kayıt işlenmez.
+5.1 Framing hatası bağlantıyı kapatır; içerik hatası kapatmaz ve arkadaki
+   çerçeveler işlenmeye devam eder.
+5.2 Bilinmeyen alan, eksik alan, tanınmayan enum ve sözleşme dışı değer
+   reddedilir ve kendi sayacına yazılır.
+5.3 Adapter kendi saatini okumaz; `clock` enjekte edilir ve test bunu doğrular.
+5.4 Linux'a işaretli: socket `0600` yaratılır, socket olmayan bir yol silinmez,
+   gerçek bir bağlantı üzerinden gelen çerçeve sink'e ulaşır ve
+   `peer_verification` `VERIFIED` olur. Atlanan test geçmiş sayılmaz.
 6. Spool byte ve age sınırında oldest-first eviction; drop sayısı, nedeni ve
    atılan sequence aralığı doğru kaydedilir.
 6.1 Eviction'ın üç sınırında enjekte edilmiş crash: journal yazıldı ama silinmedi,
