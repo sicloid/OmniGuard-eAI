@@ -21,12 +21,13 @@ Until the host is reachable, CICIoT2023 cannot be the primary source.
 
 ## IoT-23: audited, and EGRESS-dominant
 
-Five captures were downloaded (588 MB) with their Zeek label files.
+Six captures were downloaded (620 MB) with their Zeek label files.
 
 | Capture | IP packets | EGRESS | INGRESS | LOCAL | OUTSIDE | Span | LAN |
 |---|---|---|---|---|---|---|---|
 | CTU-Honeypot-Capture-4-1 (benign) | 16,921 | 13,194 | 3,341 | 386 | 0 | 21.9 h | 192.168.1.0/24 |
 | CTU-Honeypot-Capture-5-1 (benign) | 397,061 | 138,946 | 253,406 | 2,423 | 2,286 | 5.5 h | 192.168.2.0/24 |
+| CTU-Honeypot-Capture-7-1 (benign) | 110,624 | 51,350 | 59,162 | 112 | 0 | 2.6 h | 192.168.1.0/24 |
 | CTU-IoT-Malware-Capture-3-1 | 491,301 | 386,577 | 104,688 | 36 | 0 | 36.1 h | 192.168.2.0/24 |
 | CTU-IoT-Malware-Capture-8-1 | 16,677 | 14,513 | 2,162 | 2 | 0 | 24.0 h | 192.168.100.0/24 |
 | CTU-IoT-Malware-Capture-34-1 | 228,469 | 213,760 | 13,929 | 780 | 0 | 24.0 h | 192.168.1.0/24 |
@@ -71,12 +72,19 @@ Proposed window rule for KAN-14, to be frozen in the manifest: a 5-second device
 window is malicious when at least one of its packets belongs to a Malicious flow;
 windows mixing labels are counted and reported separately, never silently dropped.
 
-## Blocking gap for training
+## Group counts for the split
 
-`model/split.py` requires at least three independent groups per class. There are
-three malware captures but only one benign capture, so a split cannot be built yet.
-At least two more benign captures (CTU-Honeypot-Capture-4-1 and -7-1) are needed
-before KAN-17/KAN-18 run on real data.
+`model/split.py` requires at least three independent groups per class. That is now
+satisfied: three benign captures (4-1, 5-1, 7-1) and three malware captures (3-1,
+8-1, 34-1).
+
+Capture 7-1 ships as six `Somfy-0N` sub-folders recorded from the same device on
+different days. They are one parent capture, not six independent groups; splitting
+them apart would leak the same device across train and test. Only `Somfy-02` is
+used, and the manifest must record 7-1 as a single group.
+
+Three groups per class is the floor, not comfort: capture-level bootstrap intervals
+will be wide, and KAN-18 must report them rather than quote a point estimate.
 
 ## Recommendation to the team
 
@@ -92,11 +100,15 @@ before KAN-17/KAN-18 run on real data.
 ## Reproduction
 
 Captures live outside Git in `~/omniguard-data/iot23/<scenario>/`. Hashes:
+- `3fb775c0391b6ad313a3f7845e634a277b07c3f6377346c2486ba63e1c22e90c`  CTU-Honeypot-Capture-4-1/2018-10-25-14-06-32-192.168.1.132.pcap
 - `f6c2a4808a3fc3d7c01ae7656f1b341a1c7338bcd4d5a371f96280035efcbf79`  CTU-Honeypot-Capture-5-1/2018-09-21-capture.pcap
+- `2a32158374fce6635272ff8fc0ff39b88e1e759100a6384b9a2c8b14ad5dc7b6`  CTU-Honeypot-Capture-7-1/2019-07-03-16-41-09-192.168.1.158.pcap
 - `c674dc0c8d584fa66e6f00c60df973c5fbacad551c850a76d75ec9952641d00b`  CTU-IoT-Malware-Capture-3-1/2018-05-21_capture.pcap
 - `92ec7e2f6658ee4b007d0b816986c46cc0338bc5e2bec6ceaaca566c695e4699`  CTU-IoT-Malware-Capture-34-1/2018-12-21-15-50-14-192.168.1.195.pcap
 - `80dcc2602519479ddcde889fa902fee19a76696630811452f8df38888af894f2`  CTU-IoT-Malware-Capture-8-1/2018-07-31-15-15-09-192.168.100.113.pcap
+- `aebe40ea0e03b120265a5c7bc140dd9b0d3fe2fce65559e84776b7dd5360e71e`  CTU-Honeypot-Capture-4-1/conn.log.labeled
 - `f36db06e7d6ba7364e932a5b003f75835e004b320d70019e8a2f0ba8685d9262`  CTU-Honeypot-Capture-5-1/conn.log.labeled
+- `80c3fe2ae1062abf56456f52518bd670f9ec3917b7f85e152b347ac6b6faf880`  CTU-Honeypot-Capture-7-1/conn.log.labeled
 - `9851009bbca03e15089fa1a356dd4b5eee4a98161a51703626058a0b507f50d0`  CTU-IoT-Malware-Capture-3-1/conn.log.labeled
 - `d69e49b2aae8c1bd33286936531658202dec47d989f0439bad3f8be180467a6e`  CTU-IoT-Malware-Capture-34-1/conn.log.labeled
 - `4877ca8f0f01902fbd18d28b7d06cb3d0be082355b7f2c8862c9deef1782eb8a`  CTU-IoT-Malware-Capture-8-1/conn.log.labeled
