@@ -5,6 +5,12 @@ Real gateway events cross a Unix socket; do not add a lab Internet route.
 
 ## Transport contract
 
+`mqtt.PahoTransport` now provides a Paho 2.1.0 MQTT 3.1.1 worker transport with
+per-message PUBACK checking. Client authentication, bounded queues and network-loop
+lifecycle are explicit in `lab/telemetry_probe.py`; use the handoff on the producer
+path. Real broker and restart retry evidence is in
+[KAN38_MQTT_VALIDATION](../docs/KAN38_MQTT_VALIDATION.md). This is not DB/G10 evidence.
+
 [ADR-0003](../docs/adr/0003-telemetry-framing.md) defines framing, identity,
 topic, QoS, spool and ACK semantics. It is **PROPOSED**: the modules here follow
 it, but the contract is not team-approved. Nothing is added to the frozen `0.1.0`

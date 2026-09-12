@@ -263,11 +263,12 @@ class BoundedSpool:
         token = scope.token
         if self._scopes.get(token) == scope:
             return token
-        self._scopes[token] = scope
+        updated = {**self._scopes, token: scope}
         self._write_atomic(
             self._scopes_path,
-            canonical_bytes({key: asdict(value) for key, value in self._scopes.items()}),
+            canonical_bytes({key: asdict(value) for key, value in updated.items()}),
         )
+        self._scopes = updated
         return token
 
     def recover(self) -> bool:
@@ -279,6 +280,9 @@ class BoundedSpool:
         record = self._read_document(self._journal_path)
         if record is None:
             return False
+        # A worker survives an OSError: its in-memory counter may have advanced
+        # even though persistence failed. Disk state governs journal replay.
+        self._counters = self._load_counters()
         applied = False
         try:
             eviction_id = int(record["eviction_id"])
@@ -336,6 +340,7 @@ class BoundedSpool:
         An entry larger than the whole budget is rejected instead of being stored
         and immediately evicting every older entry to make room for itself.
         """
+        self.recover()
         if type(sequence) is not int or sequence < 1:
             raise SpoolError("sequence must be a positive integer")
         if not isinstance(body, bytes | bytearray) or not body:
@@ -360,6 +365,7 @@ class BoundedSpool:
 
     def enforce(self, *, now: float) -> None:
         """Apply the age bound first, then the byte bound, oldest entry first."""
+        self.recover()
         for entry in self.pending():
             if now - entry.enqueued > self._max_age:
                 self._evict(entry, "age")

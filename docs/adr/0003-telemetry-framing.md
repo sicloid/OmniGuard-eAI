@@ -288,6 +288,16 @@ Kurallar:
 
 #### 7.2 Gerçek transport ve bekleyen bağımlılık (R2 notu)
 
+**12 Eylül R2 uygulama güncellemesi:** aşağıdaki bekleyen bağımlılık notu
+tarihseldir. `paho-mqtt==2.1.0` hem core hem ML input/hash lock'a eklendi.
+`telemetry.mqtt.PahoTransport` worker tarafında mesajın `MQTTMessageInfo`
+tamamlanmasını bekler; yalnız gerçek PUBACK `ACKED`, timeout `QUEUED` olur.
+MQTT 3.1.1, QoS1 ve retain=false zorunludur. Client sahibi authentication,
+bounded queue ve network-loop yaşam döngüsünü kurar; örnek `lab/telemetry_probe.py`.
+Gerçek Linux Mosquitto teslim, disconnect/spool ve aynı bayt/kimlikle retry
+doğrulandı: [kanıt](../KAN38_MQTT_VALIDATION.md). DB/G10 bundan ayrı kalır.
+Bu kanıt ADR'nin R1 ekip onayını otomatik olarak sağlamaz; PROPOSED korunur.
+
 **Kayda geçsin — 12 Eylül 2026.** KAN-38'in son eksiği gerçek StateEvent→MQTT
 teslim kanıtıdır ve bunun için bir MQTT istemcisi gerekir. Şu an depoda yok:
 `paho` kurulu değil, `requirements.lock` ve `requirements-ml.lock` içinde
