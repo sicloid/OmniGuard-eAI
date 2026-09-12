@@ -93,10 +93,11 @@ raporlanır. "Exactly once" iddia edilmez.
 
 ### 5. MQTT topic, QoS ve retain
 
-- Topic: **`omniguard/state/v1/<device_id>`**
-- `v1` topic sürümüdür. ADR-0002'nin yeni kayıt türleri onaylanırsa kendi
-  topic'lerini alır (`omniguard/enforcement/v1/...`); mevcut state topic'i
-  değişmez ve eski consumer bozulmaz.
+- Topic: **`omniguard/state/v2/<device_id>`**
+- `v2` topic sürümüdür ve bölüm 5.1'deki sarmalayıcı envelope'u taşır.
+  **`omniguard/state/v1/` olduğu yerde durur**; anlamı değişmez, eski consumer
+  bozulmaz. ADR-0002'nin yeni kayıt türleri onaylanırsa kendi topic'lerini alır
+  (`omniguard/enforcement/v1/...`).
 - `device_id` karakter kuralı: `[A-Za-z0-9._-]{1,64}`. `/`, `+`, `#` ve boşluk
   yasaktır; topic yapısını veya wildcard semantiğini bozarlar. Uymayan
   `device_id` **publish edilmez**, hata sayacı artar ve olay spool'a alınmaz.
@@ -104,6 +105,52 @@ raporlanır. "Exactly once" iddia edilmez.
   retain edilmiş bir StateEvent yeni abonelere bayat durumu gerçekmiş gibi
   gösterirdi.
 - Mevcut ACL (`topic readwrite omniguard/#`) bu şemayı zaten kapsar ve değişmez.
+
+#### 5.1 Sarmalayıcı taşıma envelope'u
+
+`event_id` bir UUID5'tir: retry'da sabit kalır, ama **opaktır**. Consumer ondan
+producer, boot veya sequence bilgisini geri çıkaramaz. Yalnız 0.1.0
+`TelemetryPayload` yayınlandığında ADR-0002'nin "eski event yeni durumu geri
+alamaz" kuralı uygulanamaz, çünkü wire'da hangi olayın daha eski olduğunu söyleyen
+hiçbir şey yoktur.
+
+Çözüm 0.1.0'a alan eklemek **değildir**. ADR-0002 bunu açıkça yasaklıyor ve
+şunu öneriyor: *"event türü başına ayrı versioned envelope/topic; eski state
+topic'i korunur."* Uygulanan tam olarak budur:
+
+```json
+{
+  "envelope_version": "1",
+  "producer": {"producer_id": "...", "boot_id": "...", "boot_started_at": 0.0},
+  "sequence": 7,
+  "payload": { ... 0.1.0 TelemetryPayload, harfi harfine ... }
+}
+```
+
+- `payload` **aynen** nested edilir; 0.1.0 genişletilmez, tek bir alanı değişmez.
+- Envelope kendi sürümünü taşır ve `v2` topic'ine gider. Bilinmeyen
+  `envelope_version` **reddedilir**; tahmin edilerek okunmaz.
+- Eksik alan da reddedilir. Bir consumer'ın review edilmediği bir sözleşmeyi
+  sessizce yanlış okuması böyle başlar.
+
+#### 5.2 Sıralama ve UTC saat politikası
+
+Sıralama anahtarı: **`(boot_started_at, boot_id, sequence)`**.
+
+- `sequence` her boot'ta 1'e döndüğü için tek başına boot'lar arası
+  karşılaştırılamaz; `boot_started_at` öne geçer. ADR-0002: *"Sequence aynı
+  producer boot/run kapsamında sıralanır; restart sonrasında eski sıra yeni
+  boot'a karıştırılmaz."*
+- `boot_id` **eşit** `boot_started_at` taşıyan iki boot'u ayırır. Bu, sıralamayı
+  total ve her consumer'da aynı yapar; hangi boot'un gerçekten önce başladığına
+  dair bir **iddia değildir**.
+- `boot_started_at` bir UTC duvar saatidir ve o saatin zayıflıklarını miras alır.
+  Aynı producer için daha önce görülmüş bir boot'tan **küçük veya eşit** başlangıç
+  zamanı sunan yeni bir boot, saat geri gitmesi, kaba saat veya geri yüklenmiş
+  yedek demektir. `BootLedger` bunu `UNORDERED` olarak **raporlar**; olgu diye
+  geçiştirmez. Bu durumda ne yapılacağı KAN-40 kararıdır.
+- Sıralama kapsamı boot'tur, `run_id` değil: `run_id` bir ölçüm kapsamıdır,
+  süreç ömrü değil. `run_id` payload içinde aynen taşınmaya devam eder.
 
 ### 6. Sınırlı spool
 
@@ -113,6 +160,38 @@ raporlanır. "Exactly once" iddia edilmez.
   yarım kayıt bırakmaz.
 - Kalıcı sayaçlar: düşen olay sayısı, düşme nedeni (bytes veya age) ve **atılan
   sequence aralığı**. Sayaçlar süreç yeniden başlasa da korunur.
+
+#### 6.1 Eviction bir transaction'dır
+
+Silme ile kaybın kaydı **ayrılamaz**. Önce silip sonra sayaç yazmak, ikisi
+arasındaki bir crash'te hem olayı hem olayın kanıtını yok eder; dizin "bekleyen
+yok, kayıp yok" diye okunur. Bu, kaybı ölçmesi gereken G10 için sessiz bir
+başarı raporudur.
+
+Sıra:
+
+1. **Journal**: eviction niyeti (`eviction_id`, dosya adı, neden, scope, sequence,
+   boyut) kalıcı olarak yazılır.
+2. Entry silinir.
+3. Sayaçlar uygulanır ve kalıcı yazılır (`last_applied_eviction = eviction_id`).
+4. Journal silinir.
+
+Dizin her açıldığında journal okunur ve yarım kalan iş tamamlanır. `eviction_id`
+zaten `last_applied_eviction`'a eşit veya ondan küçükse iş bitmiştir; replay
+**idempotent**'tir, çift saymaz.
+
+`os.replace` artı dosya `fsync`'i kullanılır; Linux'ta dizin girdisi de
+`fsync`lenir. Windows'ta dizin handle'ı yoktur, orada garanti dosya bazındadır.
+Dayanıklılık iddiası Linux lab host'unda ölçülür.
+
+#### 6.2 Kayıp kimliği boot'a bağlıdır
+
+`sequence` her boot'ta 1'e döndüğü için, tek başına bir sequence aralığı hangi
+boot'a ait olduğu bilinmeden **anlamsızdır**. Her entry bu yüzden bir scope
+token'ı taşır (producer_id + boot_id digest'i), `scopes.json` token'ı üreten
+kimliğe geri çevirir ve kayıp **scope başına** raporlanır. Token, entry ona
+referans vermeden önce kalıcı yazılır; aksi halde crash sonrası atılan bir
+entry'nin üreticisi adlandırılamaz.
 - Bu sayaçlar G10 completeness sonucuna doğrudan girer. Eksik kayıt "kayıp yok"
   diye sunulmaz; yeniden bağlanmak kaybın olmadığı anlamına gelmez.
 - **Enforcement asla beklemez.** Kuyruk veya spool doluysa olay düşer ve sayaç
@@ -131,11 +210,60 @@ raporlanır. "Exactly once" iddia edilmez.
 Broker ACK'i veritabanı kaydını **garanti etmez**. G10 completeness ölçümü
 `db_commit` üzerinden yapılır; `broker_ack` yalnız teslim yolunu gözlemlemek içindir.
 
+#### 7.1 Transport sözleşmesi
+
+`broker_ack` üretilebilmesi için transport'un ne onayladığını **açıkça** söylemesi
+gerekir. `Transport.publish` bu yüzden `None` değil, bir `Acknowledgement` döndürür:
+
+| Değer | Anlamı | `broker_ack` |
+|---|---|---|
+| `QUEUED` | İstemci baytları aldı; broker henüz cevap vermedi. | `false` |
+| `ACKED` | Bu mesaj için PUBACK alındı (QoS1). | `true` |
+
+Kurallar:
+
+- Dönüş değeri `Acknowledgement` değilse `TransportContractError` atılır. Eksik
+  dönüş değeri teslim sayılmaz; bu bir bağlama hatasıdır, runtime arızası değil.
+- `QUEUED` durumunda spool kaydı **silinmez** ve `drain` o kaydı bırakmaz. Yerel
+  kuyruk, mesajın bu host'tan çıktığının kanıtı değildir.
+- Bunun ürettiği tekrar QoS1'in beklenen davranışıdır ve bölüm 8'deki `event_id`
+  dedup'ı tarafından temizlenir. Yeniden gönderilen baytlar değişmediği için
+  kimlik de değişmez.
+- PUBACK beklemek **worker'ın işidir**; producer'ın kritik yolunda beklenmez.
+- Ne onaylanan ne de saklanabilen olay `dropped` olarak raporlanır ve sayaca
+  yazılır. Kayıp, diğer tüm alanların boş olmasından **çıkarsanmaz**.
+
 ### 8. Consumer dedup ilkesi
 
 `event_id` üzerinde UNIQUE constraint ve `INSERT ... ON CONFLICT DO NOTHING`.
 Çakışma bir hata değil, QoS1'in beklenen davranışıdır; sayaçla raporlanır.
 Şema ve migration detayı KAN-39, consumer uygulaması KAN-40 kapsamındadır.
+
+### 9. Kritik yol izolasyonu
+
+ADR-0002'nin "telemetry loss cannot block enforcement or release" değişmezi
+**yapısal** olarak uygulanır, dokümanla değil.
+
+`TelemetryPublisher` transport'a ve dosya sistemine konuşur; ikisi de takılabilir.
+Bu yüzden publisher **worker tarafı koddur ve bloklamama sözü vermez**. Sınır
+`telemetry/handoff.py` içindeki `TelemetryHandoff`'tadır:
+
+- Producer yalnız `submit()` çağırır: sınırlı ve bloklamayan bir `put_nowait`,
+  bir sayaç güncellemesi, dönüş. Producer thread'inde **ne broker ne disk** işi
+  yapılır.
+- Transport ve spool kuyruğun öbür tarafındaki worker'a aittir.
+- Kuyruk **bilinçli olarak sınırlıdır**. Sınırsız kuyruk, broker kesintisini
+  sınırsız bellek büyümesine çevirir; host'u daha yavaş kaybetmenin yoludur.
+  Kuyruk doluyken olay sınırda düşer ve `OVERFLOWED` döner: kayıp gecikme olarak
+  gizlenmez, sonuç olarak raporlanır.
+- Worker hiçbir telemetri hatasını dışarı sızdırmaz. Takılmış transport yalnız
+  worker'ı tutar; publisher'dan gelen istisna (disk hataları dahil) `worker_failures`
+  ve `last_failure` olarak kaydedilir, worker çalışmaya devam eder.
+- `stop()` takılmış bir worker'ı durduramadığında **False döner**. Temiz durduğu
+  iddia edilmez.
+
+Sayaç sınırı: overflow handoff'ta, eviction spool'da sayılır. G10 completeness
+ikisini birden okur; biri sıfır diye kayıp yok denmez.
 
 ## KAN-38 kapsamında test edilecekler
 
@@ -146,11 +274,37 @@ Broker ACK'i veritabanı kaydını **garanti etmez**. G10 completeness ölçüm�
 5. Kısmi çerçeve hata verir; yarım kayıt işlenmez.
 6. Spool byte ve age sınırında oldest-first eviction; drop sayısı, nedeni ve
    atılan sequence aralığı doğru kaydedilir.
-7. Spool yazımı öncesi crash yeniden teslimde duplicate üretir. Bu testin amacı
-   sınırı **belgelemektir**; geçmesi sorunun çözüldüğü anlamına gelmez.
+6.1 Eviction'ın üç sınırında enjekte edilmiş crash: journal yazıldı ama silinmedi,
+   silindi ama sayaç yazılmadı, sayaç yazıldı ama journal temizlenmedi. Üçünde de
+   dizin yeniden açıldığında kayıp **kayıtlıdır** ve replay çift saymaz.
+6.2 İki farklı boot'un kaybı ayrı ayrı raporlanır; sequence aralığı boot'suz
+   sunulmaz.
+7. Spool yazımı öncesi **enjekte edilmiş** crash: dizin yeniden açıldığında kayıt
+   yok ve kayıp sayaca da yazılmamıştır; yeniden başlayan producer aynı olayı
+   farklı kimlikle üretir. Bu testin amacı sınırı **belgelemektir**; geçmesi
+   sorunun çözüldüğü anlamına gelmez. Fault enjekte etmeyen bir test bu maddeyi
+   karşılamaz.
+7.1 0.1.0 payload envelope içinde **harfi harfine** taşınır; tek alanı değişmez.
+7.2 Bilinmeyen `envelope_version` ve eksik alan reddedilir.
+7.3 Sıralama **serialize edildikten sonra ve restart sonrasında** doğrulanır:
+   wire'dan okunan envelope'lar karıştırılıp sıralandığında eski boot'un
+   sequence 2'si yeni boot'un sequence 1'inden önce gelir.
+7.4 Eşit `boot_started_at` deterministik olarak ayrılır; saat geri gitmesi ve
+   eşit zaman `UNORDERED` olarak raporlanır.
 8. Kural dışı `device_id` publish edilmez.
 9. Broker kapalıyken publish enforcement yolunu bloklamaz.
-10. Yukarıdakiler enjekte edilebilir sahte transport ile koşar. Gerçek broker ve
+9.1 Transport çağrısı içinde takılıyken `submit()` **anında** döner; kuyruk dolunca
+   `OVERFLOWED` verir ve sayaç artar.
+9.2 Yazmaları başarısız olan disk worker'ın içinde kalır: `submit()` istisna
+   atmaz, hata `worker_failures`/`last_failure` olarak görünür. Aynı publisher
+   doğrudan çağrıldığında istisnanın çağırana ulaştığı da test edilir; sınırın
+   nerede olduğu böylece belgelenir.
+9.3 Durdurulmuş handoff'a gönderim `REFUSED` döner, sessizce düşmez.
+10. Yalnız kuyruğa alan transport (`QUEUED`) teslim sayılmaz: `broker_ack` false
+    kalır, spool kaydı durur ve `drain` onu bırakmaz.
+11. `Acknowledgement` döndürmeyen transport `TransportContractError` verir.
+12. Ne onaylanan ne saklanabilen olay `dropped` olarak raporlanır.
+13. Yukarıdakiler enjekte edilebilir sahte transport ile koşar. Gerçek broker ve
     veritabanı teslim kanıtı ayrıdır, KAN-50'de Compose üzerinde alınır; unit
     test onun yerine geçmez.
 
