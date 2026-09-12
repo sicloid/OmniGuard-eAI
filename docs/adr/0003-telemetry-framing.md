@@ -48,7 +48,19 @@ kullanılır; iki yerde farklı kodlama kullanmak kimliği platforma bağımlı 
   yapmak, socket'in kısa bir süre herkese açık kaldığı bir pencere bırakır.
 - Var olan yol bir socket değilse **silinmez**; adapter başlamayı reddeder.
   Bayat bir socket dosyası kaldırılır, gerçek bir dosya asla.
-- **Peer credentials:** Linux'ta `SO_PEERCRED` ile uid/gid doğrulanır.
+- **Peer credentials yalnız Linux'ta vardır.** Platform matrisi hosted CI'da
+  ölçüldü (12 Eylül 2026):
+
+  | Platform | `AF_UNIX` | `SO_PEERCRED` | Sonuç |
+  |---|---|---|---|
+  | Linux | var | var | Socket bağlanır, peer doğrulanır, `VERIFIED` |
+  | macOS | var | **yok** | Socket bağlanır, peer **tanımlanamaz**, `UNAVAILABLE` |
+  | Windows | **yok** | yok | Socket hiç bağlanamaz |
+
+  macOS `LOCAL_PEERCRED`/`getpeereid` kullanır; `SO_PEERCRED` sunmaz. Yani
+  bağlantı hizmet görürken peer kimliksiz kalır. Bu bilinçli olarak
+  raporlanır: **yalnız Linux koşusu peer-verified diye yazılabilir.**
+- Linux'ta `SO_PEERCRED` ile uid/gid doğrulanır.
   Windows'ta bu kontrol yapılamaz. **Düzeltme (12 Eylül 2026):** bu ADR daha
   önce "Windows `AF_UNIX` destekler" diyordu. İşletim sistemi için doğru, ama
   bizim yorumlayıcımız için değil: Windows üzerinde CPython `socket.AF_UNIX`

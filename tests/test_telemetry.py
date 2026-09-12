@@ -1055,7 +1055,13 @@ class UnixSocketServerTests(unittest.TestCase):
             self.assertEqual(len(sink.submitted), 1)
             self.assertEqual(sink.submitted[0][0].device_id, "lan-device-07")
             self.assertEqual(adapter.counters.connections, 1)
-            self.assertIs(adapter.counters.peer_verification, PeerVerification.VERIFIED)
+            if HAS_PEER_CREDENTIALS:
+                self.assertIs(adapter.counters.peer_verification, PeerVerification.VERIFIED)
+            else:
+                # macOS has AF_UNIX but no SO_PEERCRED, so a connection can be
+                # served while the peer stays unidentified. Saying so is the
+                # point: only Linux may report this run as peer-verified.
+                self.assertIs(adapter.counters.peer_verification, PeerVerification.UNAVAILABLE)
 
 
 if __name__ == "__main__":
