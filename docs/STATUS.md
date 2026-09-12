@@ -35,7 +35,7 @@ is recorded in [KAN-28 validation](KAN28_VALIDATION.md).
 | KAN-15/16 | İncelemede | Catalogue audit/freeze and actual capture-health-window-feature parity |
 | KAN-17 | İncelemede | Real sample-pack parent identity and disjointness evidence |
 | KAN-18/19 | İncelemede | Real audited data/model/metrics, agreed validation budget and policy freeze |
-| KAN-28 | İncelemede | Implementation complete; focused integration PR awaits team review |
+| KAN-28 | İncelemede | PR #18 has packet-driven integration; safe idle progress, stale/gap handoff and lifecycle health tests remain; no team review yet |
 | KAN-63 | Tamamlandı | R1/R3 design review accepted; requested fixes merged. Concrete wire work remains in KAN-38 |
 
 PR merge is not evidence that these missing data or integration criteria passed.
@@ -46,9 +46,9 @@ follow-ups described in [the resolution record](architecture/REVIEW_RESOLUTION_2
 
 1. R1: audit available PCAP direction/labels/provenance; resolve the dataset ADR
    before training if the candidate attacks are LOCAL rather than EGRESS.
-2. R2: connect the completed capture/window/extractor path to the real model;
-   then implement KAN-30 N policy, bounded enforcement, restart/release and leakage
-   measurements.
+2. R2: finish KAN-28 safe idle progress, stale/gap handoff and lifecycle loss
+   propagation, then connect the real model and implement KAN-30 N policy,
+   bounded enforcement, restart/release and leakage measurements.
 3. R3: KAN-38 UDS/framing ADR; build 0.1.0 DB/consumer/dashboard first with
    migrations, provisioning, dedup/recovery and explicit decision semantics.
 4. G5/G8: real audited model and independent sink stop/restore, including faults

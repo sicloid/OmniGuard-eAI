@@ -47,3 +47,13 @@ oracle. The existing overflow phase continued to reject detected socket loss.
 The local raw evidence is under `artifacts/live-capture.11f8hcYX/` and is ignored by
 Git. This run proves the x86_64 Linux integration path; it does not claim ARM64/Pi,
 trained-model performance, N policy, enforcement, or G5/G8/G10 completion.
+
+## Follow-up review correction
+
+PR #18 remains incomplete and has no team review. The evidence above measures
+packet-driven closure, not safe idle closure. Repeated `None` reads leave a pending
+window open; a much later packet can return an old vector without stale eligibility
+information. Idle/stale/gap handling and startup/shutdown health propagation require
+additional implementation and tests. Raw capture overflow and a mocked pipeline
+exception do not by themselves prove end-to-end loss propagation. See the
+[reproduction and remaining acceptance](https://github.com/sicloid/OmniGuard-eAI/pull/18#issuecomment-5646848250).

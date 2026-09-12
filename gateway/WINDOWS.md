@@ -76,8 +76,10 @@ the first completed window must contain the first three packets, produce `pkt_co
 and `l3_bytes_sum=180`, and report zero socket drops. The existing overflow oracle
 continues to prove that detected capture loss fails explicitly.
 
-This completes KAN-28's bounded per-device window and extractor integration without
-adding a wire contract. An idle wall-clock sample is deliberately not presented as
-a capture watermark. Gap-aware N state and policy reset belong to KAN-30; versioned
-ObservationHealth records belong to the accepted architecture's follow-up contract
-work. Neither changes the correctness of KAN-28's packet-driven windows.
+This implements packet-driven window/extractor composition without a wire change.
+It does not complete KAN-28's live idle/stale acceptance: after a packet at 101 and
+only idle reads, a packet at 1000 can still return the old [100,105) vector without
+a stale indication. Safe source-supported idle progress, explicit stale/gap handoff,
+startup partial-window handling and shutdown loss propagation need implementation
+and fault evidence. The current lab oracle closes using another packet; it does not
+prove idle closure. N policy itself remains KAN-30.
