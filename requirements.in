@@ -2,4 +2,5 @@
 pip==26.2.1
 setuptools==82.0.1
 dpkt==1.9.8
+paho-mqtt==2.1.0
 ruff==0.15.6
