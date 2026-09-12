@@ -1,6 +1,7 @@
 # Development status — 2026-09-12
 
-PRs #4–#15 are merged after review, targeted corrections and verification.
+PRs #4–#15, #19 and #20 are merged after review and verification. PR #18
+remains a review candidate; #21 is blocked by uncommitted sample-pack source files.
 G1 is approved; Onur's direct PR #4 acceptance is in [G1_REVIEW](G1_REVIEW.md).
 The five runtime contracts remain `0.1.0`. ADR-0002 remains **PROPOSED** until
 KAN-38's concrete framing/topic/envelope decisions are reviewed.
@@ -17,7 +18,8 @@ KAN-38's concrete framing/topic/envelope decisions are reviewed.
 - Windows binary secret writes; healthy Mosquitto/PostgreSQL/Grafana services.
 - Core/ML hash locks including pip and macOS; project Python upgraded to 3.14.7.
 
-Final combined runtime suite: **141 tests, no skips**, Python 3.14.7; Ruff lint and
+Combined PR #18 candidate suite: **224 tests, two platform-absence skips**,
+Python 3.14.7; Ruff lint and
 format pass. Hosted Linux/Windows/macOS and platform checks passed on reviewed
 heads. Real Linux capture/replay and service smoke passed again. Details:
 [review closeout](REVIEW_CLOSEOUT_2026-09-12.md). The KAN-28 integration evidence
@@ -36,6 +38,9 @@ is recorded in [KAN-28 validation](KAN28_VALIDATION.md).
 | KAN-17 | İncelemede | Real sample-pack parent identity and disjointness evidence |
 | KAN-18/19 | İncelemede | Real audited data/model/metrics, agreed validation budget and policy freeze |
 | KAN-28 | İncelemede | PR #18 now includes guarded idle progress, stale/gap diagnostics and lifecycle tests; idle-only Docker and loss propagation passed; team review pending |
+| KAN-13 | İncelemede | Audit component PR #20 merged; primary-dataset change remains explicitly unapproved |
+| KAN-14 | İncelemede | PR #21 lacks builder/labels/runner source; ignore rule fixed, owner must push files |
+| KAN-38 | İncelemede | PR #19 merged; real MQTT PUBACK/subscriber/retry passed; remaining ADR-0003 team review is not assumed |
 | KAN-63 | Tamamlandı | R1/R3 design review accepted; requested fixes merged. Concrete wire work remains in KAN-38 |
 
 PR merge is not evidence that these missing data or integration criteria passed.
@@ -49,7 +54,7 @@ follow-ups described in [the resolution record](architecture/REVIEW_RESOLUTION_2
 2. R2: finish KAN-28 safe idle progress, stale/gap handoff and lifecycle loss
    propagation, then connect the real model and implement KAN-30 N policy,
    bounded enforcement, restart/release and leakage measurements.
-3. R3: KAN-38 UDS/framing ADR; build 0.1.0 DB/consumer/dashboard first with
+3. R3: finish ADR-0003 team review; build 0.1.0 DB/consumer/dashboard first with
    migrations, provisioning, dedup/recovery and explicit decision semantics.
 4. G5/G8: real audited model and independent sink stop/restore, including faults
    and benign service impact. Synthetic RF tests are not research results.
@@ -60,3 +65,8 @@ follow-ups described in [the resolution record](architecture/REVIEW_RESOLUTION_2
 **G5/G8/G10 are not passed.** Earlier [Linux](LINUX_VALIDATION.md),
 [live](LIVE_VALIDATION.md), [replay](REPLAY_VALIDATION.md) and
 [Windows](WEEK_ONE_R2.md) records remain dated historical evidence.
+
+Main at 446b240 passed 212 tests with two platform-absence skips. PR #19's real
+broker evidence is in [KAN38_MQTT_VALIDATION](KAN38_MQTT_VALIDATION.md). The
+IoT-23 primary-source recommendation was explicitly left unapproved by Şükrü;
+merging the audit is not a dataset switch. No actual RF/result freeze is claimed.
