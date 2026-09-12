@@ -67,3 +67,16 @@ tüm ekip platformlarını ve seçilen ML bağımlılıklarını kapsayan temiz 
 kanıtı olmadan tam ortam kilidi olarak kapatılmaz. G5/G8/G10 açık kalır.
 
 Son uygulama/kanıt durumu: [12 Eylül kapanış kaydı](../REVIEW_CLOSEOUT_2026-09-12.md).
+
+## PR #4 approval interpretation correction
+
+KAN-63 is complete as an architecture review. Gabriel explicitly accepted the
+design direction and said clarifications/enhancements should not block PR #4;
+his concrete Windows-command request has been implemented. Onur also accepted
+the design review. Keeping KAN-63 open for the detailed KAN-38 contract was an
+overly broad interpretation and is corrected. The GitHub review type is COMMENTED;
+the acceptance evidence is the review text, not an invented APPROVED vote.
+
+KAN-38 retains detailed framing/topic/ACK/envelope review. ADR-0002 remains
+PROPOSED for new wire contracts; closing a completed design review does not
+claim implementation, new wire approval or G8/G10 evidence.
