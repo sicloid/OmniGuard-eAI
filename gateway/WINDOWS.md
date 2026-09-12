@@ -9,18 +9,23 @@ buffer result, not a new wire envelope or proof of healthy capture.
 ## Integration
 
 Use ordered UTC event time in both PCAP and live paths. Start at an aligned
-boundary; explicitly discard the capture's initial partial interval. For each
-packet, **process returned closed windows before adding the packet**:
+boundary; explicitly discard the capture's initial partial interval. The runtime
+composition uses the same pure extractor as the offline path:
 
 ```python
-from gateway.windows import TumblingWindows
+from gateway.pipeline import WindowFeaturePipeline
 
-windows = TumblingWindows(start=0)  # real runs use their aligned UTC start
-for packet in ordered_packets:
-    for closed in windows.advance(packet.timestamp):
-        consume_packet_window(closed)  # future R1 extractor integration
-    windows.add(packet)
+pipeline = WindowFeaturePipeline(start=0)  # real runs use their aligned UTC start
+while running:
+    for vector in pipeline.capture_once(capture):
+        consume_feature_vector(vector)
 ```
+
+`capture_once` advances on an actual packet's ordered kernel UTC timestamp before
+buffering that packet. Capture exceptions invalidate and discard the entire active
+interval. A timeout or filtered frame returns no vector and does not advance time.
+Call `pipeline.advance(watermark)` only for a separately established trusted
+event-time watermark.
 
 On live idle ticks, call `advance` only when the capture path guarantees all earlier
 packets have been delivered or reports its loss. A wall-clock reading alone is
@@ -43,10 +48,12 @@ Closed output is owned by the caller, which must also bound its output queue.
 - Late/out-of-order packets, backward watermark and invalid clock values are errors.
 - Capacity overflow raises WindowCapacityError and discards the entire active
   interval, including other devices; no truncated feature input escapes.
-- Capture errors/drops must call `invalidate(reason)`. Continuing to add during
-  that interval raises WindowError. Advancing to the next interval permits recovery.
+- `WindowFeaturePipeline.capture_once` automatically invalidates on capture errors.
+  Direct users of `TumblingWindows` must call `invalidate(reason)` themselves.
+  Continuing to add during that interval raises WindowError. Advancing to the next
+  interval permits recovery.
 - The caller must record errors/invalid_reason before recovery clears the reason.
-  This is local diagnostics; versioned ObservationHealth remains KAN-63 review work.
+  This is local diagnostics; versioned ObservationHealth remains follow-up contract work.
 - A late packet cannot amend already returned windows. The runtime must record
   the late event and invalidate policy evidence rather than claiming complete capture.
 - Adding a next-interval packet without advancing raises a usage error without
@@ -55,14 +62,22 @@ Closed output is owned by the caller, which must also bound its output queue.
 Only active buffers are retained: device churn across intervals does not grow
 an identity/history dictionary. Empty intervals do not create model inputs.
 
-## Evidence and remaining integration
+## Evidence and scope
 
 Ten tests cover exact boundaries, per-device partition, long gaps, incomplete EOF,
 explicit loss/recovery, all three capacity bounds, backward/late input, closed
 history, equal timestamps/directions and invalid clock/configuration inputs.
-Run `.venv/bin/python -m unittest discover -s tests -p test_windows.py -v`.
+Four pipeline tests cover capture/extractor parity, idle/non-EGRESS behavior,
+capture-failure invalidation/recovery and independent device vectors.
 
-This implements the KAN-28 buffering/boundary component. Live watermark/health
-integration needs KAN-27 and the reviewed KAN-63 record design; N-reset belongs to
-KAN-30. Real extractor parity and G8 require the R1 implementation. These are not
-claimed complete by the buffer tests. Owner review is required before closure.
+`bash lab/run_live_docker.sh` adds a real AF_PACKET → PacketTuple → window →
+FeatureVector check in an isolated namespace. Four packets cross an epoch boundary;
+the first completed window must contain the first three packets, produce `pkt_count=3`
+and `l3_bytes_sum=180`, and report zero socket drops. The existing overflow oracle
+continues to prove that detected capture loss fails explicitly.
+
+This completes KAN-28's bounded per-device window and extractor integration without
+adding a wire contract. An idle wall-clock sample is deliberately not presented as
+a capture watermark. Gap-aware N state and policy reset belong to KAN-30; versioned
+ObservationHealth records belong to the accepted architecture's follow-up contract
+work. Neither changes the correctness of KAN-28's packet-driven windows.

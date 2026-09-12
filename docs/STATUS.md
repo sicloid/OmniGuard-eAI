@@ -7,7 +7,8 @@ KAN-38's concrete framing/topic/envelope decisions are reviewed.
 
 ## Implemented and verified
 
-- PCAP/live normalization, loss rejection and bounded per-device windows.
+- PCAP/live normalization, loss rejection and bounded per-device windows connected
+  to the shared pure extractor.
 - Checked model-independent detector boundary; no inference failure becomes NORMAL.
 - Pure 14-feature EGRESS extractor and deterministic parent-group split machinery.
 - Artifact loading checks both model and metadata pins before deserialization;
@@ -16,10 +17,11 @@ KAN-38's concrete framing/topic/envelope decisions are reviewed.
 - Windows binary secret writes; healthy Mosquitto/PostgreSQL/Grafana services.
 - Core/ML hash locks including pip and macOS; project Python upgraded to 3.14.7.
 
-Final combined runtime suite: **129 tests, no skips**, Python 3.14.7; Ruff lint and
+Final combined runtime suite: **133 tests, no skips**, Python 3.14.7; Ruff lint and
 format pass. Hosted Linux/Windows/macOS and platform checks passed on reviewed
 heads. Real Linux capture/replay and service smoke passed again. Details:
-[review closeout](REVIEW_CLOSEOUT_2026-09-12.md).
+[review closeout](REVIEW_CLOSEOUT_2026-09-12.md). The KAN-28 integration evidence
+is recorded in [KAN-28 validation](KAN28_VALIDATION.md).
 
 ## Jira completion versus implementation
 
@@ -33,7 +35,7 @@ heads. Real Linux capture/replay and service smoke passed again. Details:
 | KAN-15/16 | İncelemede | Catalogue audit/freeze and actual capture-health-window-feature parity |
 | KAN-17 | İncelemede | Real sample-pack parent identity and disjointness evidence |
 | KAN-18/19 | İncelemede | Real audited data/model/metrics, agreed validation budget and policy freeze |
-| KAN-28 | İncelemede | Live idle-watermark/drop health and N-reset integration |
+| KAN-28 | İncelemede | Implementation complete; focused integration PR awaits team review |
 | KAN-63 | Tamamlandı | R1/R3 design review accepted; requested fixes merged. Concrete wire work remains in KAN-38 |
 
 PR merge is not evidence that these missing data or integration criteria passed.
@@ -44,8 +46,9 @@ follow-ups described in [the resolution record](architecture/REVIEW_RESOLUTION_2
 
 1. R1: audit available PCAP direction/labels/provenance; resolve the dataset ADR
    before training if the candidate attacks are LOCAL rather than EGRESS.
-2. R2: integrate capture health/watermarks, windows and real extractor/model;
-   then N policy, bounded enforcement, restart/release and leakage measurements.
+2. R2: connect the completed capture/window/extractor path to the real model;
+   then implement KAN-30 N policy, bounded enforcement, restart/release and leakage
+   measurements.
 3. R3: KAN-38 UDS/framing ADR; build 0.1.0 DB/consumer/dashboard first with
    migrations, provisioning, dedup/recovery and explicit decision semantics.
 4. G5/G8: real audited model and independent sink stop/restore, including faults
