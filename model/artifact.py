@@ -43,6 +43,10 @@ class ArtifactIntegrityError(ArtifactError):
     """Artifact files are missing or are not the pinned bytes."""
 
 
+class ArtifactLoadError(ArtifactError):
+    """A verified artifact could not be deserialized; no model is available."""
+
+
 @dataclass(frozen=True)
 class RuntimeEnvironment:
     python_version: str
@@ -199,8 +203,8 @@ def check_compatibility(
 def _read(path: Path) -> bytes:
     try:
         return path.read_bytes()
-    except FileNotFoundError as exc:
-        raise ArtifactIntegrityError(f"missing artifact file {path.name}") from exc
+    except OSError as exc:
+        raise ArtifactIntegrityError(f"cannot read artifact file {path.name}") from exc
 
 
 def build_metadata(
@@ -256,6 +260,7 @@ def load_model(
     artifact_dir: Path,
     *,
     expected_model_sha256: str,
+    expected_metadata_sha256: str,
     env: RuntimeEnvironment | None = None,
     feature_schema_version: str | None = None,
     feature_order: tuple[str, ...] | None = None,
@@ -263,14 +268,19 @@ def load_model(
 ) -> LoadedArtifact:
     """Load a pinned artifact, deserializing only bytes whose hash was just verified.
 
-    `expected_model_sha256` is the trust anchor and must come from deployment
-    configuration, not from the metadata file stored next to the model. The model is
-    read once into memory, so the verified bytes are exactly the bytes unpickled.
+    Both expected hashes must come from trusted deployment configuration, not be
+    recomputed from untrusted files at load time. The metadata hash binds threshold,
+    feature order, environment and model identity to that trust anchor. Both files
+    are read once; the verified bytes are the bytes parsed/deserialized.
     """
     _sha256(expected_model_sha256, "expected_model_sha256")
+    _sha256(expected_metadata_sha256, "expected_metadata_sha256")
     artifact_dir = Path(artifact_dir)
+    meta_bytes = _read(artifact_dir / META_FILENAME)
+    if hashlib.sha256(meta_bytes).hexdigest() != expected_metadata_sha256:
+        raise ArtifactIntegrityError("metadata bytes do not match the pinned SHA-256")
     try:
-        meta_text = _read(artifact_dir / META_FILENAME).decode("utf-8")
+        meta_text = meta_bytes.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise ArtifactFormatError("metadata is not UTF-8") from exc
     meta = parse_metadata(meta_text)
@@ -285,4 +295,8 @@ def load_model(
     data = _read(artifact_dir / MODEL_FILENAME)
     if hashlib.sha256(data).hexdigest() != expected_model_sha256:
         raise ArtifactIntegrityError("model bytes do not match the pinned SHA-256")
-    return LoadedArtifact(meta, deserialize(io.BytesIO(data)))
+    try:
+        model = deserialize(io.BytesIO(data))
+    except Exception as exc:
+        raise ArtifactLoadError("verified model could not be deserialized") from exc
+    return LoadedArtifact(meta, model)

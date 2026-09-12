@@ -23,11 +23,12 @@ a directory holding `model.joblib` and `model.meta.json`:
 | `training_manifest_sha256` | SHA-256 of the training/split manifest (KAN-17) |
 | `python_version`, `sklearn_version`, `numpy_version` | producing environment |
 
-`load_model(dir, expected_model_sha256=...)` fails fast, in this order, and
+`load_model(dir, expected_model_sha256=..., expected_metadata_sha256=...)` fails fast, in this order, and
 deserializes nothing unless every step passes:
 
 1. strict JSON: exact field set, no duplicate keys, no NaN/Infinity, typed values;
-2. the metadata hash equals the hash pinned by deployment configuration;
+2. SHA-256 of the exact metadata bytes equals the trusted deployment metadata pin;
+   the model hash declared inside the metadata also equals the deployment model pin;
 3. runtime compatibility: schema, window, Python major.minor, exact scikit-learn
    and numpy (scikit-learn only supports unpickling with the saving version), and
    optionally the extractor's feature version/order;
@@ -37,7 +38,10 @@ deserializes nothing unless every step passes:
 All failures raise an `ArtifactError` subclass. Callers must treat that as "no
 model", never as a NORMAL decision. Hashing does not make a pickle safe: load only
 artifacts produced locally by this team, and pin the hash outside the artifact
-directory. Call `load_model` only from a process without capture, firewall or
+directory. Both model and metadata pins must be recorded during trusted artifact
+publication. Never calculate the expected metadata hash from the candidate file at
+load time: that would let changed thresholds or feature order bypass the check.
+Call `load_model` only from a process without capture, firewall or
 other elevated privileges; that isolation belongs to runtime orchestration. `build_metadata` + `write_metadata` are the producer side for KAN-18.
 
 scikit-learn, numpy and joblib are not yet project dependencies (KAN-10 pins

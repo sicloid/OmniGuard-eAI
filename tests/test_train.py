@@ -1,3 +1,4 @@
+import hashlib
 import importlib.util
 import random
 import tempfile
@@ -92,6 +93,9 @@ class RandomForestBaselineTests(unittest.TestCase):
             loaded = load_model(
                 Path(tmp),
                 expected_model_sha256=meta.model_sha256,
+                expected_metadata_sha256=hashlib.sha256(
+                    (Path(tmp) / "model.meta.json").read_bytes()
+                ).hexdigest(),
                 feature_schema_version=FEATURE_SCHEMA_VERSION,
                 feature_order=FEATURE_ORDER,
             )

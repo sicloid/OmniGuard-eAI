@@ -13,6 +13,7 @@ from model.artifact import (
     ArtifactCompatibilityError,
     ArtifactFormatError,
     ArtifactIntegrityError,
+    ArtifactLoadError,
     ArtifactMetadata,
     RuntimeEnvironment,
     build_metadata,
@@ -137,6 +138,7 @@ class LoadModelTests(unittest.TestCase):
         self.dir = Path(self._tmp.name)
         (self.dir / MODEL_FILENAME).write_bytes(MODEL_BYTES)
         write_metadata(metadata(), self.dir)
+        self.metadata_sha = hashlib.sha256((self.dir / META_FILENAME).read_bytes()).hexdigest()
         self.calls = []
 
     def deserialize(self, stream):
@@ -145,7 +147,12 @@ class LoadModelTests(unittest.TestCase):
         return {"model": data}
 
     def load(self, **kwargs):
-        options = {"expected_model_sha256": MODEL_SHA, "env": ENV, "deserialize": self.deserialize}
+        options = {
+            "expected_model_sha256": MODEL_SHA,
+            "expected_metadata_sha256": self.metadata_sha,
+            "env": ENV,
+            "deserialize": self.deserialize,
+        }
         return load_model(self.dir, **options | kwargs)
 
     def test_loads_verified_bytes_after_all_checks(self):
@@ -159,6 +166,29 @@ class LoadModelTests(unittest.TestCase):
         with self.assertRaises(ArtifactIntegrityError):
             self.load()
         self.assertEqual(self.calls, [])
+
+    def test_metadata_tampering_is_rejected_before_deserialization(self):
+        for changes in ({"threshold": 0.01}, {"feature_order": tuple(reversed(ORDER))}):
+            with self.subTest(changes=changes):
+                write_metadata(metadata(**changes), self.dir)
+                with self.assertRaises(ArtifactIntegrityError):
+                    self.load()
+                self.assertEqual(self.calls, [])
+
+    def test_bad_metadata_pin_is_rejected(self):
+        with self.assertRaises(ArtifactFormatError):
+            self.load(expected_metadata_sha256="invalid")
+        self.assertEqual(self.calls, [])
+
+    def test_deserialization_failure_stays_in_the_artifact_error_boundary(self):
+        problem = RuntimeError("broken trusted artifact")
+
+        def broken(stream):
+            raise problem
+
+        with self.assertRaises(ArtifactLoadError) as caught:
+            self.load(deserialize=broken)
+        self.assertIs(caught.exception.__cause__, problem)
 
     def test_metadata_for_another_artifact_is_rejected(self):
         with self.assertRaises(ArtifactIntegrityError):
