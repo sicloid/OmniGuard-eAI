@@ -14,6 +14,13 @@ and never converts inference failure into NORMAL. Seven targeted tests pass;
 real artifact loading, training, scheduling and policy remain separate work.
 Owner review is required before Jira closure. See the gateway README.
 
+## KAN-27 live adapter follow-up
+
+Linux LAN ingress capture shares PacketNormalizer with PCAP and fails on socket
+loss/truncation/timestamp faults. Isolated capture/drop/release and overflow
+evidence: [LIVE_VALIDATION.md](LIVE_VALIDATION.md). Runtime health/window
+integration remains separate.
+
 ## Completed technical validation
 
 - PCAP adapter and contracts: 21 unit tests, Ruff lint/format and synthetic smoke

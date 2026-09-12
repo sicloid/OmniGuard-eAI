@@ -1,7 +1,8 @@
 # R2 — Şükrü
 
 Implemented: `sources.from_pcap.read_pcap` and shared `PacketNormalizer`.
-Live capture remains KAN-27; feature extraction remains Onur's KAN-16.
+KAN-27 live adapter: see [LIVE.md](LIVE.md) for Linux capture, loss semantics and
+isolated validation. Feature extraction remains Onur's KAN-16.
 
 ```sh
 python -m sources.from_pcap capture.pcap --lan 10.203.1.0/24 --devices devices.json
