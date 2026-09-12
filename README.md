@@ -6,6 +6,14 @@ nftables/conntrack, and self-hosted Mosquitto → PostgreSQL → Grafana telemet
 No managed cloud service is required. Raspberry Pi 5 is a later shared integration
 and ARM64 validation target; laptop development remains possible.
 
+## Architecture and contributor context
+
+Read the [V3 architecture](ARCHITECTURE.md), [2026 review](docs/architecture/REVIEW_2026.md),
+[execution map](docs/architecture/EXECUTION_V3.md), and [AI context](AI_SYSTEM_PROMPT.md).
+V3 separates observation health, policy decisions, application evidence and bounded
+release. These additions are proposals; the approved runtime contracts remain 0.1.0.
+Original V2 planning files are retained as historical sources.
+
 ## Current implementation
 
 G1 contracts are team-approved and frozen as `0.1.0`; PR #1 is merged.

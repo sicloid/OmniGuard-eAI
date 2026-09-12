@@ -1,5 +1,9 @@
 # OmniGuard eAI — Roller ve Görevler Seçim Tablosu v2
 
+> Tarihsel V2 kaynak belgesi. Güncel yönerge: [AI_SYSTEM_PROMPT](../../AI_SYSTEM_PROMPT.md);
+> hedef tasarım: [ARCHITECTURE](../../ARCHITECTURE.md); uygulanan durum: [STATUS](../STATUS.md).
+> Aşağıdaki özgün plan/checklist tamamlanma veya yeni ekip onayı kanıtı değildir.
+
 Bu doküman ekip üyelerinin teknik rolünü **kendilerinin seçebilmesi** için hazırlanmıştır.
 
 Her üye:

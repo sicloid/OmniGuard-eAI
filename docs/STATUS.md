@@ -39,7 +39,9 @@ containment; owner review and dataset preparation remain separate.
 - KAN-36/KAN-37: digest-pinned Compose services, generated local credentials,
   Mosquitto QoS1 pub/sub/auth/ACL checks, PostgreSQL query and Grafana HTTP/login.
   Restart and repeated secret initialization preserve working credentials/state.
-  New platform implementation needs Gabriel's PR review.
+  Gabriel explicitly accepted the platform in his PR #2 review (GitHub COMMENTED);
+  PR #2 is merged and KAN-36/KAN-37 are Done. Direct R1 contract evidence is
+  tracked in KAN-63; the earlier Lead-reported approval remains historical.
 - Docker/WSL environment blockers from Windows are resolved on this Linux device.
 
 See [Linux evidence](LINUX_VALIDATION.md), [lab runbook](../lab/README.md),
@@ -61,3 +63,14 @@ See [Linux evidence](LINUX_VALIDATION.md), [lab runbook](../lab/README.md),
 
 Pi hardware, data/ML implementation and real integration gates remain separate
 work; none is claimed complete from synthetic fixtures or this x86_64 lab run.
+
+## V3 architecture review (documentation only)
+
+The follow-up [2026 review](architecture/REVIEW_2026.md) and [target architecture](../ARCHITECTURE.md)
+add a proposed design for observation health, bounded lease/application evidence,
+and user-disruption metrics. [ADR-0002](adr/0002-bounded-containment.md) remains PROPOSED;
+runtime schema and service configuration remain unchanged. V3 acceptance additions
+are now synchronized to Jira; KAN-63 tracks team review, not implementation.
+See [Jira sync](architecture/JIRA_SYNC_V3.md). The original V2 documents remain historical sources.
+The platform smoke now rejects optimized Python (-O), preventing assertions from
+being skipped and a false PASS. G8/G10 remain unpassed.
