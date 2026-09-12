@@ -16,16 +16,22 @@ composition uses the same pure extractor as the offline path:
 from gateway.pipeline import WindowFeaturePipeline
 
 pipeline = WindowFeaturePipeline(start=0)  # real runs use their aligned UTC start
-while running:
-    for vector in pipeline.capture_once(capture):
-        consume_feature_vector(vector)
+try:
+    while running:
+        vectors = pipeline.capture_once(capture)
+        observe_continuity(pipeline.status, pipeline.reset_generation)
+        for vector in vectors:
+            consume_feature_vector(vector)
+finally:
+    pipeline.close_capture(capture)
 ```
 
 `capture_once` advances on an actual packet's ordered kernel UTC timestamp before
 buffering that packet. Capture exceptions invalidate and discard the entire active
-interval. A timeout or filtered frame returns no vector and does not advance time.
-Call `pipeline.advance(watermark)` only for a separately established trusted
-event-time watermark.
+interval. `LiveCapture.read_progress` supplies idle progress only after a real
+socket timeout and successful loss/clock checks. Filtered frames and legacy
+`read()` returning None do not advance time. Call `pipeline.advance(watermark)`
+only for separately established event-time progress.
 
 On live idle ticks, call `advance` only when the capture path guarantees all earlier
 packets have been delivered or reports its loss. A wall-clock reading alone is
@@ -67,19 +73,33 @@ an identity/history dictionary. Empty intervals do not create model inputs.
 Ten tests cover exact boundaries, per-device partition, long gaps, incomplete EOF,
 explicit loss/recovery, all three capacity bounds, backward/late input, closed
 history, equal timestamps/directions and invalid clock/configuration inputs.
-Four pipeline tests cover capture/extractor parity, idle/non-EGRESS behavior,
-capture-failure invalidation/recovery and independent device vectors.
+Pipeline tests cover capture/extractor parity, idle/non-EGRESS behavior,
+capture-failure invalidation/recovery, stale windows, startup, shutdown and devices.
 
 `bash lab/run_live_docker.sh` adds a real AF_PACKET → PacketTuple → window →
-FeatureVector check in an isolated namespace. Four packets cross an epoch boundary;
-the first completed window must contain the first three packets, produce `pkt_count=3`
-and `l3_bytes_sum=180`, and report zero socket drops. The existing overflow oracle
-continues to prove that detected capture loss fails explicitly.
+FeatureVector check in an isolated namespace. Three packets are followed by silence;
+the completed window must produce `pkt_count=3` and `l3_bytes_sum=180` with zero
+socket drops. The overflow oracle now also verifies pipeline invalidation.
 
-This implements packet-driven window/extractor composition without a wire change.
-It does not complete KAN-28's live idle/stale acceptance: after a packet at 101 and
-only idle reads, a packet at 1000 can still return the old [100,105) vector without
-a stale indication. Safe source-supported idle progress, explicit stale/gap handoff,
-startup partial-window handling and shutdown loss propagation need implementation
-and fault evidence. The current lab oracle closes using another packet; it does not
-prove idle closure. N policy itself remains KAN-30.
+## Idle, freshness and policy handoff
+
+The updated oracle sends only three packets and then stays silent. Socket timeout
+progress closes the window without a fourth packet. The progress cutoff is sampled
+before recvmsg and reduced by 100 ms; queued frames are consumed before an idle
+cutoff is emitted. UTC/monotonic offset drift exceeding 100 ms or clock sampling
+uncertainty above 10 ms fails the capture session. These conservative operational
+bounds are not tuned model thresholds. Kernel timestamp ordering remains required;
+late timestamps fail the session. NIC/upstream loss remains outside socket evidence.
+Live packets older than one second or over 100 ms in the future are rejected.
+
+The pipeline rejects windows closed more than `max_lateness` (default one second)
+after their end. It skips packets preceding the configured aligned start only
+during startup; subsequent late packets remain errors. On exit, callers use
+`close_capture(capture)` to check final losses and discard partial EOF.
+
+`status` and `reset_generation` are local diagnostics, not a new wire envelope.
+The generation increases on invalid, stale and empty evidence; KAN-30 must observe
+it even when no feature is returned and reset all affected streaks. Per-device gaps
+must also be detected from consecutive FeatureVector window starts (a different
+device's activity does not prove this device was observed). No unbounded device
+history or output queue is added here. The N policy implementation remains KAN-30.

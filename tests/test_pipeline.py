@@ -36,6 +36,47 @@ class Capture:
 
 
 class PipelineTests(unittest.TestCase):
+    def test_old_window_never_emits_after_long_gap(self):
+        pipeline = WindowFeaturePipeline(100)
+        pipeline.ingest(packet(101))
+        self.assertEqual(pipeline.ingest(packet(1000)), ())
+        self.assertEqual(pipeline.status, "stale")
+        self.assertGreater(pipeline.reset_generation, 0)
+        self.assertEqual(len(pipeline.advance(1005)), 1)
+
+    def test_initial_partial_packets_are_discarded(self):
+        pipeline = WindowFeaturePipeline(105)
+        self.assertEqual(pipeline.ingest(packet(104)), ())
+        self.assertEqual(pipeline.buffered_packets, 0)
+        pipeline.ingest(packet(105))
+        self.assertEqual(pipeline.advance(110)[0].values[0], 1)
+
+    def test_explicit_idle_progress_closes_then_reports_empty(self):
+        class Progress:
+            def read_progress(self, timeout):
+                return None, 105
+
+        pipeline = WindowFeaturePipeline(100)
+        pipeline.ingest(packet(101))
+        self.assertEqual(len(pipeline.capture_once(Progress())), 1)
+        self.assertEqual(pipeline.advance(110), ())
+        self.assertEqual(pipeline.status, "empty")
+        self.assertEqual(pipeline.reset_generation, 1)
+
+    def test_shutdown_loss_discards_pending_and_propagates(self):
+        class BrokenClose:
+            def close(self):
+                raise OSError("final drops")
+
+        pipeline = WindowFeaturePipeline(100)
+        pipeline.ingest(packet(101))
+        with self.assertRaises(OSError):
+            pipeline.close_capture(BrokenClose())
+        self.assertEqual(pipeline.buffered_packets, 0)
+        self.assertEqual(pipeline.status, "invalid")
+        with self.assertRaises(ValueError):
+            pipeline.advance(105)
+
     def test_capture_window_extractor_matches_offline_result(self):
         packets = (packet(100.1), packet(102.0, length=80), packet(105.1))
         pipeline = WindowFeaturePipeline(100)

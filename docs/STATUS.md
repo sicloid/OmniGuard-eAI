@@ -17,7 +17,7 @@ KAN-38's concrete framing/topic/envelope decisions are reviewed.
 - Windows binary secret writes; healthy Mosquitto/PostgreSQL/Grafana services.
 - Core/ML hash locks including pip and macOS; project Python upgraded to 3.14.7.
 
-Final combined runtime suite: **133 tests, no skips**, Python 3.14.7; Ruff lint and
+Final combined runtime suite: **141 tests, no skips**, Python 3.14.7; Ruff lint and
 format pass. Hosted Linux/Windows/macOS and platform checks passed on reviewed
 heads. Real Linux capture/replay and service smoke passed again. Details:
 [review closeout](REVIEW_CLOSEOUT_2026-09-12.md). The KAN-28 integration evidence
@@ -35,7 +35,7 @@ is recorded in [KAN-28 validation](KAN28_VALIDATION.md).
 | KAN-15/16 | İncelemede | Catalogue audit/freeze and actual capture-health-window-feature parity |
 | KAN-17 | İncelemede | Real sample-pack parent identity and disjointness evidence |
 | KAN-18/19 | İncelemede | Real audited data/model/metrics, agreed validation budget and policy freeze |
-| KAN-28 | İncelemede | PR #18 has packet-driven integration; safe idle progress, stale/gap handoff and lifecycle health tests remain; no team review yet |
+| KAN-28 | İncelemede | PR #18 now includes guarded idle progress, stale/gap diagnostics and lifecycle tests; idle-only Docker and loss propagation passed; team review pending |
 | KAN-63 | Tamamlandı | R1/R3 design review accepted; requested fixes merged. Concrete wire work remains in KAN-38 |
 
 PR merge is not evidence that these missing data or integration criteria passed.

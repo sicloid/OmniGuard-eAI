@@ -1,5 +1,24 @@
 # KAN-28 validation — 2026-09-12
 
+## Current revision: idle and health fixes
+
+The follow-up below is historical and its reproduced stale-window defect is now
+covered by a regression test. The current suite has 141 tests. The source provides
+guarded idle progress after actual socket timeout, while the pipeline rejects stale
+windows and exposes local status/reset generation to KAN-30. Startup partial input
+is skipped and explicit close checks final capture loss without flushing features.
+
+Updated real Linux evidence: `artifacts/live-capture.SgMrSeEv/`. Only three packets
+were sent, then silence: `idle_closure=true`, `pkt_count=3`, `l3_bytes_sum=180`,
+`kernel_drops=0`. The 9,991-drop overflow phase also asserted
+`pipeline_invalid=true`. Namespace and parent route/rules cleanup passed.
+
+The clock/freshness guard assumptions and consumer responsibilities are documented
+in [WINDOWS](../gateway/WINDOWS.md). They are operational limits, not model tuning
+results or a proof of NIC/upstream completeness. PR #18 still requires team review.
+
+## Original packet-driven revision (historical)
+
 KAN-28 connects Linux `LiveCapture` output to bounded, epoch-aligned, per-device
 five-second windows and the shared pure extractor. It adds no runtime wire fields
 and does not implement detector or policy state.

@@ -52,10 +52,7 @@ def window_source(start):
         sock.bind(("10.203.1.2", SOURCE_PORT))
         for _ in range(3):
             sock.sendto(PAYLOAD, ("10.203.2.2", PORT))
-        while time.time() < start + 5.2:
-            time.sleep(0.01)
-        sock.sendto(PAYLOAD, ("10.203.2.2", PORT))
-    print(json.dumps({"sent": 4, "window_start": start}))
+    print(json.dumps({"sent": 3, "window_start": start}))
 
 
 def sink():
@@ -79,14 +76,17 @@ def sink():
 def overflow():
     normalizer = PacketNormalizer(["10.203.1.0/24"], {"10.203.1.2": "camera"})
     capture = LiveCapture("og-b0", normalizer, receive_bytes=4096)
+    pipeline = WindowFeaturePipeline(math.floor(time.time() / 5) * 5)
     print(json.dumps({"ready": True}), file=sys.stderr, flush=True)
     time.sleep(1)  # Deliberately starve this socket while the isolated sender floods it.
     try:
-        capture.read()
+        pipeline.capture_once(capture)
     except CaptureError:
         if capture.stats.kernel_drops <= 0:
             raise
-        print(json.dumps({"detected_drops": capture.stats.kernel_drops}))
+        if pipeline.invalid_reason is None or pipeline.buffered_packets:
+            raise RuntimeError("capture loss did not invalidate the pipeline") from None
+        print(json.dumps({"detected_drops": capture.stats.kernel_drops, "pipeline_invalid": True}))
     else:
         raise RuntimeError("expected socket overflow was not detected")
     finally:
@@ -160,7 +160,7 @@ def orchestrate():
                 raise RuntimeError("live window pipeline failed")
         vector = json.loads((root / "window.json").read_text())
         values = dict(zip(vector["feature_order"], vector["values"], strict=True))
-        if sent["sent"] != 4 or values["pkt_count"] != 3 or values["l3_bytes_sum"] != 180:
+        if sent["sent"] != 3 or values["pkt_count"] != 3 or values["l3_bytes_sum"] != 180:
             raise RuntimeError("live window feature values differ from packet oracle")
         if (vector["window_start"], vector["window_end"], vector["kernel_drops"]) != (
             start,
@@ -169,7 +169,8 @@ def orchestrate():
         ):
             raise RuntimeError("live window metadata or capture health mismatch")
         summary["window_pipeline"] = {
-            "sent": 4,
+            "sent": 3,
+            "idle_closure": True,
             "first_window_packets": 3,
             "feature_packet_count": values["pkt_count"],
             "feature_l3_bytes": values["l3_bytes_sum"],

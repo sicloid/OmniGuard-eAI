@@ -46,7 +46,18 @@ a trustworthy idle watermark: queued delivery and upstream loss require a separa
 observation protocol. Read errors are sticky; restart explicitly after recording
 loss and invalidating policy evidence. Callers must not carry an N streak across
 an unknown interval. The versioned ObservationHealth record and complete capture →
-window health integration still require KAN-63 review. No new wire field is added.
+window health wire encoding remains separate contract work. KAN-63 design review
+is complete. No new wire field is added.
+
+`read_progress(timeout)` additionally distinguishes real socket timeout from
+filtered frames. It emits a pre-receive UTC cutoff minus 100 ms only after timeout,
+loss checks and UTC/monotonic offset checks. A queued packet is read instead of
+advancing. Offset drift above 100 ms, clock sampling uncertainty above 10 ms,
+packets older than one second or over 100 ms in the future fail the session.
+Subsequent timestamps below the emitted cutoff also fail. This depends on the
+same ordered kernel-timestamp assumption as `read`; it is not an upstream-loss
+guarantee. Use `WindowFeaturePipeline.close_capture` to propagate shutdown loss
+and discard the final partial interval.
 
 ## Validation
 

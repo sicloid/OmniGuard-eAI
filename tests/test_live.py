@@ -101,6 +101,46 @@ class LiveTests(unittest.TestCase):
             self.assertIsNone(capture.read())
             self.assertEqual(capture.stats.received, 0)
 
+    def test_progress_timeout_uses_pre_receive_cutoff_and_rejects_late_packet(self):
+        with LiveCapture("eth0", normalizer()) as capture:
+            self.sock.recvmsg.side_effect = [TimeoutError(), message(ts=9)]
+            with patch.object(capture, "_sample_clock", side_effect=[10.5, 11.0, 11.0]):
+                self.assertEqual(capture.read_progress(), (None, 10.4))
+                with self.assertRaises(CaptureError):
+                    capture.read_progress()
+
+    def test_filtered_frame_cannot_supply_idle_progress(self):
+        with LiveCapture("eth0", normalizer()) as capture:
+            self.sock.recvmsg.return_value = message(outgoing=True)
+            self.assertEqual(capture.read_progress(), (None, None))
+
+    def test_clock_step_fails_progress(self):
+        capture = LiveCapture("eth0", normalizer())
+        self.sock.recvmsg.side_effect = TimeoutError
+        with (
+            patch("sources.live.time.time", side_effect=[100, 110]),
+            patch("sources.live.time.monotonic", side_effect=[1, 1, 1.25, 1.25]),
+            self.assertRaises(CaptureError),
+        ):
+            capture.read_progress()
+        with self.assertRaises(CaptureError):
+            capture.read()
+        capture.close(check_loss=False)
+
+    def test_backlogged_packet_fails_pipeline_before_feature_emission(self):
+        from gateway.pipeline import WindowFeaturePipeline
+
+        capture = LiveCapture("eth0", normalizer())
+        pipeline = WindowFeaturePipeline(5)
+        self.sock.recvmsg.return_value = message(ts=5)
+        with patch.object(capture, "_sample_clock", side_effect=[10, 10.1]):
+            with self.assertRaises(CaptureError):
+                pipeline.capture_once(capture)
+        self.assertEqual(pipeline.buffered_packets, 0)
+        self.assertEqual(pipeline.status, "invalid")
+        self.assertGreater(pipeline.reset_generation, 0)
+        capture.close(check_loss=False)
+
     def test_truncated_frame_and_control_data_fail(self):
         for flags in (32, 8):
             with self.subTest(flags=flags):
