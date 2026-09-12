@@ -6,6 +6,21 @@ GitHub collaborators verified: sicloid, pondilungs (Onur), Gabi8347 (Gabriel).
 three teammates. ADR-0001 is accepted; contracts are promoted to frozen `0.1.0`.
 The former draft wire identifier is rejected; regenerate synthetic event fixtures.
 
+## KAN-29 implementation follow-up
+
+A model-independent checked detector boundary is implemented in gateway/detector.py.
+It uses existing FeatureVector/DetectionResult contracts, validates compatibility
+and never converts inference failure into NORMAL. Seven targeted tests pass;
+real artifact loading, training, scheduling and policy remain separate work.
+Owner review is required before Jira closure. See the gateway README.
+
+## KAN-27 live adapter follow-up
+
+Linux LAN ingress capture shares PacketNormalizer with PCAP and fails on socket
+loss/truncation/timestamp faults. Isolated capture/drop/release and overflow
+evidence: [LIVE_VALIDATION.md](LIVE_VALIDATION.md). Runtime health/window
+integration remains separate.
+
 ## Completed technical validation
 
 - PCAP adapter and contracts: 21 unit tests, Ruff lint/format and synthetic smoke
@@ -29,7 +44,7 @@ See [Linux evidence](LINUX_VALIDATION.md), [lab runbook](../lab/README.md),
 
 1. R1: feature catalog/data audit, artifact compatibility, extractor and actual
    capture-aware train/validation/test split; train RF and calibrate on validation.
-2. R2: live adapter, windows, detector interface, state machine, runtime
+2. R2: live adapter, windows, state machine, runtime
    enforcement/release, replay/leakage and UDS bridge.
 3. R3: full dependency lock (KAN-10), telemetry adapter, migrations, MQTT consumer,
    PostgreSQL datasource/dashboard and measurement harnesses.
