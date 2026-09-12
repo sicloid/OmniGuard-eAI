@@ -17,11 +17,13 @@ Original V2 planning files are retained as historical sources.
 ## Current implementation
 
 G1 contracts are team-approved and frozen as `0.1.0`; PR #1 is merged.
-The PCAP adapter, deterministic stubs and 21 unit tests pass on Linux.
-The isolated A→B→C lab passes real UDP quarantine/conntrack/release checks.
-Mosquitto, PostgreSQL and Grafana run in Compose with health/authentication smoke
-tests. Live capture, feature extraction, model training, runtime state/enforcement,
-telemetry consumer and dashboards remain pending. G5/G8/G10 are **not passed**.
+PCAP/live capture, bounded windows, the checked detector, shared extractor,
+artifact loader, capture-group split, RF/rate-rule training and threshold policy
+code are implemented. PRs #4–#15 are merged; 129 combined tests pass without skips
+on the ML environment. Real data audit/training results, runtime policy/enforcement
+integration and the telemetry event chain remain pending. The isolated UDP lab and
+Compose service smoke pass; **G5/G8/G10 are not passed**.
+See [current status](docs/STATUS.md) and [review evidence](docs/REVIEW_CLOSEOUT_2026-09-12.md).
 
 ## Run locally
 
@@ -47,7 +49,7 @@ command. CI installs the ML lock so RF tests cannot be skipped due to missing ML
 Linux / macOS (Python 3.14.7 or a newer 3.14.x; CI reference 3.14.7):
 
 Use a project interpreter on CachyOS: with `uv` installed, run `uv python install 3.14.7`
-and `uv venv --python 3.14.7 .venv`. Activate `.venv` for project commands;
+and `uv venv --python 3.14.7 --seed .venv`. Activate `.venv` for project commands;
 the system `/usr/bin/python` is managed by the OS and need not change.
 The `python3` command below must otherwise already resolve to the required version.
 
@@ -76,8 +78,8 @@ end-to-end detection pipeline. Do not cite its output as research measurements.
 All three collaborators were verified on 2026-09-10. AI work
 supports human module owners; every change still needs owner review.
 
-Next: R1 feature catalog/data audit/artifact compatibility; R2 live capture and
-windowing; R3 telemetry adapter, database schema/consumer and dashboards.
+Next: R1 real data audit/catalogue freeze and model evidence; R2 live health/window/
+policy integration; R3 UDS/framing ADR, database migrations/consumer and dashboards.
 Full roadmap: [development status](docs/STATUS.md).
 
 Docker lab and platform (from the repository root):

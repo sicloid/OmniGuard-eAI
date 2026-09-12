@@ -52,8 +52,8 @@ wire 0.1.0 kalır. KAN-38'in kesin framing/topic/migration sözleşmesi beklenir
   sağlıklı boş-pencereyi saymadan koruyan max-gap sınırlı alternatif KAN-20
   adaylarıdır; capture kaybı hiçbirinde olumlu gözlem sayılmaz.
 - KAN-9 metadata için `meta_format` ve `model_sha256` alanlarının belgelenmesi
-  önerilir. scipy/joblib sürüm kontrolü ve metadata'nın güvenilen hash'e bağlanması
-  artifact uyumluluk revizyonunda birlikte ele alınır. PR #11'in bugünkü kontrolü
+  tamamlandı. Metadata exact-byte SHA-256 deployment pinine bağlandı; scipy/joblib
+  explicit sürüm kontrolü versioned artifact takibidir. PR #11'in kontrolü
   yalnız Python/sklearn/numpy'dir; mimari hedef bugünkü kanıt gibi sunulmaz.
 - DetectionRecord tasarımına `model_sha256` eklendi. Policy/feature/model hash
   bağlamı ExperimentManifest ile eşleşir; yeni runtime alanı henüz uygulanmaz.
@@ -65,3 +65,5 @@ KAN-15/17/18/19'un gerçek veri/önkoşul ölçütleri tamamlandı sayılmaz. KA
 capture watermark/health ve N entegrasyonu ayrıca kanıtlanır. KAN-10, kullanılan
 tüm ekip platformlarını ve seçilen ML bağımlılıklarını kapsayan temiz kurulum
 kanıtı olmadan tam ortam kilidi olarak kapatılmaz. G5/G8/G10 açık kalır.
+
+Son uygulama/kanıt durumu: [12 Eylül kapanış kaydı](../REVIEW_CLOSEOUT_2026-09-12.md).

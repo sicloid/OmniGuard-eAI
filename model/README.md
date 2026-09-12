@@ -2,7 +2,7 @@
 
 Next: capture-aware train/validation/test split, RF baseline,
 validation-only threshold calibration.
-Use the future shared `core/features.py` for both offline and live inputs.
+Use the shared `core/features.py` for both offline and live inputs.
 Do not train on `stub-0.1` or report synthetic tests as ML results.
 Large datasets and model binaries stay outside Git. See `SCHEMA.md`.
 
@@ -44,8 +44,8 @@ load time: that would let changed thresholds or feature order bypass the check.
 Call `load_model` only from a process without capture, firewall or
 other elevated privileges; that isolation belongs to runtime orchestration. `build_metadata` + `write_metadata` are the producer side for KAN-18.
 
-scikit-learn, numpy and joblib are not yet project dependencies (KAN-10 pins
-them). Tests inject the deserializer, so they run without the ML stack:
+KAN-10 provides `requirements-ml.lock` for the scientific stack. Artifact unit
+tests inject the deserializer; RF round-trip tests use the actual locked libraries:
 `.venv/bin/python -m unittest discover -s tests -p test_artifact.py -v`.
 They prove contract behavior, not model quality.
 

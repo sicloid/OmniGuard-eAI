@@ -25,7 +25,7 @@ Pi 5 ayrı ARM64 hedefidir. Managed cloud ve ONT firmware erişimi gerekmez.
 | Classic PCAP normalizer, deterministic stubs | Uygulandı/test edildi |
 | Sabit IPv4 UDP netns karantina/release | Gerçek Linux smoke geçti; genel runtime değil |
 | Compose/MQTT/SQL/Grafana servis sağlığı | Çalışıyor; uygulama event zinciri değil |
-| Saf feature extractor, eğitim, artifact loader, live adapter | Bekliyor |
+| Saf extractor, RF/eşik eğitim kodu, artifact loader, live adapter | PR #7/#11–15 ile uygulandı; gerçek veri/model sonuçları bekliyor |
 | State policy, bounded enforcer, observation health, uygulama sonucu | V3 tasarım/uygulama işi |
 | UDS bridge, consumer, event tabloları/dashboard | Bekliyor |
 | G5/G8/G10, gerçek leakage/FPR/Pi sonuçları | Geçilmedi |
@@ -175,8 +175,9 @@ Model yalnız yerelde üretilmiş veya kaynağı ayrıca doğrulanmış artifact
 Aynı yerden indirilen model ve SHA-256 dosyası tek başına güvenilirlik sağlamaz;
 hash güvenilen manifest/registry kaydıyla karşılaştırılır. joblib yükleme kod
 çalıştırabilir: model süreci enforcer yetkisi taşımaz. Hedefte Python/sklearn/numpy/scipy/joblib
-sürümleri ve feature_order yüklemeden önce doğrulanır. PR #11 bugünkü haliyle
-yalnız Python/sklearn/numpy kontrol eder; genişletme KAN-9/10 incelemesindedir. Uyumsuzlukta sessiz fallback
+sürümleri ve feature_order yüklemeden önce doğrulanır. Birleşen PR #11
+yalnız Python/sklearn/numpy kontrol eder; tam ML ortamı KAN-10 ile kilitli,
+scipy/joblib explicit loader kontrolü versioned KAN-9 takibidir. Uyumsuzlukta sessiz fallback
 veya otomatik yeniden eğitim yok; health hatası ve kontrollü son-iyi-sürüm politikası.
 ONNX/skops'a geçiş ancak destek/parity/RAM/latency ölçümü ve ayrı artifact ADR'siyle.
 

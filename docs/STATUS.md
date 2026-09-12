@@ -1,76 +1,59 @@
-# Development status — 2026-09-10 (Linux continuation)
+# Development status — 2026-09-12
 
-PR #1 merged into main at 02:45:52 UTC. Its Windows/Linux CI checks passed.
-GitHub collaborators verified: sicloid, pondilungs (Onur), Gabi8347 (Gabriel).
-Şükrü explicitly confirmed approval of the existing architecture/contracts by all
-three teammates. ADR-0001 is accepted; contracts are promoted to frozen `0.1.0`.
-The former draft wire identifier is rejected; regenerate synthetic event fixtures.
+PRs #4–#15 are merged after review, targeted corrections and verification.
+G1 is approved; Onur's direct PR #4 acceptance is in [G1_REVIEW](G1_REVIEW.md).
+The five runtime contracts remain `0.1.0`. ADR-0002 remains **PROPOSED** until
+KAN-38's concrete framing/topic/envelope decisions are reviewed.
 
-## KAN-29 implementation follow-up
+## Implemented and verified
 
-A model-independent checked detector boundary is implemented in gateway/detector.py.
-It uses existing FeatureVector/DetectionResult contracts, validates compatibility
-and never converts inference failure into NORMAL. Seven targeted tests pass;
-real artifact loading, training, scheduling and policy remain separate work.
-Owner review is required before Jira closure. See the gateway README.
+- PCAP/live normalization, loss rejection and bounded per-device windows.
+- Checked model-independent detector boundary; no inference failure becomes NORMAL.
+- Pure 14-feature EGRESS extractor and deterministic parent-group split machinery.
+- Artifact loading checks both model and metadata pins before deserialization;
+  RF/rate-rule training, grouped metrics and validation-only threshold policy code.
+- Prepared-PCAP replay with per-run evidence and separate reference/monotonic times.
+- Windows binary secret writes; healthy Mosquitto/PostgreSQL/Grafana services.
+- Core/ML hash locks including pip and macOS; project Python upgraded to 3.14.7.
 
-## KAN-27 live adapter follow-up
+Final combined runtime suite: **129 tests, no skips**, Python 3.14.7; Ruff lint and
+format pass. Hosted Linux/Windows/macOS and platform checks passed on reviewed
+heads. Real Linux capture/replay and service smoke passed again. Details:
+[review closeout](REVIEW_CLOSEOUT_2026-09-12.md).
 
-Linux LAN ingress capture shares PacketNormalizer with PCAP and fails on socket
-loss/truncation/timestamp faults. Isolated capture/drop/release and overflow
-evidence: [LIVE_VALIDATION.md](LIVE_VALIDATION.md). Runtime health/window
-integration remains separate.
+## Jira completion versus implementation
 
-## KAN-32 replay follow-up
+| Card | State after review | Reason / remaining acceptance |
+|---|---|---|
+| KAN-10 | Tamamlandı | Current core/ML locks and clean installs verified across team platforms |
+| KAN-27 | Tamamlandı | Shared tuple/live loss checks; real pre-drop capture/overflow evidence |
+| KAN-29 | Tamamlandı | Checked detector interface and failure semantics verified |
+| KAN-32 | Tamamlandı | Prepared replay/run identity/t0/independent sink evidence verified |
+| KAN-9 | İncelemede | Component merged; catalogue/artifact freeze and remaining compatibility work |
+| KAN-15/16 | İncelemede | Catalogue audit/freeze and actual capture-health-window-feature parity |
+| KAN-17 | İncelemede | Real sample-pack parent identity and disjointness evidence |
+| KAN-18/19 | İncelemede | Real audited data/model/metrics, agreed validation budget and policy freeze |
+| KAN-28 | İncelemede | Live idle-watermark/drop health and N-reset integration |
+| KAN-63 | İncelemede | KAN-38 concrete wire/framing/topic/ACK review remains |
 
-Prepared-PCAP replay, unique run manifests and separate monotonic/reference timing
-are implemented and validated twice against independent capture/sink counts.
-See [REPLAY_VALIDATION.md](REPLAY_VALIDATION.md) and the
-[R2 independent-work audit](R2_INDEPENDENT_WORK.md). Source send return is not
-containment; owner review and dataset preparation remain separate.
+PR merge is not evidence that these missing data or integration criteria passed.
+Owners/dates are unchanged. KAN-13/14/20/38/39/40/41/42/43 now carry the review
+follow-ups described in [the resolution record](architecture/REVIEW_RESOLUTION_2026-09-12.md).
 
-## Completed technical validation
+## Next work
 
-- PCAP adapter and contracts: 21 unit tests, Ruff lint/format and synthetic smoke
-  pass on CachyOS Python 3.14.6. Hosted reference remains Python 3.14.7.
-- KAN-24/KAN-25: real A→B→C namespaces, no public route, ASSURED UDP state
-  before/during quarantine, sink stop, positive drops and release restore.
-  Container setup/teardown is idempotent; parent rules/routes remain unchanged.
-- KAN-36/KAN-37: digest-pinned Compose services, generated local credentials,
-  Mosquitto QoS1 pub/sub/auth/ACL checks, PostgreSQL query and Grafana HTTP/login.
-  Restart and repeated secret initialization preserve working credentials/state.
-  Gabriel explicitly accepted the platform in his PR #2 review (GitHub COMMENTED);
-  PR #2 is merged and KAN-36/KAN-37 are Done. Direct R1 contract evidence is
-  tracked in KAN-63; the earlier Lead-reported approval remains historical.
-- Docker/WSL environment blockers from Windows are resolved on this Linux device.
+1. R1: audit available PCAP direction/labels/provenance; resolve the dataset ADR
+   before training if the candidate attacks are LOCAL rather than EGRESS.
+2. R2: integrate capture health/watermarks, windows and real extractor/model;
+   then N policy, bounded enforcement, restart/release and leakage measurements.
+3. R3: KAN-38 UDS/framing ADR; build 0.1.0 DB/consumer/dashboard first with
+   migrations, provisioning, dedup/recovery and explicit decision semantics.
+4. G5/G8: real audited model and independent sink stop/restore, including faults
+   and benign service impact. Synthetic RF tests are not research results.
+5. G10: StateEvent → UDS → MQTT → PostgreSQL → Grafana with outage/recovery and
+   completeness evidence. Healthy services alone are not this gate.
+6. Linux ARM64/Pi, experiments, results freeze and final reproducible demo.
 
-See [Linux evidence](LINUX_VALIDATION.md), [lab runbook](../lab/README.md),
-[platform runbook](../platform/README.md), and [team decision](G1_REVIEW.md).
-[WEEK_ONE_R2.md](WEEK_ONE_R2.md) is retained as the historical Windows snapshot.
-
-## Remaining sequence
-
-1. R1: feature catalog/data audit, artifact compatibility, extractor and actual
-   capture-aware train/validation/test split; train RF and calibrate on validation.
-2. R2: live adapter, windows, state machine, runtime
-   enforcement/release, replay/leakage and UDS bridge.
-3. R3: full dependency lock (KAN-10), telemetry adapter, migrations, MQTT consumer,
-   PostgreSQL datasource/dashboard and measurement harnesses.
-4. G5/G8: integrate actual traffic/extractor/RF/state/enforcement, prove sink stop
-   and release restore independently of telemetry. The lab probe is not this gate.
-5. G10: real StateEvent→UDS→MQTT→PostgreSQL→Grafana. Service health is not this gate.
-6. ARM64/Pi validation, experiments, results freeze and reproducible final demo.
-
-Pi hardware, data/ML implementation and real integration gates remain separate
-work; none is claimed complete from synthetic fixtures or this x86_64 lab run.
-
-## V3 architecture review (documentation only)
-
-The follow-up [2026 review](architecture/REVIEW_2026.md) and [target architecture](../ARCHITECTURE.md)
-add a proposed design for observation health, bounded lease/application evidence,
-and user-disruption metrics. [ADR-0002](adr/0002-bounded-containment.md) remains PROPOSED;
-runtime schema and service configuration remain unchanged. V3 acceptance additions
-are now synchronized to Jira; KAN-63 tracks team review, not implementation.
-See [Jira sync](architecture/JIRA_SYNC_V3.md). The original V2 documents remain historical sources.
-The platform smoke now rejects optimized Python (-O), preventing assertions from
-being skipped and a false PASS. G8/G10 remain unpassed.
+**G5/G8/G10 are not passed.** Earlier [Linux](LINUX_VALIDATION.md),
+[live](LIVE_VALIDATION.md), [replay](REPLAY_VALIDATION.md) and
+[Windows](WEEK_ONE_R2.md) records remain dated historical evidence.
