@@ -21,10 +21,11 @@ Until the host is reachable, CICIoT2023 cannot be the primary source.
 
 ## IoT-23: audited, and EGRESS-dominant
 
-Four captures were downloaded (503 MB + 3-1) with their Zeek label files.
+Five captures were downloaded (588 MB) with their Zeek label files.
 
 | Capture | IP packets | EGRESS | INGRESS | LOCAL | OUTSIDE | Span | LAN |
 |---|---|---|---|---|---|---|---|
+| CTU-Honeypot-Capture-4-1 (benign) | 16,921 | 13,194 | 3,341 | 386 | 0 | 21.9 h | 192.168.1.0/24 |
 | CTU-Honeypot-Capture-5-1 (benign) | 397,061 | 138,946 | 253,406 | 2,423 | 2,286 | 5.5 h | 192.168.2.0/24 |
 | CTU-IoT-Malware-Capture-3-1 | 491,301 | 386,577 | 104,688 | 36 | 0 | 36.1 h | 192.168.2.0/24 |
 | CTU-IoT-Malware-Capture-8-1 | 16,677 | 14,513 | 2,162 | 2 | 0 | 24.0 h | 192.168.100.0/24 |
@@ -44,6 +45,20 @@ Running 5-1 with the wrong LAN (192.168.1.0/24) reported all 397,061 packets as
 OUTSIDE rather than inventing directions. The device is 192.168.2.3. Each capture's
 LAN above was confirmed from its own traffic or its Zeek log, and belongs in the
 sample-pack manifest (KAN-14) alongside the capture hash.
+
+### Multicast and broadcast are not "outside the home"
+
+4-1's busiest pair is `192.168.1.132 -> 239.255.255.250` with 9,048 packets: SSDP
+discovery. That destination is multicast and never leaves the house, yet the plain
+"destination outside the LAN" rule counts it as EGRESS. 5-1 shows the same shape for
+DHCP broadcast (`0.0.0.0 -> 255.255.255.255`).
+
+Left uncorrected, a benign device's discovery chatter would train and be scored as
+outbound traffic, and `uniq_dst_ip` would count addresses no gateway ever forwards.
+Before KAN-14 freezes the sample pack, EGRESS must exclude multicast (224.0.0.0/4,
+ff00::/8), broadcast (255.255.255.255, subnet broadcast) and link-local
+(169.254.0.0/16, fe80::/10) destinations, treating them as LOCAL. This also affects
+the R2 source adapter, which applies the same rule, so it needs a shared decision.
 
 ### Labels
 
