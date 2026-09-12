@@ -63,14 +63,27 @@ schema versions. The producer must preserve event_id across retries; real UUID
 generation, deduplication, UDS framing and MQTT topic/QoS policy remain R2/R3 work.
 Stable stub IDs are fixture-only, not suitable for real repeated experiment runs.
 
-## Model artifact contract — specified, implementation pending R1
+## Model artifact contract — KAN-9
 
 `model.joblib` + `model.meta.json` must contain model_id/version, schema_version,
 feature_schema_version, feature_order, window_seconds/semantics, threshold,
-training manifest SHA-256, Python/sklearn/numpy versions. R1 must implement and
-test fail-fast compatibility checks before model deserialization/inference.
-Only trusted locally produced artifacts may be loaded. This bootstrap supplies
-no trained model, artifact loader or compatibility claim.
+training manifest SHA-256, Python/sklearn/numpy versions. The metadata document
+also requires `meta_format` (`omniguard-model-meta/1`) and `model_sha256`.
+These artifact fields document R1's PR #11 proposal and the authorized Lead review
+follow-up; they do not change the five runtime 0.1.0 envelopes.
+
+`model/artifact.py` checks format, pinned bytes and runtime compatibility before
+deserialization. Deployment must pin both the model SHA-256 and the SHA-256 of
+the exact metadata bytes outside the artifact directory. Metadata includes the
+threshold, identity and feature order: checking only the model hash leaves those
+fields unprotected. Do not derive expected pins from candidate files at load time.
+Read/deserialization failure produces an ArtifactError, never a NORMAL decision.
+
+Only trusted locally produced artifacts may be loaded in an unprivileged process.
+Python major.minor and exact sklearn/numpy versions are checked today; the full
+dependency lock also records scipy/joblib, but explicit loader checks for those
+require a versioned artifact follow-up. No trained production model, real-data
+accuracy or Pi compatibility is claimed by the loader tests.
 
 ## V3 follow-up proposals (not part of 0.1.0)
 
