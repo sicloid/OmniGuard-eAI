@@ -3,6 +3,10 @@
 Date: 2026-09-10. Status: ACCEPTED — Şükrü explicitly confirmed approval by
 Onur, Gabriel and himself in the Linux continuation session on this date.
 
+Approval provenance update: Gabriel explicitly accepted in his PR #2 review;
+Onur approval remains Lead-reported, with direct R1 evidence pending in KAN-63.
+See [G1 review](../G1_REVIEW.md). This does not approve proposed ADR-0002.
+
 The repository was empty. The latest `ChatGPT Plus Tanıtımı` discussion replaces
 Huawei dependencies with local inference and a self-hosted telemetry platform.
 The seven supplied V2 files are retained in `docs/planning/` as source material,

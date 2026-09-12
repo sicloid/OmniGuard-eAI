@@ -1,0 +1,12 @@
+# Dedicated amd64 capture oracle, matching the project's Python reference.
+FROM python:3.14.7-slim-bookworm@sha256:d893452fcd120ea9a7233972c85ea868255bde289a636fe76ff090427fe8fac9
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash iproute2 nftables conntrack iputils-ping util-linux procps \
+    coreutils gawk grep && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir dpkt==1.9.8
+COPY core /opt/omniguard/core
+COPY sources /opt/omniguard/sources
+COPY lab /opt/omniguard/lab
+ENV PYTHONPATH=/opt/omniguard
+WORKDIR /opt/omniguard
+CMD ["bash", "lab/container_live.sh"]

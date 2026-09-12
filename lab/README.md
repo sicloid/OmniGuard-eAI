@@ -78,3 +78,16 @@ namespace cleanup and unchanged parent rules/routes passed. The test now polls
 up to five seconds for UDP assurance. See [evidence](../docs/LINUX_VALIDATION.md).
 This is KAN-24/KAN-25 proof, not G8, general runtime enforcement, TCP/IPv6 coverage,
 throughput or a containment-leakage measurement.
+
+## Live source validation (KAN-27)
+
+`bash lab/run_live_docker.sh` validates ingress capture/counts before forwarding
+drop, release recovery and forced socket-overflow detection in a separate pinned
+Python 3.14.7 amd64 container. See [source runbook](../sources/LIVE.md). This command
+is dedicated-host-only; it does not pass G8 or validate a production enforcer.
+
+## Prepared PCAP replay (KAN-32)
+
+See [REPLAY.md](REPLAY.md) for owned-namespace replay, input preparation, run manifests
+and t0 semantics. `bash lab/run_replay_docker.sh` validates repeated source/capture/
+sink counts in the dedicated Docker lab; source send completion is not containment.
