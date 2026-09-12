@@ -2,12 +2,14 @@
 
 import argparse
 import json
+import math
 import socket
 import subprocess
 import sys
 import time
 from pathlib import Path
 
+from gateway.pipeline import WindowFeaturePipeline
 from sources.live import CaptureError, LiveCapture
 from sources.packets import PacketNormalizer
 
@@ -41,6 +43,18 @@ def source(count, paced):
     print(json.dumps({"sent": count}))
 
 
+def window_source(start):
+    if start is None:
+        raise ValueError("window source requires --start")
+    while time.time() < start + 0.2:
+        time.sleep(0.01)
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.bind(("10.203.1.2", SOURCE_PORT))
+        for _ in range(3):
+            sock.sendto(PAYLOAD, ("10.203.2.2", PORT))
+    print(json.dumps({"sent": 3, "window_start": start}))
+
+
 def sink():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.bind(("10.203.2.2", PORT))
@@ -62,18 +76,48 @@ def sink():
 def overflow():
     normalizer = PacketNormalizer(["10.203.1.0/24"], {"10.203.1.2": "camera"})
     capture = LiveCapture("og-b0", normalizer, receive_bytes=4096)
+    pipeline = WindowFeaturePipeline(math.floor(time.time() / 5) * 5)
     print(json.dumps({"ready": True}), file=sys.stderr, flush=True)
     time.sleep(1)  # Deliberately starve this socket while the isolated sender floods it.
     try:
-        capture.read()
+        pipeline.capture_once(capture)
     except CaptureError:
         if capture.stats.kernel_drops <= 0:
             raise
-        print(json.dumps({"detected_drops": capture.stats.kernel_drops}))
+        if pipeline.invalid_reason is None or pipeline.buffered_packets:
+            raise RuntimeError("capture loss did not invalidate the pipeline") from None
+        print(json.dumps({"detected_drops": capture.stats.kernel_drops, "pipeline_invalid": True}))
     else:
         raise RuntimeError("expected socket overflow was not detected")
     finally:
         capture.close(check_loss=False)
+
+
+def window_capture():
+    normalizer = PacketNormalizer(["10.203.1.0/24"], {"10.203.1.2": "camera"})
+    start = math.floor(time.time() / 5) * 5 + 5
+    pipeline = WindowFeaturePipeline(start)
+    with LiveCapture("og-b0", normalizer) as capture:
+        print(json.dumps({"ready": True, "window_start": start}), file=sys.stderr, flush=True)
+        deadline = time.monotonic() + 12
+        while time.monotonic() < deadline:
+            vectors = pipeline.capture_once(capture)
+            if vectors:
+                vector = vectors[0]
+                print(
+                    json.dumps(
+                        {
+                            "device_id": vector.device_id,
+                            "window_start": vector.window_start,
+                            "window_end": vector.window_end,
+                            "feature_order": vector.feature_order,
+                            "values": vector.values,
+                            "kernel_drops": capture.stats.kernel_drops,
+                        }
+                    )
+                )
+                return
+    raise RuntimeError("window capture produced no complete feature vector")
 
 
 def orchestrate():
@@ -90,6 +134,48 @@ def orchestrate():
             "address"
         ]
         summary = {}
+        with (root / "window.json").open("w") as out, (root / "window.err").open("w") as err:
+            capture = subprocess.Popen(
+                ["ip", "netns", "exec", "og-b", sys.executable, script, "window-capture"],
+                stdout=out,
+                stderr=err,
+            )
+            processes.append(capture)
+            ready(root / "window.err", capture)
+            start = json.loads((root / "window.err").read_text().splitlines()[0])["window_start"]
+            sent = json.loads(
+                run(
+                    "ip",
+                    "netns",
+                    "exec",
+                    "og-a",
+                    sys.executable,
+                    script,
+                    "window-source",
+                    "--start",
+                    str(start),
+                )
+            )
+            if capture.wait(timeout=15):
+                raise RuntimeError("live window pipeline failed")
+        vector = json.loads((root / "window.json").read_text())
+        values = dict(zip(vector["feature_order"], vector["values"], strict=True))
+        if sent["sent"] != 3 or values["pkt_count"] != 3 or values["l3_bytes_sum"] != 180:
+            raise RuntimeError("live window feature values differ from packet oracle")
+        if (vector["window_start"], vector["window_end"], vector["kernel_drops"]) != (
+            start,
+            start + 5,
+            0,
+        ):
+            raise RuntimeError("live window metadata or capture health mismatch")
+        summary["window_pipeline"] = {
+            "sent": 3,
+            "idle_closure": True,
+            "first_window_packets": 3,
+            "feature_packet_count": values["pkt_count"],
+            "feature_l3_bytes": values["l3_bytes_sum"],
+            "kernel_drops": vector["kernel_drops"],
+        }
         for phase in ("baseline", "blocked", "released"):
             run("bash", "lab/quarantine.sh", "apply" if phase == "blocked" else "release")
             with (
@@ -188,13 +274,22 @@ def orchestrate():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("run", "sink", "source", "flood", "overflow"))
-    mode = parser.parse_args().mode
+    parser.add_argument(
+        "mode",
+        choices=("run", "sink", "source", "flood", "overflow", "window-capture", "window-source"),
+    )
+    parser.add_argument("--start", type=float)
+    args = parser.parse_args()
+    mode = args.mode
     if mode == "run":
         orchestrate()
     elif mode == "sink":
         sink()
     elif mode == "overflow":
         overflow()
+    elif mode == "window-capture":
+        window_capture()
+    elif mode == "window-source":
+        window_source(args.start)
     else:
         source(100 if mode == "source" else 10000, mode == "source")

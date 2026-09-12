@@ -78,6 +78,8 @@ class LiveCapture:
         self._last_timestamp = -1.0
         self._failed = False
         self._closed = False
+        self._timed_out = False
+        self._clock_offset = None
         # Protocol zero prevents collecting other interfaces before explicit bind.
         self._socket = socket.socket(getattr(socket, "AF_PACKET", 17), socket.SOCK_RAW, 0)
         try:
@@ -109,6 +111,7 @@ class LiveCapture:
             raise CaptureError("packet socket dropped traffic; observation is incomplete")
 
     def read(self, timeout: float = 0.25) -> PacketTuple | None:
+        self._timed_out = False
         if self._closed or self._failed:
             raise CaptureError("capture closed or failed; start a new observation session")
         number(timeout, "timeout")
@@ -122,6 +125,7 @@ class LiveCapture:
                 )
             except TimeoutError:
                 self.check_loss()
+                self._timed_out = True
                 return None
             self.stats.received += 1
             self.check_loss()
@@ -143,6 +147,46 @@ class LiveCapture:
         except CaptureError, PacketError, OSError:
             self._failed = True
             raise
+
+    def read_progress(self, timeout: float = 0.25) -> tuple[PacketTuple | None, float | None]:
+        """Ordered socket progress; only a real empty receive supplies idle time.
+
+        The cutoff precedes recvmsg, so a queued packet is read before advancing.
+        A 100 ms clock-offset guard is subtracted from idle progress. Any observed
+        offset drift beyond it fails the session. This retains the adapter's strict
+        ordered-kernel-time assumption; a later packet below the cutoff is fatal.
+        It does not certify NIC/upstream completeness.
+        """
+        try:
+            before = self._sample_clock()
+            packet = self.read(timeout)
+            after = self._sample_clock()
+            if after < before:
+                raise CaptureError("UTC clock moved backward during receive")
+            if packet is not None and not -0.1 <= after - packet.timestamp <= 1.0:
+                raise CaptureError("packet timestamp is stale or in the future")
+            if self._timed_out:
+                cutoff = max(self._last_timestamp, before - 0.1, 0.0)
+                self._last_timestamp = cutoff
+                return None, cutoff
+            return packet, None
+        except CaptureError, OSError, ValueError:
+            self._failed = True
+            raise
+
+    def _sample_clock(self) -> float:
+        mono_before = time.monotonic()
+        utc = time.time()
+        mono_after = time.monotonic()
+        number(utc, "UTC")
+        if not 0 <= mono_after - mono_before <= 0.01:
+            raise CaptureError("clock sample scheduling uncertainty")
+        offset = utc - (mono_before + mono_after) / 2
+        if self._clock_offset is None:
+            self._clock_offset = offset
+        if abs(offset - self._clock_offset) > 0.1:
+            raise CaptureError("UTC/monotonic clock offset changed")
+        return utc
 
     def close(self, *, check_loss: bool = True) -> None:
         if self._closed:
