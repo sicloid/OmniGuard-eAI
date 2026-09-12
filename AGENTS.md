@@ -28,6 +28,11 @@ new contract/policy proposals in an ADR and preserve the existing runtime until
 required team review is resolved; do not invent approvals or ask again for approvals
 already explicitly provided. Do not silently change Jira deadlines/assignees.
 
+Fill every section of `.github/pull_request_template.md`. Include the Jira key in
+the branch, commit and PR. PR opened → İncelemede; acceptance evidence and owner
+review complete → Tamamlandı. Code merged is not proof that a data or runtime
+integration gate passed. Record user-reported approval separately from GitHub reviews.
+
 ## Architecture invariants
 
 - Local inference; telemetry loss cannot block enforcement or release.
@@ -60,6 +65,11 @@ of Git. Existing `.secrets/` and volumes are preserved across restarts. Never ad
 
 For application changes: use `.venv/bin/python -m unittest discover -s tests -v`,
 `.venv/bin/ruff check .`, `.venv/bin/ruff format --check .` as appropriate.
+Windows PowerShell equivalents: `.\.venv\Scripts\python.exe -m unittest discover -s tests -v`,
+`.\.venv\Scripts\ruff.exe check .`, `.\.venv\Scripts\ruff.exe format --check .`.
+For interpreter and dependency installation, use the platform-specific commands in
+README.md and the hash lock once KAN-10 lands. Linux availability does not remove
+Windows support; never replace the OS Python to satisfy the project interpreter pin.
 Linux lab: `bash lab/run_docker.sh`; retain generated evidence and report limits.
 Platform: `python3 platform/smoke.py` against initialized Compose services.
 For documentation-only work, check links/status consistency/diff; do not add tests

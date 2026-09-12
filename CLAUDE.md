@@ -10,7 +10,7 @@ Follow AGENTS.md, then README.md, docs/STATUS.md, SCHEMA.md, accepted ADRs,
 ARCHITECTURE.md and docs/architecture/EXECUTION_V3.md, then the module README.
 V3 and ADR-0002 are proposals pending KAN-63 team review. Current wire contracts
 remain 0.1.0; older team approval does not approve new envelopes.
-Onur’s existing approval is Lead-reported; direct R1 evidence is tracked in KAN-63.
+Onur directly accepted the existing contracts in PR #4 on 11 September; see G1_REVIEW.md.
 Gabriel explicitly accepted existing contracts in his PR #2 review text.
 
 ## Operational reminders
@@ -34,6 +34,9 @@ From the repository root, using the development environment:
 .venv/bin/ruff check .
 .venv/bin/ruff format --check .
 ```
+
+Windows PowerShell uses `.\.venv\Scripts\python.exe` and `.\.venv\Scripts\ruff.exe`;
+see AGENTS.md and README.md for the full commands and dependency installation.
 
 For platform changes, run `python3 platform/smoke.py` against the running Compose
 stack without Python optimization. Service smoke is not G10. Privileged namespace

@@ -174,8 +174,9 @@ read-only dashboard DB rolü ve kontrollü yönetim yolu gerekir.
 Model yalnız yerelde üretilmiş veya kaynağı ayrıca doğrulanmış artifact olabilir.
 Aynı yerden indirilen model ve SHA-256 dosyası tek başına güvenilirlik sağlamaz;
 hash güvenilen manifest/registry kaydıyla karşılaştırılır. joblib yükleme kod
-çalıştırabilir: model süreci enforcer yetkisi taşımaz. Python/sklearn/numpy/scipy
-sürümleri ve feature_order yüklemeden önce doğrulanır. Uyumsuzlukta sessiz fallback
+çalıştırabilir: model süreci enforcer yetkisi taşımaz. Hedefte Python/sklearn/numpy/scipy/joblib
+sürümleri ve feature_order yüklemeden önce doğrulanır. PR #11 bugünkü haliyle
+yalnız Python/sklearn/numpy kontrol eder; genişletme KAN-9/10 incelemesindedir. Uyumsuzlukta sessiz fallback
 veya otomatik yeniden eğitim yok; health hatası ve kontrollü son-iyi-sürüm politikası.
 ONNX/skops'a geçiş ancak destek/parity/RAM/latency ölçümü ve ayrı artifact ADR'siyle.
 
@@ -225,3 +226,5 @@ Feature ablation gerçek extractor kataloğundan türetilir; uydurma 40 özellik
 Minimum karşılaştırma matrisi ve koşullar [uygulama planındadır](docs/architecture/EXECUTION_V3.md).
 Online policy sweep canlı etkileşimi ikame etmez; adaptive eBPF/ONNX/ML ancak
 profilleme sonucu ve ayrı ADR ile alınır. Aynı anda hepsini eklemek hedef değil.
+
+12 Eylül ekip incelemesi: [kararlar ve Jira takibi](docs/architecture/REVIEW_RESOLUTION_2026-09-12.md).

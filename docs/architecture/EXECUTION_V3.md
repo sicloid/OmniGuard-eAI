@@ -13,7 +13,7 @@ Takvimden önce bağımlılık/kanıt sırası gelir; eski 15 iş günü hedefi 
 | 2 | Onur + Gabriel | KAN-9/10 | Artifact hash + environment check; deployment interpreter/architecture kilidi; güvenilir deserialization sınırı |
 | 3 | Onur | KAN-16/17/18 | Tek extractor, sabit grup split, leakage-free RF ve basit rate-rule karşılaştırması |
 | 3 | Şükrü | KAN-27/28/29 | LAN capture, bounded queue, drop health, epoch pencereler ve offline/live parity |
-| 3 | Gabriel | KAN-38/39/40/41 | Onay sonrası sürümlü kayıt/topic, dedup DB, decision/applied/health ayrımlı dashboard |
+| 3 | Gabriel | KAN-38/39/40/41 | Önce mevcut 0.1.0 StateEvent ile DB/consumer/dashboard; yeni kayıtlar KAN-38/63 onayı sonrası sürümlü migration ile |
 | 4 | Şükrü | KAN-30/31/48 | N off-by-one/gap davranışı, kernel TTL, apply sonucu, restart/release, stub fault testleri |
 | 5 | Şükrü + Gabriel | KAN-32/33/42/43 | t0 mapping, ACK sınırı, sink sayaçları, timeout/non-detection, edge/platform cost ayrımı |
 | 6 | Şükrü + Onur | KAN-49 | Gerçek RF ile G8; telemetry kapalı; TCP/UDP; process crash; lokal service kontrolü |
@@ -64,6 +64,11 @@ karşılaştırma gerekir. CICIoT2023 varsayılan aday olarak kalır; uygunluk k
   erişilemeyen mod test edilmiş sayılmaz. Sentetik stres ayrı etiketlenir.
 - Saldırı profilleri: uygun PCAP/label kanıtı olan en az yüksek oranlı ve mümkünse
   düşük oranlı davranış. Replay gerçek botnetin adaptif davranışı diye sunulmaz.
+- Aralıklı düşük oranlı saldırı: bir dolu/bir boş pencere profili ve kaçış/miss
+  sonucu açık raporlanır. Baseline boş pencere seriyi sıfırlar. KAN-20'de yalnız
+  sağlıklı boş pencerenin saymadan seriyi koruduğu varyant karşılaştırılabilir;
+  invalid/loss/stale her varyantta reset olur, adayın max-gap süresi validation'da
+  sabitlenir. Bu deney adayı baseline'ı sessizce değiştirmez.
 - Arıza matrisi: broker down, enforcer/runtime kill, capture overload, stale binding,
   duplicate event ve release/restart. Fault run'lar ML accuracy örneğine karışmaz.
 
@@ -93,3 +98,12 @@ online/federated learning, yeni 2026 dataset genişletmesi ve dashboard süsü k
 Kesilmez: veri uygunluğu, aynı extractor, basit baseline, gerçek G8, süreli release,
 arızada dürüst state/health, temel G10, leakage/benign kesinti ve laptop demo.
 Pi erişilemezse x86 sonucu teslim edilir; Pi/ARM64 sonucu uydurulmaz.
+
+## 12 Eylül inceleme kararı
+
+R3 mevcut 0.1.0 üzerinde ilerler; tarihler ve sahipler değişmez. KAN-39 numaralı
+SQL migration, KAN-40 dedup/recovery ve KAN-41 dosyadan provisioning getirir.
+Yeni health/applied türleri önce ADR'de onaylanır; mevcut dashboard StateEvent'i
+yalnız karar olarak gösterir. ExperimentManifest biçimi/yazımı R3 KAN-42/43,
+veri/split/artifact bölümü R1 KAN-14/17/18, saat/sink girdisi R2 KAN-32/33'tür.
+Detay ve açık kararlar: [inceleme yanıtları](REVIEW_RESOLUTION_2026-09-12.md).
