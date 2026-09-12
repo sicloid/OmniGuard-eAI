@@ -18,7 +18,8 @@ telemetry consumer and dashboards remain pending. G5/G8/G10 are **not passed**.
 ## Run locally
 
 Reference interpreter: Python 3.14.7, pinned in `.python-version`. Dependencies
-are hash-locked in [requirements.lock](requirements.lock); details and the
+are hash-locked in [requirements.lock](requirements.lock). ML development uses
+[requirements-ml.lock](requirements-ml.lock), which includes the base lock; details and the
 regeneration procedure are in [environment notes](docs/ENVIRONMENT.md).
 Windows PowerShell:
 
@@ -32,7 +33,15 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m stubs
 ```
 
-Linux (Python 3.14.7 or a newer 3.14.x; CI reference 3.14.7):
+For ML work replace `requirements.lock` with `requirements-ml.lock` in the install
+command. CI installs the ML lock so RF tests cannot be skipped due to missing ML packages.
+
+Linux / macOS (Python 3.14.7 or a newer 3.14.x; CI reference 3.14.7):
+
+Use a project interpreter on CachyOS: with `uv` installed, run `uv python install 3.14.7`
+and `uv venv --python 3.14.7 .venv`. Activate `.venv` for project commands;
+the system `/usr/bin/python` is managed by the OS and need not change.
+The `python3` command below must otherwise already resolve to the required version.
 
 ```sh
 python3 -m venv .venv
