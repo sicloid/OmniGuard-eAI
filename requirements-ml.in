@@ -1,0 +1,8 @@
+# ML runtime chosen from R1 PR #14, with the resolved transitive versions pinned.
+-r requirements.in
+scikit-learn==1.8.0
+numpy==2.5.3
+scipy==1.18.1
+joblib==1.6.0
+threadpoolctl==3.6.0
+cloudpickle==3.1.2

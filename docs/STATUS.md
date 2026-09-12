@@ -6,6 +6,29 @@ GitHub collaborators verified: sicloid, pondilungs (Onur), Gabi8347 (Gabriel).
 three teammates. ADR-0001 is accepted; contracts are promoted to frozen `0.1.0`.
 The former draft wire identifier is rejected; regenerate synthetic event fixtures.
 
+## KAN-29 implementation follow-up
+
+A model-independent checked detector boundary is implemented in gateway/detector.py.
+It uses existing FeatureVector/DetectionResult contracts, validates compatibility
+and never converts inference failure into NORMAL. Seven targeted tests pass;
+real artifact loading, training, scheduling and policy remain separate work.
+Owner review is required before Jira closure. See the gateway README.
+
+## KAN-27 live adapter follow-up
+
+Linux LAN ingress capture shares PacketNormalizer with PCAP and fails on socket
+loss/truncation/timestamp faults. Isolated capture/drop/release and overflow
+evidence: [LIVE_VALIDATION.md](LIVE_VALIDATION.md). Runtime health/window
+integration remains separate.
+
+## KAN-32 replay follow-up
+
+Prepared-PCAP replay, unique run manifests and separate monotonic/reference timing
+are implemented and validated twice against independent capture/sink counts.
+See [REPLAY_VALIDATION.md](REPLAY_VALIDATION.md) and the
+[R2 independent-work audit](R2_INDEPENDENT_WORK.md). Source send return is not
+containment; owner review and dataset preparation remain separate.
+
 ## Completed technical validation
 
 - PCAP adapter and contracts: 21 unit tests, Ruff lint/format and synthetic smoke
@@ -16,7 +39,9 @@ The former draft wire identifier is rejected; regenerate synthetic event fixture
 - KAN-36/KAN-37: digest-pinned Compose services, generated local credentials,
   Mosquitto QoS1 pub/sub/auth/ACL checks, PostgreSQL query and Grafana HTTP/login.
   Restart and repeated secret initialization preserve working credentials/state.
-  New platform implementation needs Gabriel's PR review.
+  Gabriel explicitly accepted the platform in his PR #2 review (GitHub COMMENTED);
+  PR #2 is merged and KAN-36/KAN-37 are Done. Direct R1 contract evidence is
+  tracked in KAN-63; the earlier Lead-reported approval remains historical.
 - Docker/WSL environment blockers from Windows are resolved on this Linux device.
 
 See [Linux evidence](LINUX_VALIDATION.md), [lab runbook](../lab/README.md),
@@ -27,7 +52,7 @@ See [Linux evidence](LINUX_VALIDATION.md), [lab runbook](../lab/README.md),
 
 1. R1: feature catalog/data audit, artifact compatibility, extractor and actual
    capture-aware train/validation/test split; train RF and calibrate on validation.
-2. R2: live adapter, windows, detector interface, state machine, runtime
+2. R2: live adapter, windows, state machine, runtime
    enforcement/release, replay/leakage and UDS bridge.
 3. R3: full dependency lock (KAN-10), telemetry adapter, migrations, MQTT consumer,
    PostgreSQL datasource/dashboard and measurement harnesses.
@@ -38,3 +63,14 @@ See [Linux evidence](LINUX_VALIDATION.md), [lab runbook](../lab/README.md),
 
 Pi hardware, data/ML implementation and real integration gates remain separate
 work; none is claimed complete from synthetic fixtures or this x86_64 lab run.
+
+## V3 architecture review (documentation only)
+
+The follow-up [2026 review](architecture/REVIEW_2026.md) and [target architecture](../ARCHITECTURE.md)
+add a proposed design for observation health, bounded lease/application evidence,
+and user-disruption metrics. [ADR-0002](adr/0002-bounded-containment.md) remains PROPOSED;
+runtime schema and service configuration remain unchanged. V3 acceptance additions
+are now synchronized to Jira; KAN-63 tracks team review, not implementation.
+See [Jira sync](architecture/JIRA_SYNC_V3.md). The original V2 documents remain historical sources.
+The platform smoke now rejects optimized Python (-O), preventing assertions from
+being skipped and a false PASS. G8/G10 remain unpassed.

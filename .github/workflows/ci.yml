@@ -7,14 +7,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14.7'
-      - run: python -m pip install -e ".[dev]"
+      - run: python -m pip install --require-hashes -r requirements-ml.lock
+      - run: python -m pip install -e . --no-deps --no-build-isolation
+      - run: python -c "import sklearn, numpy, scipy, joblib; print(sklearn.__version__, numpy.__version__, scipy.__version__, joblib.__version__)"
       - run: ruff check .
       - run: ruff format --check .
       - run: python -m unittest discover -s tests -v

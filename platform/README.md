@@ -64,3 +64,16 @@ detection_events, state_events, experiment_runs, resource_metrics. G10 is pendin
 References: [Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/),
 [healthchecks](https://docs.docker.com/reference/compose-file/services/),
 [Mosquitto authentication](https://mosquitto.org/documentation/authentication-methods/).
+
+## PR #2 review follow-up
+
+Run smoke without `-O` or `PYTHONOPTIMIZE`; optimized Python is rejected before
+Docker access because this probe uses assertions. The negative PUBACK check
+depends on the pinned Mosquitto client warning text; revalidate it on image upgrades.
+Compose JSON-array versus JSONL portability remains Gabriel’s Windows follow-up.
+
+Secret files use mode 0444 within a 0700 directory so container service UIDs can
+read bind-mounted secrets in this local development setup. This is not a production
+secret distribution design. MQTT passwords avoid host argv and logs, but the client
+inside the container receives `-P` in its process arguments; privileged container
+inspection can expose it. Restrict local Docker access accordingly.

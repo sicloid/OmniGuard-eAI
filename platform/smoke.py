@@ -35,6 +35,8 @@ def mqtt(command, *args):
 
 
 def main():
+    if not __debug__:
+        raise SystemExit("Smoke requires assertions; run Python without -O/PYTHONOPTIMIZE.")
     states = [json.loads(line) for line in run("ps", "--format", "json").splitlines()]
     assert len(states) == 3 and all(s["Health"] == "healthy" for s in states), states
     assert (
