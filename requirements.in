@@ -1,0 +1,5 @@
+# Inputs for the core/dev lock. Regenerate with the command in docs/ENVIRONMENT.md.
+pip==26.2.1
+setuptools==82.0.1
+dpkt==1.9.8
+ruff==0.15.6

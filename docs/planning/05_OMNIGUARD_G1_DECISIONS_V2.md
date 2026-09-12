@@ -1,5 +1,9 @@
 # OmniGuard eAI — G1 Architecture Decision Checklist v2
 
+> Tarihsel V2 kaynak belgesi. Güncel yönerge: [AI_SYSTEM_PROMPT](../../AI_SYSTEM_PROMPT.md);
+> hedef tasarım: [ARCHITECTURE](../../ARCHITECTURE.md); uygulanan durum: [STATUS](../STATUS.md).
+> Aşağıdaki özgün plan/checklist tamamlanma veya yeni ekip onayı kanıtı değildir.
+
 İlk 60–90 dakikalık toplantıda karara bağlanacaklar:
 
 ## Contracts

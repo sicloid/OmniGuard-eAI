@@ -48,3 +48,10 @@ scikit-learn, numpy and joblib are not yet project dependencies (KAN-10 pins
 them). Tests inject the deserializer, so they run without the ML stack:
 `.venv/bin/python -m unittest discover -s tests -p test_artifact.py -v`.
 They prove contract behavior, not model quality.
+
+## V3 design follow-up
+
+V3 önceliği: eğitimden önce capture topolojisi/yönü ve device-window etiket
+uygunluğunu denetleyin; hazır CSV/live feature eşitliği varsaymayın. Basit rate
+kuralını karşılaştırmaya alın; yanlış karantina/device-hour ölçümünü de planlayın.
+[Uygulama sırası](../docs/architecture/EXECUTION_V3.md).

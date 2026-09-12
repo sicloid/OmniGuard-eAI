@@ -6,6 +6,14 @@ nftables/conntrack, and self-hosted Mosquitto → PostgreSQL → Grafana telemet
 No managed cloud service is required. Raspberry Pi 5 is a later shared integration
 and ARM64 validation target; laptop development remains possible.
 
+## Architecture and contributor context
+
+Read the [V3 architecture](ARCHITECTURE.md), [2026 review](docs/architecture/REVIEW_2026.md),
+[execution map](docs/architecture/EXECUTION_V3.md), and [AI context](AI_SYSTEM_PROMPT.md).
+V3 separates observation health, policy decisions, application evidence and bounded
+release. These additions are proposals; the approved runtime contracts remain 0.1.0.
+Original V2 planning files are retained as historical sources.
+
 ## Current implementation
 
 G1 contracts are team-approved and frozen as `0.1.0`; PR #1 is merged.
@@ -17,22 +25,36 @@ telemetry consumer and dashboards remain pending. G5/G8/G10 are **not passed**.
 
 ## Run locally
 
-Reference interpreter: Python 3.14.7. Windows PowerShell:
+Reference interpreter: Python 3.14.7, pinned in `.python-version`. Dependencies
+are hash-locked in [requirements.lock](requirements.lock). ML development uses
+[requirements-ml.lock](requirements-ml.lock), which includes the base lock; details and the
+regeneration procedure are in [environment notes](docs/ENVIRONMENT.md).
+Windows PowerShell:
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.\.venv\Scripts\python.exe -m pip install --require-hashes -r requirements.lock
+.\.venv\Scripts\python.exe -m pip install -e . --no-deps --no-build-isolation
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 .\.venv\Scripts\ruff.exe check .
 .\.venv\Scripts\ruff.exe format --check .
 .\.venv\Scripts\python.exe -m stubs
 ```
 
-Linux (Python 3.14.x; CachyOS verified with 3.14.6, CI reference 3.14.7):
+For ML work replace `requirements.lock` with `requirements-ml.lock` in the install
+command. CI installs the ML lock so RF tests cannot be skipped due to missing ML packages.
+
+Linux / macOS (Python 3.14.7 or a newer 3.14.x; CI reference 3.14.7):
+
+Use a project interpreter on CachyOS: with `uv` installed, run `uv python install 3.14.7`
+and `uv venv --python 3.14.7 .venv`. Activate `.venv` for project commands;
+the system `/usr/bin/python` is managed by the OS and need not change.
+The `python3` command below must otherwise already resolve to the required version.
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install -e '.[dev]'
+.venv/bin/python -m pip install --require-hashes -r requirements.lock
+.venv/bin/python -m pip install -e . --no-deps --no-build-isolation
 .venv/bin/python -m unittest discover -s tests -v
 .venv/bin/ruff check .
 .venv/bin/ruff format --check .
