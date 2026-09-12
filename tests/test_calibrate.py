@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -27,6 +28,11 @@ def validation_set():
 
 
 class SelectionTests(unittest.TestCase):
+    def test_only_validation_is_an_accepted_selection_source(self):
+        for source in ("train", "test", "TEST", "", None):
+            with self.subTest(source=source), self.assertRaises(CalibrationError):
+                calibrate_threshold(*validation_set(), selected_on=source)
+
     def test_picks_highest_recall_within_the_false_alarm_budget(self):
         labels, scores, groups = validation_set()
         policy = calibrate_threshold(labels, scores, groups, max_window_fpr=0.15)
@@ -76,6 +82,28 @@ class SelectionTests(unittest.TestCase):
 
 
 class FreezeTests(unittest.TestCase):
+    def test_loaded_policy_cannot_bypass_selection_invariants(self):
+        policy = calibrate_threshold(*validation_set(), max_window_fpr=0.15)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "policy.json"
+            for field, value in (
+                ("selected_on", "test"),
+                ("threshold", 0.8),
+                ("objective", "unknown"),
+                ("max_window_fpr", 0.0),
+                ("candidates", 0),
+            ):
+                with self.subTest(field=field):
+                    document = json.loads(policy.to_json())
+                    document[field] = value
+                    path.write_text(json.dumps(document), encoding="utf-8")
+                    with self.assertRaises(CalibrationError):
+                        read_policy(path)
+            for text in ("[]", "{}", '{"threshold": 0.2, "threshold": 0.3}', '{"x": NaN}'):
+                path.write_text(text, encoding="utf-8")
+                with self.subTest(text=text), self.assertRaises(CalibrationError):
+                    read_policy(path)
+
     def test_policy_survives_a_json_round_trip_with_a_stable_hash(self):
         labels, scores, groups = validation_set()
         policy = calibrate_threshold(labels, scores, groups, max_window_fpr=0.15, bootstrap=50)

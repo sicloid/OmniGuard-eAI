@@ -35,6 +35,36 @@ class ThresholdPolicy:
     candidates: int
     metrics: Metrics
 
+    def __post_init__(self) -> None:
+        if self.selected_on != "validation":
+            raise CalibrationError("thresholds must be selected on validation only")
+        if self.objective not in OBJECTIVES:
+            raise CalibrationError("unknown policy objective")
+        if (
+            isinstance(self.threshold, bool)
+            or not isinstance(self.threshold, int | float)
+            or not isfinite(self.threshold)
+            or not 0 <= self.threshold <= 1
+        ):
+            raise CalibrationError("policy threshold must be finite and in [0, 1]")
+        if type(self.candidates) is not int or self.candidates < 1:
+            raise CalibrationError("policy must record at least one candidate")
+        if not isinstance(self.metrics, Metrics) or self.metrics.threshold != self.threshold:
+            raise CalibrationError("policy threshold and selection metrics differ")
+        if self.objective == "max_f1":
+            if self.max_window_fpr is not None:
+                raise CalibrationError("max_f1 must not claim an FPR budget")
+        elif (
+            isinstance(self.max_window_fpr, bool)
+            or not isinstance(self.max_window_fpr, int | float)
+            or not isfinite(self.max_window_fpr)
+            or not 0 <= self.max_window_fpr <= 1
+            or self.metrics.fpr is None
+            or not isfinite(self.metrics.fpr)
+            or not 0 <= self.metrics.fpr <= self.max_window_fpr
+        ):
+            raise CalibrationError("selection metrics must satisfy the recorded FPR budget")
+
     def to_json(self) -> str:
         document = asdict(self) | {"metrics": asdict(self.metrics)}
         return json.dumps(document, indent=2, sort_keys=True, allow_nan=False) + "\n"
@@ -56,8 +86,8 @@ def calibrate_threshold(
 ) -> ThresholdPolicy:
     if objective not in OBJECTIVES:
         raise CalibrationError(f"objective must be one of {OBJECTIVES}")
-    if selected_on == "test":
-        raise CalibrationError("thresholds are never selected on the test split")
+    if selected_on != "validation":
+        raise CalibrationError("thresholds must be selected on validation only")
     budget: float | None = None
     if objective == "max_recall_at_fpr":
         if (
@@ -109,12 +139,28 @@ def write_policy(policy: ThresholdPolicy, out_dir: Path) -> Path:
 
 
 def read_policy(path: Path) -> ThresholdPolicy:
-    document = json.loads(Path(path).read_text(encoding="utf-8"))
-    metrics = document.pop("metrics")
-    for name in ("recall_ci", "fpr_ci"):
-        if metrics[name] is not None:
-            metrics[name] = tuple(metrics[name])
-    return ThresholdPolicy(metrics=Metrics(**metrics), **document)
+    def strict_object(pairs):
+        document = dict(pairs)
+        if len(document) != len(pairs):
+            raise CalibrationError("duplicate key in policy")
+        return document
+
+    def reject_constant(value):
+        raise CalibrationError(f"nonfinite constant in policy: {value}")
+
+    try:
+        document = json.loads(
+            Path(path).read_text(encoding="utf-8"),
+            object_pairs_hook=strict_object,
+            parse_constant=reject_constant,
+        )
+        metrics = document.pop("metrics")
+        for name in ("recall_ci", "fpr_ci"):
+            if metrics[name] is not None:
+                metrics[name] = tuple(metrics[name])
+        return ThresholdPolicy(metrics=Metrics(**metrics), **document)
+    except (OSError, UnicodeError, ValueError, TypeError, KeyError, AttributeError) as exc:
+        raise CalibrationError(f"invalid policy: {exc}") from exc
 
 
 def apply_frozen_policy(
