@@ -34,7 +34,7 @@ heads. Real Linux capture/replay and service smoke passed again. Details:
 | KAN-17 | İncelemede | Real sample-pack parent identity and disjointness evidence |
 | KAN-18/19 | İncelemede | Real audited data/model/metrics, agreed validation budget and policy freeze |
 | KAN-28 | İncelemede | Live idle-watermark/drop health and N-reset integration |
-| KAN-63 | İncelemede | KAN-38 concrete wire/framing/topic/ACK review remains |
+| KAN-63 | Tamamlandı | R1/R3 design review accepted; requested fixes merged. Concrete wire work remains in KAN-38 |
 
 PR merge is not evidence that these missing data or integration criteria passed.
 Owners/dates are unchanged. KAN-13/14/20/38/39/40/41/42/43 now carry the review

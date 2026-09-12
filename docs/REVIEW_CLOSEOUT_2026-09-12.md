@@ -61,8 +61,10 @@ reported team review/approval in this session; that was recorded as user-reporte
 approval, not a fabricated GitHub reviewer vote. Other authors' PRs received the
 Lead code review and approval after checks and corrections.
 
-KAN-10/27/29/32 moved to Tamamlandı with acceptance evidence. KAN-9/15/16/17/18/19/28
+KAN-10/27/29/32 moved to Tamamlandı with acceptance evidence. KAN-63 also
+moved to Tamamlandı after correcting the interpretation of the PR #4 approval. KAN-9/15/16/17/18/19/28
 retain their real-data, catalogue or runtime integration acceptance requirements;
-KAN-63 retains the concrete KAN-38 framing/topic/ACK review. Their code may be
+KAN-38 retains its own concrete framing/topic/ACK work; Gabriel explicitly made
+those follow-ups non-blocking for the architecture review. Their code may be
 merged while their broader acceptance remains open. Owners and dates did not change.
 See [current status](STATUS.md) and [review decisions](architecture/REVIEW_RESOLUTION_2026-09-12.md).
