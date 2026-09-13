@@ -4,7 +4,9 @@ Each scenario is one group. LAN and device addresses come from the audit
 (data/DATASET_AUDIT.md), not from guesswork; running the builder with a wrong LAN
 would report traffic as OUTSIDE rather than invent directions.
 
-Usage: python -m data.samplepack.iot23 --captures ~/omniguard-data/iot23 --out ~/omniguard-data/samplepack
+Usage:
+    python -m data.samplepack.iot23 \
+        --captures ~/omniguard-data/iot23 --out ~/omniguard-data/samplepack
 """
 
 import argparse
@@ -14,7 +16,10 @@ from pathlib import Path
 from data.samplepack.build import CaptureSpec, build_sample_pack
 
 BASE_URL = "https://mcfp.felk.cvut.cz/publicDatasets/IoT-23-Dataset/IndividualScenarios"
-LICENSE = "IoT-23, Stratosphere Laboratory (CTU); confirm licence terms on the dataset page before publication"
+LICENSE = (
+    "IoT-23, Stratosphere Laboratory (CTU); "
+    "confirm licence terms on the dataset page before publication"
+)
 
 SCENARIOS = (
     (
@@ -94,7 +99,10 @@ def specs(captures_dir: Path) -> list[CaptureSpec]:
                 declared_label=None if usable else "benign",
                 notes=""
                 if usable
-                else "Honeypot scenario; its conn log is empty, so the label comes from the dataset description.",
+                else (
+                    "Honeypot scenario; its conn log is missing, so the label comes "
+                    "from the dataset description."
+                ),
             )
         )
     return out
