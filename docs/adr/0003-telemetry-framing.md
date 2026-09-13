@@ -426,7 +426,9 @@ ikisini birden okur; biri sıfır diye kayıp yok denmez.
 
 ## Ekip review
 
-- [ ] R1 Onur: kimlik ve sıra alanlarının ölçüm ile model bağlamına uyumu.
+- [x] R1 Onur: kimlik ve sıra alanlarının ölçüm ile model bağlamına uyumu.
+      13 Eylül 2026'da §5.1 ve §5.2 onaylandı. KAN-40 için iki şart (UNORDERED boot
+      kaydının kalıcı olması, run_id ↔ boot_id eşlemesi) KAN-38 yorumunda.
 - [ ] R2/Lead Şükrü: producer tarafında sequence/boot üretimi, kritik yolu
       bloklamama garantisi, socket izinleri ve lab görünürlüğü.
 - [ ] R3 Gabriel: yazar.
