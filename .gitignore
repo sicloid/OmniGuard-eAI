@@ -17,3 +17,4 @@ artifacts/
 data/raw/
 data/samplepack/*
 !data/samplepack/README.md
+!data/samplepack/*.py
