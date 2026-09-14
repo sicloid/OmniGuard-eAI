@@ -91,7 +91,7 @@ will be wide, and KAN-18 must report them rather than quote a point estimate.
 1. Make IoT-23 the primary dataset for training and evaluation. The measurements
    above show it matches the egress threat model; CICIoT2023 does not, and is also
    unreachable. This is a source change, so it belongs in an ADR (proposed
-   ADR-0003) rather than in a quiet code edit.
+   ADR-0004) rather than in a quiet code edit.
 2. Keep CICIoT2023 as a transfer-experiment candidate (KAN-23) if it becomes
    reachable, evaluated with the same extractor.
 3. Record LAN, capture hash, label mapping and window rule per capture in the
