@@ -12,8 +12,10 @@ still being recorded dropped rather than padded; the manifest records both facts
 
 Multicast, broadcast and link-local destinations are excluded from EGRESS: that
 traffic never leaves the house, so counting it as outbound would teach the model
-discovery chatter. The same rule belongs in the R2 source adapter (see
-data/DATASET_AUDIT.md); until then this builder corrects it on the R1 side.
+discovery chatter.
+This exclusion, the declared-label assumption and the IoT-23 primary-source switch are
+R1 proposals, not team decisions: the shared live/offline semantics (R2 source adapter)
+need a documented decision before the catalogue or any research result is frozen.
 """
 
 import hashlib
@@ -35,6 +37,11 @@ WINDOWS_FILENAME = "windows.jsonl"
 MANIFEST_FILENAME = "manifest.json"
 EGRESS_EXCLUSIONS = ("224.0.0.0/4", "ff00::/8", "255.255.255.255", "169.254.0.0/16", "fe80::/10")
 MALICIOUS_LABEL, BENIGN_LABEL, UNKNOWN_LABEL = "malicious", "benign", "unknown"
+LABELS = (MALICIOUS_LABEL, BENIGN_LABEL, UNKNOWN_LABEL)
+# sources.from_pcap reports a short read as a plain ValueError with this message. Only
+# that error is a truncated tail; PCAPNG, link-type, size-bound and packet errors must
+# fail the build instead of producing a nominally successful pack.
+TRUNCATED_RECORD = "truncated PCAP header/record"
 
 
 class SamplePackError(ValueError):
@@ -102,7 +109,9 @@ def _windows_of(packets: Iterable[PacketTuple], counts: _Counts) -> dict[tuple[s
             packet = next(stream)
         except StopIteration:
             break
-        except ValueError:
+        except ValueError as exc:
+            if str(exc) != TRUNCATED_RECORD:
+                raise
             # A capture cut mid-record (IoT-23 5-1 ends this way). Keep what was read
             # and drop the interval that was still being recorded; never pad it.
             counts.truncated_tail = True
@@ -236,11 +245,19 @@ def build_sample_pack(
 
 
 def read_windows(path: Path) -> list[LabelledWindow]:
-    """Load training windows; unknown-labelled windows are left out on purpose."""
+    """Load training windows; unknown-labelled windows are left out on purpose.
+
+    A label outside LABELS is an error, never a benign row: treating an unrecognised
+    label as benign would put unverified windows into the benign class.
+    """
+    path = Path(path)
     windows = []
-    for line in Path(path).read_text(encoding="utf-8").splitlines():
+    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         row = json.loads(line)
-        if row["label"] == UNKNOWN_LABEL:
+        label = row["label"]
+        if label not in LABELS:
+            raise SamplePackError(f"{path.name}:{number}: label {label!r} is not one of {LABELS}")
+        if label == UNKNOWN_LABEL:
             continue
         vector = FeatureVector(
             row["device_id"],
@@ -250,5 +267,5 @@ def read_windows(path: Path) -> list[LabelledWindow]:
             FEATURE_ORDER,
             tuple(float(v) for v in row["values"]),
         )
-        windows.append(LabelledWindow(row["group"], vector, row["label"] == MALICIOUS_LABEL))
+        windows.append(LabelledWindow(row["group"], vector, label == MALICIOUS_LABEL))
     return windows

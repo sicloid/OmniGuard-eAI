@@ -6,7 +6,7 @@ from pathlib import Path
 
 import dpkt
 
-from data.samplepack.build import CaptureSpec, build_sample_pack, read_windows
+from data.samplepack.build import CaptureSpec, SamplePackError, build_sample_pack, read_windows
 
 HEADER = (
     "#fields\tts\tuid\tid.orig_h\tid.orig_p\tid.resp_h\tid.resp_p\tproto\t"
@@ -188,6 +188,27 @@ class SamplePackTests(unittest.TestCase):
         self.assertIn("224.0.0.0/4", manifest["egress_exclusions"])
         second = build_sample_pack([self.spec()], self.dir / "pack2")
         self.assertEqual(manifest["windows_sha256"], second["windows_sha256"])
+
+    def test_labels_outside_the_vocabulary_are_rejected_not_read_as_benign(self):
+        _, out = self.build()
+        path = out / "windows.jsonl"
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        rows[0]["label"] = "UNRECOGNIZED"
+        path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+        with self.assertRaises(SamplePackError):
+            read_windows(path)
+
+    def test_reader_errors_other_than_a_truncated_record_fail_the_build(self):
+        pcapng = self.dir / "n.pcap"
+        pcapng.write_bytes(b"\x0a\x0d\x0d\x0a" + b"\x00" * 28)
+        wifi = self.dir / "w.pcap"
+        with open(wifi, "wb") as handle:
+            dpkt.pcap.Writer(handle, linktype=105).writepkt(b"\x00" * 40, ts=100.0)
+        bad_ipv4 = b"\x04" * 6 + b"\x02" * 6 + b"\x08\x00" + b"\x45\x00\x00\x05" + b"\x00" * 16
+        broken = self.pcap("b.pcap", [(100.0, bad_ipv4)])
+        for path in (pcapng, wifi, broken):
+            with self.subTest(capture=path.name), self.assertRaises(ValueError):
+                build_sample_pack([self.spec(pcap=path)], self.dir / f"out-{path.stem}")
 
 
 if __name__ == "__main__":
