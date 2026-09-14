@@ -43,7 +43,7 @@ def write_pack(directory: Path, *, separable: bool = True, per_group: int = 30):
             lines.append(json.dumps(row, sort_keys=True))
     payload = "".join(line + "\n" for line in lines)
     pack = directory / "windows.jsonl"
-    pack.write_text(payload, encoding="utf-8")
+    pack.write_bytes(payload.encode("utf-8"))
     sha = hashlib.sha256(payload.encode()).hexdigest()
     manifest = {
         "windows_file": "windows.jsonl",
@@ -148,6 +148,19 @@ class PolicyRunTests(unittest.TestCase):
         self.assertIn("0.01", first["error"])
         self.assertFalse((out / "operating").exists())
         self.assertTrue((out / "policy_report.json").exists())
+
+    def test_existing_run_is_refused_before_training_and_left_unchanged(self):
+        pack, sha = write_pack(self.dir)
+        out = self.dir / "out"
+        run(pack, out, write_spec(self.dir, sha))
+        before = {p.relative_to(out): p.read_bytes() for p in out.rglob("*") if p.is_file()}
+        pack, sha = write_pack(self.dir, separable=False)
+        with mock.patch("model.policy_run.run_baseline") as training:
+            with self.assertRaises(FileExistsError):
+                run(pack, out, write_spec(self.dir, sha))
+        training.assert_not_called()
+        after = {p.relative_to(out): p.read_bytes() for p in out.rglob("*") if p.is_file()}
+        self.assertEqual(after, before)
 
     def test_only_validation_windows_are_scored_for_calibration(self):
         from model import policy_run

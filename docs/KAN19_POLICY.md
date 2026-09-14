@@ -18,8 +18,11 @@ was committed in `b436195` before any calibration on real data. It fixes:
 If no threshold had met the budget, the run would have recorded that and written no
 artifact. Spec SHA-256: `867b81f796cfcf72130c401eb582daa31c13115a44716813cf04de375e72315f`.
 
-Nothing here reads the development test split, the ADR-0004 holdout or any KAN-21 fold
-result.
+The runner parses development rows to construct the capture split, but never fits or
+scores its test rows. It does not read the ADR-0004 holdout or KAN-21 fold results.
+Each invocation requires a new output directory; an existing run is refused before
+training so a failed calibration cannot leave a previous operating artifact in place.
+The committed freeze JSON files use LF on every platform to preserve exact-byte pins.
 
 ## Frozen operating policy (seed 1)
 
@@ -82,7 +85,7 @@ threshold equals the policy threshold, and `read_policy` reproduces the policy h
    objective is fixed in the spec, so it is reported here, not changed.
 5. **Declared label.** Seed 3 validates on Honeypot-7-1, whose benign label is declared,
    not measured (ADR-0004 decision 4). The operating seed does not use 7-1 for
-   validation, and 7-1 sits in its unread test split.
+   validation, and 7-1 sits in its unscored test split.
 
 ## What comes next
 

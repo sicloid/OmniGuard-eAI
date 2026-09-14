@@ -11,7 +11,8 @@ operating candidate, and the seeds reported only for sensitivity. The run then:
    `threshold.policy.json` and a provenance record that binds the pack, spec, split,
    model, metadata and policy hashes.
 
-The development test split and the ADR-0004 holdout are never read. When no threshold
+Development rows are parsed for grouping, but test rows are never fitted or scored.
+The ADR-0004 holdout is never read. When no threshold
 meets the budget the run records that and writes no artifact; the budget is not relaxed.
 Sensitivity seeds never produce an artifact, so a better-looking seed cannot replace the
 declared one.
@@ -92,6 +93,9 @@ def run(pack: Path, out_dir: Path, spec_path: Path = SPEC, manifest: Path | None
     if _sha256(pack) != provenance.windows_sha256:
         raise PackIntegrityError(f"{pack.name} changed while it was being read")
 
+    # Each freeze owns a new directory: a failed calibration must not leave an old
+    # operating artifact looking like the output of the new run. Never delete it.
+    out_dir.mkdir(parents=True, exist_ok=False)
     runs, operating = [], None
     for seed in (spec["operating_seed"], *spec["sensitivity_seeds"]):
         role = "operating" if seed == spec["operating_seed"] else "sensitivity"
