@@ -67,10 +67,14 @@ class SplitManifest:
         return hashlib.sha256(self.to_json().encode()).hexdigest()
 
 
-def _take(ordered: list[WindowGroup], target: float) -> list[WindowGroup]:
-    """Pop groups from the front until their windows reach target (at least one)."""
+def _take(ordered: list[WindowGroup], target: float, limit: int) -> list[WindowGroup]:
+    """Pop groups until their windows reach target, never taking more than limit.
+
+    The limit keeps the later splits non-empty: with three uneven groups per class,
+    chasing the window target alone can swallow two of them and leave train empty.
+    """
     taken, total = [], 0
-    while ordered and (not taken or total < target):
+    while ordered and len(taken) < limit and (not taken or total < target):
         group = ordered.pop(0)
         taken.append(group)
         total += group.windows
@@ -109,8 +113,9 @@ def split_by_group(
             )
         ordered = sorted(members, key=order_key)
         total = sum(g.windows for g in ordered)
-        assigned["test"] += _take(ordered, test * total)
-        assigned["validation"] += _take(ordered, validation * total)
+        # Reserve one group for validation and one for train before filling test.
+        assigned["test"] += _take(ordered, test * total, len(ordered) - 2)
+        assigned["validation"] += _take(ordered, validation * total, len(ordered) - 1)
         if not ordered:
             raise SplitError(f"{label}: no groups left for train; add groups or lower fractions")
         assigned["train"] += ordered

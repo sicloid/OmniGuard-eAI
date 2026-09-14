@@ -64,6 +64,23 @@ class StratificationTests(unittest.TestCase):
                 share = manifest.counts[name]["windows"] / total
                 self.assertAlmostEqual(share, target, delta=0.05)
 
+    def test_uneven_group_sizes_still_leave_every_split_non_empty(self):
+        """Real IoT-23 window counts: benign 9770/2831/1019, malware 25655/9722/7927."""
+        data = [
+            WindowGroup("benign-a", 9770, 0),
+            WindowGroup("benign-b", 2831, 0),
+            WindowGroup("benign-c", 1019, 0),
+            WindowGroup("attack-a", 25655, 25651),
+            WindowGroup("attack-b", 9722, 8686),
+            WindowGroup("attack-c", 7927, 6997),
+        ]
+        for seed in range(8):
+            with self.subTest(seed=seed):
+                manifest = split_by_group(data, seed=seed)
+                for name in ("train", "validation", "test"):
+                    self.assertEqual(len(getattr(manifest, name)), 2, name)
+                    self.assertGreater(manifest.counts[name]["malicious_windows"], 0)
+
     def test_too_few_groups_per_class_is_an_error_not_a_silent_leak(self):
         with self.assertRaises(SplitError):
             split_by_group(groups(10, 2), seed=0)
