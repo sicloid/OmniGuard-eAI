@@ -50,3 +50,33 @@ Tests: `.venv/bin/python -m unittest discover -s tests -p test_detector.py -v`.
 Two interchangeable implementations, pre-call rejection, output mismatch, exact
 threshold equality, failure/cancellation and stub exhaustion are covered. These
 prove interface behavior, not trained-model performance or G8/G10.
+
+## KAN-30: bounded decision policy
+
+`DevicePolicy(device_id, n=..., lease_seconds=..., max_lease=...)` consumes checked
+`DetectionResult` values through `observe(result, now=utc, mono=monotonic)` and
+returns existing 0.1.0 `StateEvent` tuples. Use one object per device, one caller,
+with a bounded device registry owned by the runtime. Configuration is fixed for
+an object's lifetime; create/reconcile a new policy for configuration changes.
+
+N=1 requests quarantine in the first eligible window. Only consecutive complete
+five-second windows count. Stale (>1s after closure), future, duplicate, gap,
+model/threshold change and explicit invalidation reset the series. Call
+`invalidate` on capture/pipeline reset_generation changes, empty windows and
+inference failure; missing observations are not benign classifications.
+
+Call `tick` independently of capture/inference, even when they stop producing
+results. Durations use monotonic time, while event timestamp/expiry are UTC
+presentation fields. Repeated anomalies and invalidation never renew a lease.
+Expiry/manual `release` disarms the policy. `rearm` is an explicit caller action
+for a new reconciled episode; old window evidence remains rejected. This initial
+review candidate allows at most one lease per armed episode. Neither the 1s
+freshness bound nor N/lease choices are validated detection-quality parameters.
+
+This is decision logic, not a deployed controller: live scheduling, bounded device
+registry, kernel TTL, restart/binding reconciliation and successful restoration
+remain KAN-31/integration work. Creating a new object is not evidence that an old
+kernel block disappeared. QUARANTINED is a request, NORMAL after expiry/release
+is not a clean-device or firewall-success claim. ADR-0002 stays PROPOSED; no new
+wire field or production policy is introduced. No MQTT, disk or firewall I/O runs
+in this component.

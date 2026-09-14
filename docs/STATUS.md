@@ -70,3 +70,17 @@ Main at 446b240 passed 212 tests with two platform-absence skips. PR #19's real
 broker evidence is in [KAN38_MQTT_VALIDATION](KAN38_MQTT_VALIDATION.md). The
 IoT-23 primary-source recommendation was explicitly left unapproved by Şükrü;
 merging the audit is not a dataset switch. No actual RF/result freeze is claimed.
+
+## 14 September 2026 — current correction and KAN-30 candidate
+
+The historical tables above describe earlier review states. PRs #18–24 have now
+merged. KAN-9/14/17/18/28/38 are completed at their component scope. The sample-pack
+sources and first real negative baseline are present; G5/G8/G10 remain unpassed.
+IoT-23 primary-source and shared direction semantics remain proposals/follow-ups.
+KAN-39 uses the 0.1.0 initial migration including run_id; boot/ordering additions
+belong to KAN-40's additive 002 migration.
+
+KAN-30 now has a review candidate in `gateway/policy.py`: configurable N,
+invalid/gap reset, independent monotonic expiry and explicit episode rearm using
+existing StateEvent. See gateway/README.md for call obligations. This does not
+complete live scheduling or kernel enforcement, and is not yet merged/deployed.
