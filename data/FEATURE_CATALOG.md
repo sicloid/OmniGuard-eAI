@@ -15,8 +15,7 @@ version is rejected by `model.artifact.load_model`.
 - Input: the `PacketTuple`s of **one device** in **one** 5-second, half-open,
   epoch-aligned window `[window_start, window_start + 5)` (see `SCHEMA.md`).
 - Only `Direction.EGRESS` packets contribute. INGRESS and LOCAL packets in the
-  same window are ignored; they are not an error. EGRESS excludes destinations that
-  stay on the local link (multicast, limited broadcast, link-local, unspecified),
+  same window are ignored; they are not an error. EGRESS excludes destinations by policy (multicast, limited broadcast, link-local, unspecified),
   defined once in `sources/scope.py` for live capture and the sample pack alike.
 - Only header metadata already present in `PacketTuple` is used. No payload
   bytes are read, stored or needed.
@@ -96,9 +95,15 @@ change to the set, order, units, direction policy or edge-case behaviour. The
 model artifact records the version and order it was trained on. A mismatch
 refuses loading instead of silently mis-ordering inputs.
 
-The on-link EGRESS exclusion is part of `features-1`, not a change to it. The IoT-23
-sample pack, and every artifact trained on it, excluded on-link destinations from the
+The destination-policy EGRESS exclusion is part of `features-1`, not a change to it. The IoT-23
+sample pack, and every artifact trained on it, excluded these destinations from the
 first build. On 14 September 2026 live capture (`PacketNormalizer`) was aligned to that
 same rule through `sources/scope.py`. Offline feature values did not change, so the
-version stays `features-1`. Before the alignment, live capture counted on-link traffic
+version stays `features-1`. Before the alignment, live capture counted policy-excluded traffic
 as EGRESS and did not match the catalogue as trained.
+
+This catalogue is not the scope of containment measurement. All multicast, including
+routable IPv4 and global-scope IPv6, is excluded from features. KAN-33/G8 must count
+leakage independently at the sink/forwarding boundary; missing coverage is reported
+as unmeasured rather than zero. Earlier live outputs require their source revision
+when compared with the aligned normalizer.

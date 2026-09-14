@@ -24,7 +24,7 @@ Noninitial fragments emit null ports and zero flags. First fragments missing a
 complete transport header also emit null ports. Invalid unfragmented transport
 headers fail fast. Outside-LAN, unmapped devices and non-IP traffic are counted
 and filtered. LOCAL uses source device identity; INGRESS uses destination identity.
-A LAN source sending to a destination that stays on the local link (multicast,
+A LAN source sending to a destination excluded by feature policy (multicast,
 limited broadcast, link-local, unspecified; see `scope.py`) is LOCAL, not EGRESS, and
 is counted in `stats.on_link`. The sample-pack builder relies on the same rule.
 SLL/SLL2 src_mac is null because cooked sender address need not be the IP source.
@@ -32,3 +32,8 @@ SLL/SLL2 src_mac is null because cooked sender address need not be the IP source
 Oracle tests use independently constructed packet bytes and a temporary PCAP,
 including Ethernet padding, directions, VLAN, fragments, cooked/raw and IPv6.
 Reference: [dpkt PCAP reader](https://dpkt.readthedocs.io/en/latest/_modules/dpkt/pcap.html).
+
+The legacy `on_link` counter and `stays_on_link` predicate describe policy exclusions,
+not physical routing. Routable multicast is excluded too. KAN-33/G8 must use independent
+sink/forwarding counters for leakage, with missing coverage marked unmeasured.
+`on_link` is an additive field in the PCAP/live diagnostic JSON output.

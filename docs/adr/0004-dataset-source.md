@@ -75,7 +75,7 @@ Dış testten önce, erişim sağlanırsa:
 Dış test donmuş model, özellik, eşik politikası ve N ile bir kez skorlanır. CICIoT2023
 sonuçlarına göre hiçbir parametre ayarlanmaz.
 
-### 3. EGRESS, evden gerçekten çıkan trafiktir
+### 3. EGRESS özellikleri için ortak dışlama politikası
 
 Multicast (`224.0.0.0/4`, `ff00::/8`), sınırlı broadcast (`255.255.255.255`) ve
 link-local (`169.254.0.0/16`, `fe80::/10`) hedefler EGRESS sayılmaz. Ölçülen etki:
@@ -275,3 +275,12 @@ Erişim tarihi 2026-09-14.
 İmzalar gerçek inceleme sonrası işaretlenir. Bu ADR onaylanana kadar veri
 kaynağı değişikliği yapılmış sayılmaz; mevcut pack, KAN-18 ve KAN-21 sonuçları "IoT-23
 önerisi altında geliştirme sonucu" olarak anılır.
+
+### 14 Eylül — Karar 3 kapsamındaki R2/R3 inceleme düzeltmesi
+
+PR #29, ortak dışlama kuralını normalizer ve pack için eşitler. Tüm multicast
+özelliklerden politika gereği dışlanır; fiziksel link sınırı iddiası kurulmaz.
+Alt ağ broadcast adresi yapılandırılmış LAN üyeliğiyle LOCAL olur; /31, /32 ve
+IPv6 için broadcast türetilmez. features-1 offline değerleri değişmediğinden korunur.
+KAN-33/G8 bu sınıflandırmadan bağımsız kaçış ölçer; eksik kapsam ölçülmedi olarak
+raporlanır. Bu açıklama diğer ADR kararlarını veya UNSW indirmesini onaylamaz.

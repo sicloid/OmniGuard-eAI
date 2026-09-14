@@ -27,7 +27,7 @@ class PacketStats:
     outside_lan: int = 0
     unmapped_device: int = 0
     malformed: int = 0
-    # Emitted packets from a LAN device to an on-link destination outside the LAN
+    # Emitted packets from a LAN device to a policy-excluded destination outside the LAN
     # prefixes (multicast, limited broadcast, link-local, unspecified): LOCAL, not EGRESS.
     on_link: int = 0
 
@@ -155,8 +155,8 @@ class PacketNormalizer:
         if not src_lan and not dst_lan:
             self.stats.outside_lan += 1
             return None
-        # Multicast, limited broadcast, link-local and unspecified destinations never leave
-        # the link, so a LAN source sending to one is LOCAL even outside the LAN prefixes.
+        # Apply the shared feature exclusion policy, not a physical routing guarantee.
+        # Routed multicast is excluded too; leakage must use independent counters.
         on_link = src_lan and not dst_lan and stays_on_link(dst)
         direction = (
             Direction.LOCAL

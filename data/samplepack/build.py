@@ -10,11 +10,11 @@ training data, never folded into benign.
 A capture that ends mid-record is used up to that point, with the interval that was
 still being recorded dropped rather than padded; the manifest records both facts.
 
-Destinations that stay on the local link (multicast, the limited broadcast, link-local
-and unspecified) are not EGRESS: that traffic never leaves the house, so counting it
-as outbound would teach the model discovery chatter. The rule lives in `sources.scope`
-and `PacketNormalizer` applies it, so this builder and live capture see the same EGRESS
-set. The manifest's `multicast_or_broadcast` count is the normalizer's `on_link` count.
+Multicast, limited broadcast, link-local and unspecified destinations are excluded
+from EGRESS features by policy, not because all of them are physically link-local.
+The rule lives in sources.scope and PacketNormalizer applies it, so this builder and
+live capture see the same EGRESS set. The manifest's legacy multicast_or_broadcast
+count is the normalizer's on_link policy-exclusion count, not a leakage measurement.
 The Lead approved moving this rule into shared code on 14 September 2026; the
 normalizer change still needs R2 review. The declared-label assumption and the IoT-23
 primary source stay as recorded in ADR-0004.
@@ -109,7 +109,7 @@ def _windows_of(packets: Iterable[PacketTuple], counts: _Counts) -> dict[tuple[s
             counts.truncated_tail = True
             break
         counts.packets += 1
-        # On-link destinations already arrive as LOCAL from PacketNormalizer (sources.scope).
+        # Policy-excluded destinations arrive as LOCAL from the shared normalizer.
         if packet.direction is not Direction.EGRESS:
             continue
         counts.egress_packets += 1
