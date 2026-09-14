@@ -10,19 +10,20 @@ training data, never folded into benign.
 A capture that ends mid-record is used up to that point, with the interval that was
 still being recorded dropped rather than padded; the manifest records both facts.
 
-Multicast, broadcast and link-local destinations are excluded from EGRESS: that
-traffic never leaves the house, so counting it as outbound would teach the model
-discovery chatter.
-This exclusion, the declared-label assumption and the IoT-23 primary-source switch are
-R1 proposals, not team decisions: the shared live/offline semantics (R2 source adapter)
-need a documented decision before the catalogue or any research result is frozen.
+Destinations that stay on the local link (multicast, the limited broadcast, link-local
+and unspecified) are not EGRESS: that traffic never leaves the house, so counting it
+as outbound would teach the model discovery chatter. The rule lives in `sources.scope`
+and `PacketNormalizer` applies it, so this builder and live capture see the same EGRESS
+set. The manifest's `multicast_or_broadcast` count is the normalizer's `on_link` count.
+The Lead approved moving this rule into shared code on 14 September 2026; the
+normalizer change still needs R2 review. The declared-label assumption and the IoT-23
+primary source stay as recorded in ADR-0004.
 """
 
 import hashlib
 import json
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from ipaddress import ip_address
 from math import floor
 from pathlib import Path
 
@@ -32,10 +33,11 @@ from data.samplepack.labels import BENIGN, DEFAULT_TOLERANCE, MALICIOUS, load_co
 from model.train import LabelledWindow
 from sources.from_pcap import read_pcap
 from sources.packets import PacketNormalizer
+from sources.scope import ON_LINK_DESTINATIONS
 
 WINDOWS_FILENAME = "windows.jsonl"
 MANIFEST_FILENAME = "manifest.json"
-EGRESS_EXCLUSIONS = ("224.0.0.0/4", "ff00::/8", "255.255.255.255", "169.254.0.0/16", "fe80::/10")
+EGRESS_EXCLUSIONS = ON_LINK_DESTINATIONS
 MALICIOUS_LABEL, BENIGN_LABEL, UNKNOWN_LABEL = "malicious", "benign", "unknown"
 LABELS = (MALICIOUS_LABEL, BENIGN_LABEL, UNKNOWN_LABEL)
 # sources.from_pcap reports a short read as a plain ValueError with this message. Only
@@ -91,16 +93,6 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _leaves_the_house(destination: str) -> bool:
-    address = ip_address(destination)
-    return not (
-        address.is_multicast
-        or address.is_link_local
-        or address.is_unspecified
-        or str(address) == "255.255.255.255"
-    )
-
-
 def _windows_of(packets: Iterable[PacketTuple], counts: _Counts) -> dict[tuple[str, float], list]:
     grouped: dict[tuple[str, float], list[PacketTuple]] = {}
     stream = iter(packets)
@@ -117,9 +109,7 @@ def _windows_of(packets: Iterable[PacketTuple], counts: _Counts) -> dict[tuple[s
             counts.truncated_tail = True
             break
         counts.packets += 1
-        if packet.direction is Direction.EGRESS and not _leaves_the_house(packet.dst_ip):
-            counts.multicast_or_broadcast += 1
-            continue
+        # On-link destinations already arrive as LOCAL from PacketNormalizer (sources.scope).
         if packet.direction is not Direction.EGRESS:
             continue
         counts.egress_packets += 1
@@ -165,6 +155,7 @@ def build_sample_pack(
             )
         normalizer = PacketNormalizer(list(spec.lan_cidrs), spec.devices)
         grouped = _windows_of(read_pcap(spec.pcap, normalizer), counts)
+        counts.multicast_or_broadcast = normalizer.stats.on_link
         for (device_id, start), packets in sorted(grouped.items()):
             vector = extract_features(device_id, start, packets)
             if vector is None:

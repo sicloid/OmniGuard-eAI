@@ -8,6 +8,7 @@ from ipaddress import ip_address, ip_network
 import dpkt
 
 from core.schema import Direction, PacketTuple, nonempty
+from sources.scope import stays_on_link
 
 
 class PacketError(ValueError):
@@ -26,6 +27,9 @@ class PacketStats:
     outside_lan: int = 0
     unmapped_device: int = 0
     malformed: int = 0
+    # Emitted packets from a LAN device to an on-link destination outside the LAN
+    # prefixes (multicast, limited broadcast, link-local, unspecified): LOCAL, not EGRESS.
+    on_link: int = 0
 
 
 class PacketNormalizer:
@@ -151,9 +155,12 @@ class PacketNormalizer:
         if not src_lan and not dst_lan:
             self.stats.outside_lan += 1
             return None
+        # Multicast, limited broadcast, link-local and unspecified destinations never leave
+        # the link, so a LAN source sending to one is LOCAL even outside the LAN prefixes.
+        on_link = src_lan and not dst_lan and stays_on_link(dst)
         direction = (
             Direction.LOCAL
-            if src_lan and dst_lan
+            if (src_lan and dst_lan) or on_link
             else (Direction.EGRESS if src_lan else Direction.INGRESS)
         )
         device_id = self.devices.get(src if src_lan else dst)
@@ -192,5 +199,7 @@ class PacketNormalizer:
             length,
             direction,
         )
+        if on_link:
+            self.stats.on_link += 1
         self.stats.emitted += 1
         return result

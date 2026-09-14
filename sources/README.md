@@ -24,6 +24,9 @@ Noninitial fragments emit null ports and zero flags. First fragments missing a
 complete transport header also emit null ports. Invalid unfragmented transport
 headers fail fast. Outside-LAN, unmapped devices and non-IP traffic are counted
 and filtered. LOCAL uses source device identity; INGRESS uses destination identity.
+A LAN source sending to a destination that stays on the local link (multicast,
+limited broadcast, link-local, unspecified; see `scope.py`) is LOCAL, not EGRESS, and
+is counted in `stats.on_link`. The sample-pack builder relies on the same rule.
 SLL/SLL2 src_mac is null because cooked sender address need not be the IP source.
 
 Oracle tests use independently constructed packet bytes and a temporary PCAP,
