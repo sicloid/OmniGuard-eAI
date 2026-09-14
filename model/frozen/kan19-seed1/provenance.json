@@ -1,0 +1,14 @@
+{
+  "feature_schema_version": "features-1",
+  "manifest_sha256": "65c7184c3cb8602105684f80b415e4fd17e4e5bdab5ce1813aa5af9f9bdbdfb0",
+  "max_window_fpr": 0.01,
+  "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+  "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+  "seed": 1,
+  "spec_sha256": "867b81f796cfcf72130c401eb582daa31c13115a44716813cf04de375e72315f",
+  "threshold": 0.9798815486832,
+  "threshold_policy_sha256": "4a9491b5ce0be6a5225ce8f0e0b4d72022e67a62ba38c6cf62aeb051acc7bcdb",
+  "training_manifest_sha256": "b4abc85f8a2d5f00be0789327d2a76e331399396a50c9dcbd289ff222f56be67",
+  "windows_file": "windows.jsonl",
+  "windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625"
+}

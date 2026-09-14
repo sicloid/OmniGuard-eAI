@@ -1,0 +1,35 @@
+{
+  "counts": {
+    "test": {
+      "groups": 2,
+      "malicious_windows": 25651,
+      "windows": 35425
+    },
+    "train": {
+      "groups": 2,
+      "malicious_windows": 6997,
+      "windows": 10758
+    },
+    "validation": {
+      "groups": 2,
+      "malicious_windows": 8686,
+      "windows": 10741
+    }
+  },
+  "method": "stratified-group-hash-v1",
+  "seed": 1,
+  "test": [
+    "CTU-Honeypot-Capture-7-1",
+    "CTU-IoT-Malware-Capture-3-1"
+  ],
+  "test_fraction": 0.15,
+  "train": [
+    "CTU-Honeypot-Capture-4-1",
+    "CTU-IoT-Malware-Capture-34-1"
+  ],
+  "validation": [
+    "CTU-Honeypot-Capture-5-1",
+    "CTU-IoT-Malware-Capture-8-1"
+  ],
+  "validation_fraction": 0.15
+}

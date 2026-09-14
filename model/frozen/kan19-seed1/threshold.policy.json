@@ -1,0 +1,29 @@
+{
+  "candidates": 143,
+  "max_window_fpr": 0.01,
+  "metrics": {
+    "benign_groups": 1,
+    "f1": 0.9710839098811425,
+    "fn": 475,
+    "fp": 14,
+    "fpr": 0.006812652068126521,
+    "fpr_ci": [
+      0.0,
+      0.013738959764474975
+    ],
+    "malicious_groups": 1,
+    "precision": 0.9982978723404256,
+    "recall": 0.9453142988717477,
+    "recall_ci": [
+      0.9453142988717477,
+      0.9453142988717477
+    ],
+    "threshold": 0.9798815486832,
+    "tn": 2041,
+    "tp": 8211,
+    "windows": 10741
+  },
+  "objective": "max_recall_at_fpr",
+  "selected_on": "validation",
+  "threshold": 0.9798815486832
+}

@@ -1,0 +1,31 @@
+{
+  "feature_order": [
+    "pkt_count",
+    "l3_bytes_sum",
+    "l3_bytes_mean",
+    "l3_bytes_std",
+    "uniq_dst_ip",
+    "uniq_dst_port",
+    "max_dst_ip_share",
+    "tcp_share",
+    "udp_share",
+    "icmp_share",
+    "syn_only_share",
+    "rst_share",
+    "portless_share",
+    "active_span_s"
+  ],
+  "feature_schema_version": "features-1",
+  "meta_format": "omniguard-model-meta/1",
+  "model_id": "rf-iot23",
+  "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+  "model_version": "0.1.0-seed1-kan19",
+  "numpy_version": "2.5.3",
+  "python_version": "3.14.7",
+  "schema_version": "0.1.0",
+  "sklearn_version": "1.8.0",
+  "threshold": 0.9798815486832,
+  "training_manifest_sha256": "b4abc85f8a2d5f00be0789327d2a76e331399396a50c9dcbd289ff222f56be67",
+  "window_seconds": 5,
+  "window_semantics": "half-open-epoch-aligned"
+}
