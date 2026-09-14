@@ -31,8 +31,16 @@ They do not perform capture, inference, state policy, firewall or network I/O.
   never be inferred by filling in a guessed transport port.
 - `src_mac` may be null for captures lacking Ethernet metadata. MAC normalization
   belongs to the future source adapter.
-- EGRESS: source in configured LAN, destination outside. INGRESS: reverse.
-  LOCAL: both inside. Both outside must be excluded by the adapter, not relabeled.
+- EGRESS: source in configured LAN, destination outside it and not excluded by the feature policy.
+  INGRESS: outside-LAN source to inside-LAN destination.
+  LOCAL: both inside, or a LAN source sending to a destination excluded from EGRESS features by policy: multicast, limited broadcast, link-local or unspecified (`sources/scope.py`,
+  shared by live capture and the sample pack). A LAN's own subnet broadcast is inside
+  the LAN and therefore LOCAL; /31, /32 and IPv6 have no broadcast address. Both
+  outside must be excluded by the adapter, not relabeled.
+  LOCAL is not proof of physical link confinement: the policy excludes all multicast,
+  including routable IPv4 and global-scope IPv6 multicast. KAN-33/G8 leakage counters
+  must use independent sink/forwarding evidence rather than filtering on EGRESS;
+  unobserved address families or paths are unmeasured, never a clean zero.
 - `device_id` is an internal stable mapping, not an ML feature. Primary extraction
   will use EGRESS. Mapping and LAN membership are R2 responsibilities.
 - Event/packet timestamps are UTC Unix seconds. Feature windows are half-open
