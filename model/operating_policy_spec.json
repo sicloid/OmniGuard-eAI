@@ -1,0 +1,24 @@
+{
+  "card": "KAN-19",
+  "purpose": "Operating threshold policy for the ADR-0004 holdout freeze, fixed before calibration runs.",
+  "approval": {
+    "max_window_fpr_by": "Şükrü Biçer (Lead/R2)",
+    "date": "2026-09-14",
+    "rule": "If no threshold meets the budget, report it; never relax the budget."
+  },
+  "max_window_fpr": 0.01,
+  "objective": "max_recall_at_fpr",
+  "selected_on": "validation",
+  "feature_schema_version": "features-1",
+  "development_pack_windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+  "n_estimators": 200,
+  "bootstrap": 300,
+  "operating_seed": 1,
+  "sensitivity_seeds": [2, 3],
+  "seed_rule": "Seed 1 is the first KAN-18 baseline seed. It is fixed here before calibration. Seeds 2 and 3 are reported for sensitivity only and can never become the operating policy, so a better-looking seed does not replace the declared one.",
+  "never_read": [
+    "the development pack's test split",
+    "the ADR-0004 holdout captures (data/holdout/selection.json)",
+    "KAN-21 exploratory fold results"
+  ]
+}
