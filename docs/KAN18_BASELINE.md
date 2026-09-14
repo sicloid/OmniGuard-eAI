@@ -9,6 +9,12 @@ python -m model.baseline_run --pack ~/omniguard-data/samplepack/windows.jsonl \
 ```
 
 Sample pack `windows_sha256`: `4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625`
+
+`model.baseline_run` refuses to train unless `windows.jsonl` hashes to the
+`windows_sha256` recorded in its `manifest.json`. Each run writes `provenance.json` beside
+its artifact with the pack hash, the manifest hash, the model hash and the hash of
+`model.meta.json`, so a result can be traced to exact bytes. These are SHA-256 pins,
+not signatures.
 (41,334 malicious and 15,590 benign windows over
 6 capture groups; 29 unknown windows excluded).
 
@@ -32,7 +38,7 @@ With six groups the split gives each part one capture per class, so each run tra
 ## What this shows
 
 **The pipeline runs end to end on real captures.** PCAP to PacketTuple to 5 s windows to
-14 features to a Random Forest to metrics and a signed artifact, with capture-grouped splits
+14 features to a Random Forest to metrics and a hash-pinned artifact, with capture-grouped splits
 and no leakage. That was the mechanical goal of the card.
 
 **It does not show detection quality, and the reason is measurable.** The false-positive rate
@@ -41,9 +47,11 @@ stays high throughout, so the model is not failing to see attacks; it is failing
 unfamiliar benign traffic. With one benign device in training, "benign" means "this device's
 habits", and a different household device looks anomalous.
 
-A 0.40 or 0.80 window FPR is not a tuning detail. At those rates a healthy device is flagged
-in most of its windows, and the N-consecutive rule would quarantine it continuously. No
-threshold choice rescues that: the classes overlap because benign coverage is too narrow.
+These are fixed-threshold (0.5), aggregate window FPR measurements. Two consequences are
+plausible but **untested here**: that a 0.40-0.80 window FPR would make the N-consecutive
+rule quarantine a healthy device repeatedly, and that no validation-selected threshold
+could lower it without giving up recall. KAN-19 threshold selection and the KAN-51
+N/FPR experiment are where those hypotheses get measured.
 
 **The uncertainty estimates are degenerate.** Recall intervals collapse to a point and the FPR
 interval in seeds 1-2 spans (0.0, 0.807), because capture-level bootstrap resamples a single
@@ -65,7 +73,8 @@ or flags everything (seed 3, FPR 1.0). It fails differently, not less.
    behaviour". KAN-20's ablation should test exactly that.
 4. **KAN-21's unseen-family holdout** stays mandatory before any claim about generalisation.
 
-G5 is **not** passed. No detection number from this run may be quoted as project evidence.
+This is a valid negative baseline result. It makes no G5 claim: the numbers describe
+the benign-coverage problem, not the quality of a finished detector.
 
 ## Note on the split module
 
