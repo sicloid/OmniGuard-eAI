@@ -1,0 +1,273 @@
+{
+  "schema": "iot23-holdout-selection-1",
+  "decision": "ADR-0004 decision 7b (docs/adr/0004-dataset-source.md)",
+  "status": "selected; not downloaded; no SHA-256 yet; never scored",
+  "approval": {
+    "by": "Şükrü Biçer (Lead/R2)",
+    "date": "2026-09-14",
+    "channel": "team chat, relayed by Onur; also KAN-13 comment 10476",
+    "approved": [
+      "total download budget 10000000000 bytes",
+      "size tie-break: smaller numeric scenario id",
+      "selection and exclusions recorded in this manifest before download"
+    ]
+  },
+  "rule": {
+    "size_basis": "HTTP Content-Length of the scenario's primary capture",
+    "budget_bytes": 10000000000,
+    "budget_counts": "primary capture + its conn.log.labeled",
+    "tie_break": "smaller numeric scenario id",
+    "seen_family": "Mirai",
+    "unseen_families_needed": 2,
+    "unseen_family_order": [
+      "Torii",
+      "Okiru",
+      "Gagfyt",
+      "Kenjiro",
+      "IRCBot",
+      "Linux.Hajime",
+      "Hide and Seek",
+      "Trojan"
+    ],
+    "development_scenarios": {
+      "CTU-IoT-Malware-Capture-3-1": "Muhstik",
+      "CTU-IoT-Malware-Capture-8-1": "Hakai",
+      "CTU-IoT-Malware-Capture-34-1": "Mirai"
+    },
+    "primary_capture_pattern": "\\d{4}-\\d{2}-\\d{2}(?:-\\d{2}-\\d{2}-\\d{2})?-\\d{1,3}(?:\\.\\d{1,3}){3}\\.pcap"
+  },
+  "excluded": {
+    "CTU-IoT-Malware-Capture-7-1": "Linux.Mirai is not separable from Mirai, so it is neither the seen family nor an unseen one (ADR-0004 decision 7b)"
+  },
+  "derived_files_not_considered": {
+    "CTU-IoT-Malware-Capture-9-1": [
+      "2018-07-25-10-53-16-192.168.100.111-only5000.pcap",
+      "telnet.pcap"
+    ],
+    "CTU-IoT-Malware-Capture-17-1": [
+      "2018-09-06-11-43-12-192.168.100.111.only15000000.pcap"
+    ],
+    "CTU-IoT-Malware-Capture-35-1": [
+      "85.217.225.181.23.pcap",
+      "104.248.160.24-23.pcap",
+      "104.248.160.24-80.pcap",
+      "104.248.160.24.port80TCP.pcap",
+      "104.248.160.24.port80UDP.pcap",
+      "malware-capture-35-1-port-23.pcap"
+    ]
+  },
+  "source": {
+    "base_url": "https://mcfp.felk.cvut.cz/publicDatasets/IoT-23-Dataset/IndividualScenarios",
+    "listings_fetched_utc": "2026-09-14T16:18:52Z",
+    "sizes_fetched_utc": "2026-09-14T16:20:13Z",
+    "families_from": "https://www.stratosphereips.org/datasets-iot23 (accessed 2026-09-14)",
+    "note": "Directory indexes and HTTP HEAD responses only; no capture or label file was downloaded."
+  },
+  "candidates": [
+    {
+      "scenario": "CTU-IoT-Malware-Capture-1-1",
+      "family": "Hide and Seek",
+      "pcap": "2018-05-09-192.168.100.103.pcap",
+      "pcap_bytes": 145928231,
+      "pcap_last_modified": "Wed, 30 Jan 2019 15:43:42 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 148305428
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-7-1",
+      "family": "Linux.Mirai",
+      "pcap": "2018-07-20-17-31-20-192.168.100.108.pcap",
+      "pcap_bytes": 940133712,
+      "pcap_last_modified": "Wed, 30 Jan 2019 17:44:56 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 1581263847
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-9-1",
+      "family": "Linux.Hajime",
+      "pcap": "2018-07-25-10-53-16-192.168.100.111.pcap",
+      "pcap_bytes": 494553863,
+      "pcap_last_modified": "Wed, 30 Jan 2019 17:48:51 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 993459767
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-17-1",
+      "family": "Kenjiro",
+      "pcap": "2018-09-06-11-43-12-192.168.100.111.pcap",
+      "pcap_bytes": 8316708998,
+      "pcap_last_modified": "Wed, 30 Jan 2019 16:32:05 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 8139370158
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-20-1",
+      "family": "Torii",
+      "pcap": "2018-10-02-13-12-30-192.168.100.103.pcap",
+      "pcap_bytes": 4057401,
+      "pcap_last_modified": "Wed, 30 Jan 2019 16:38:54 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 419604
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-21-1",
+      "family": "Torii",
+      "pcap": "2018-10-03-15-22-32-192.168.100.113.pcap",
+      "pcap_bytes": 4063997,
+      "pcap_last_modified": "Wed, 30 Jan 2019 16:39:06 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 428943
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-33-1",
+      "family": "Kenjiro",
+      "pcap": "2018-12-20-21-10-00-192.168.1.197.pcap",
+      "pcap_bytes": 4142551050,
+      "pcap_last_modified": "Wed, 30 Jan 2019 16:52:35 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 7867920121
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-35-1",
+      "family": "Mirai",
+      "pcap": "2018-12-21-15-33-59-192.168.1.196.pcap",
+      "pcap_bytes": 3810783348,
+      "pcap_last_modified": "Wed, 30 Jan 2019 16:59:01 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 1340179107
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-36-1",
+      "family": "Okiru",
+      "pcap": "2018-12-21-13-36-41-192.168.1.198.pcap",
+      "pcap_bytes": 1039545119,
+      "pcap_last_modified": "Wed, 30 Jan 2019 17:00:39 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 1787852355
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-39-1",
+      "family": "IRCBot",
+      "pcap": "2019-01-09-21-25-11-192.168.1.194.pcap",
+      "pcap_bytes": 5617836032,
+      "pcap_last_modified": "Wed, 30 Jan 2019 17:03:06 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 10885361439
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-42-1",
+      "family": "Trojan",
+      "pcap": "2019-01-10-14-34-38-192.168.1.197.pcap",
+      "pcap_bytes": 2908160,
+      "pcap_last_modified": "Wed, 30 Jan 2019 17:23:41 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 585829
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-43-1",
+      "family": "Mirai",
+      "pcap": "2019-01-10-19-22-51-192.168.1.198.pcap",
+      "pcap_bytes": 6345876572,
+      "pcap_last_modified": "Wed, 30 Jan 2019 17:28:48 GMT",
+      "label_path": "labeled/conn.log.labeled",
+      "label_bytes": 9363261631
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-44-1",
+      "family": "Mirai",
+      "pcap": "2019-01-10-21-06-26-192.168.1.199.pcap",
+      "pcap_bytes": 1822543872,
+      "pcap_last_modified": "Wed, 30 Jan 2019 17:35:02 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 31179
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-48-1",
+      "family": "Mirai",
+      "pcap": "2019-02-28-19-15-13-192.168.1.200.pcap",
+      "pcap_bytes": 1222967296,
+      "pcap_last_modified": "Fri, 01 Mar 2019 04:03:35 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 531738215
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-49-1",
+      "family": "Mirai",
+      "pcap": "2019-02-28-20-50-15-192.168.1.193.pcap",
+      "pcap_bytes": 1381228544,
+      "pcap_last_modified": "Fri, 01 Mar 2019 04:01:53 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 853630635
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-52-1",
+      "family": "Mirai",
+      "pcap": "2019-03-08-13-24-30-192.168.1.197.pcap",
+      "pcap_bytes": 4904467819,
+      "pcap_last_modified": "Wed, 27 Mar 2019 17:36:00 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 3070319722
+    },
+    {
+      "scenario": "CTU-IoT-Malware-Capture-60-1",
+      "family": "Gagfyt",
+      "pcap": "2019-09-20-02-40-32-192.168.1.195.pcap",
+      "pcap_bytes": 22028429274,
+      "pcap_last_modified": "Sat, 19 Oct 2019 03:20:55 GMT",
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 467559811
+    }
+  ],
+  "selection": [
+    {
+      "role": "seen_family",
+      "scenario": "CTU-IoT-Malware-Capture-48-1",
+      "family": "Mirai",
+      "pcap": "2019-02-28-19-15-13-192.168.1.200.pcap",
+      "pcap_bytes": 1222967296,
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 531738215,
+      "download_bytes": 1754705511,
+      "pcap_sha256": null,
+      "label_sha256": null
+    },
+    {
+      "role": "unseen_family",
+      "scenario": "CTU-IoT-Malware-Capture-20-1",
+      "family": "Torii",
+      "pcap": "2018-10-02-13-12-30-192.168.100.103.pcap",
+      "pcap_bytes": 4057401,
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 419604,
+      "download_bytes": 4477005,
+      "pcap_sha256": null,
+      "label_sha256": null
+    },
+    {
+      "role": "unseen_family",
+      "scenario": "CTU-IoT-Malware-Capture-36-1",
+      "family": "Okiru",
+      "pcap": "2018-12-21-13-36-41-192.168.1.198.pcap",
+      "pcap_bytes": 1039545119,
+      "label_path": "bro/conn.log.labeled",
+      "label_bytes": 1787852355,
+      "download_bytes": 2827397474,
+      "pcap_sha256": null,
+      "label_sha256": null
+    }
+  ],
+  "download_bytes_total": 4586579990,
+  "uses": {
+    "allowed_before_scoring": [
+      "download the selected files",
+      "record SHA-256 of each file in this manifest immediately after download",
+      "direction and label audit with data/audit.py",
+      "build a pack with the frozen builder"
+    ],
+    "forbidden": [
+      "training, validation, or threshold, N, lease or feature selection on these captures",
+      "producing any model score before feature_schema_version, model_sha256, metadata hash, threshold policy hash, N/lease and the development pack windows_sha256 are recorded",
+      "re-scoring after tuning; a tuned re-run marks this holdout consumed"
+    ]
+  }
+}

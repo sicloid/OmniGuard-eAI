@@ -91,7 +91,7 @@ veya yeni envelope seçimi R1/R2/R3 review'ında yapılmalı.
 - DeviceBinding açık IP→cihaz haritasıdır; fixture haritası güvenli kimlik doğrulama
   değildir. Üretim DHCP/IP yeniden kullanımı/MAC spoofing için ayrıca kanıt gerekir.
   Belirsiz binding ile yeni otomatik blok yok; binding sürümü her karara bağlanır.
-- EGRESS: kaynak LAN içinde, hedef dışında. LOCAL ayrı. IPv4-only lab için IPv6
+- EGRESS: kaynak LAN içinde, hedef dışında ve ortak özellik dışlama politikası dışında. LOCAL ayrı. IPv4-only lab için IPv6
   kapalı ve testli; üretimde IPv6'yı görmezden gelerek containment iddiası kurulmaz.
 - Mevcut parser tam IP uzunluğunu bekler. Kısa snaplen açıp parser'ın truncated
   paket reddini kapatmak çözüm değil. Header-only adapter için captured/original
@@ -229,3 +229,12 @@ Online policy sweep canlı etkileşimi ikame etmez; adaptive eBPF/ONNX/ML ancak
 profilleme sonucu ve ayrı ADR ile alınır. Aynı anda hepsini eklemek hedef değil.
 
 12 Eylül ekip incelemesi: [kararlar ve Jira takibi](docs/architecture/REVIEW_RESOLUTION_2026-09-12.md).
+
+## 14 Eylül — KAN-15 / KAN-33 ölçüm sınırı
+
+PR #29 ortak özellik politikası tüm multicast hedeflerini EGRESS özelliklerinden
+çıkarır; bu hedeflerin fiziksel olarak yerel linkte kaldığını garanti etmez.
+Yönlendirilebilir IPv4 multicast ve global kapsamlı IPv6 multicast de dışlanır.
+KAN-33/G8 kaçış ölçümü Direction.EGRESS filtresinden bağımsız sink/forwarding
+kanıtına dayanmalıdır. Protokol, adres ailesi ve gözlem noktası kapsamı kaydedilir;
+gözlenmeyen trafik sıfır kaçış diye raporlanmaz. features-1 eğitim değerleri korunur.
