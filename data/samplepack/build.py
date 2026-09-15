@@ -18,6 +18,14 @@ count is the normalizer's on_link policy-exclusion count, not a leakage measurem
 The Lead approved moving this rule into shared code on 14 September 2026; the
 normalizer change still needs R2 review. The declared-label assumption and the IoT-23
 primary source stay as recorded in ADR-0004.
+
+Manifest version 2 records `manifest_version` and `label_rule_version`, so a run can
+cite which window-labelling rule produced its labels (KAN-42 R1 provenance, Lead
+decision of 15 September 2026). Version-1 manifests have neither field. They stay
+exactly as they were pinned and are never rewritten to add one. Bump
+`LABEL_RULE_VERSION` whenever the rule text, the label vocabulary or the flow matching
+in `labels.py` changes meaning; a test ties the current text and vocabulary to the
+current version.
 """
 
 import hashlib
@@ -37,6 +45,12 @@ from sources.scope import ON_LINK_DESTINATIONS
 
 WINDOWS_FILENAME = "windows.jsonl"
 MANIFEST_FILENAME = "manifest.json"
+MANIFEST_VERSION = 2
+LABEL_RULE_VERSION = "window-label-1"
+LABEL_RULE = (
+    "malicious if any egress packet matches a Malicious flow; unknown if any "
+    "packet is unmatched or ambiguous; benign only if every packet matched Benign"
+)
 EGRESS_EXCLUSIONS = ON_LINK_DESTINATIONS
 MALICIOUS_LABEL, BENIGN_LABEL, UNKNOWN_LABEL = "malicious", "benign", "unknown"
 LABELS = (MALICIOUS_LABEL, BENIGN_LABEL, UNKNOWN_LABEL)
@@ -213,14 +227,13 @@ def build_sample_pack(
     (out_dir / WINDOWS_FILENAME).write_text(payload, encoding="utf-8")
     manifest = {
         "tool": "data.samplepack.build",
+        "manifest_version": MANIFEST_VERSION,
         "feature_schema_version": FEATURE_SCHEMA_VERSION,
         "window_seconds": WINDOW_SECONDS,
         "flow_match_tolerance_s": tolerance,
         "egress_exclusions": list(EGRESS_EXCLUSIONS),
-        "label_rule": (
-            "malicious if any egress packet matches a Malicious flow; unknown if any "
-            "packet is unmatched or ambiguous; benign only if every packet matched Benign"
-        ),
+        "label_rule_version": LABEL_RULE_VERSION,
+        "label_rule": LABEL_RULE,
         "captures": captures,
         "windows_file": WINDOWS_FILENAME,
         "windows_sha256": hashlib.sha256(payload.encode()).hexdigest(),
