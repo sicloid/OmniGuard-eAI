@@ -31,10 +31,21 @@ class PackIntegrityError(ValueError):
 
 @dataclass(frozen=True)
 class PackProvenance:
+    """What a run read, pinned by hash.
+
+    `label_rule_version` is None for a version-1 manifest, which predates the field.
+    It is reported as missing, never filled with a guessed value.
+    """
+
     windows_file: str
     windows_sha256: str
     manifest_sha256: str
     feature_schema_version: str
+    manifest_version: int = 1
+    label_rule_version: str | None = None
+
+
+SUPPORTED_MANIFEST_VERSIONS = (1, 2)
 
 
 def _sha256(path: Path) -> str:
@@ -69,13 +80,26 @@ def verify_pack(pack: Path, manifest: Path | None = None) -> PackProvenance:
             f"pack uses {document.get('feature_schema_version')!r}, "
             f"runtime expects {FEATURE_SCHEMA_VERSION!r}"
         )
+    version = document.get("manifest_version", 1)
+    label_rule_version = document.get("label_rule_version")
+    if type(version) is not int or version not in SUPPORTED_MANIFEST_VERSIONS:
+        raise PackIntegrityError(f"unsupported manifest_version {version!r}")
+    if version == 1 and label_rule_version is not None:
+        raise PackIntegrityError("a version-1 manifest cannot carry label_rule_version")
+    if version >= 2 and (not isinstance(label_rule_version, str) or not label_rule_version.strip()):
+        raise PackIntegrityError("a version-2 manifest must name its label_rule_version")
     actual = _sha256(pack)
     if actual != document.get("windows_sha256"):
         raise PackIntegrityError(
             f"{pack.name} hashes to {actual}, manifest records {document.get('windows_sha256')}"
         )
     return PackProvenance(
-        pack.name, actual, hashlib.sha256(raw).hexdigest(), FEATURE_SCHEMA_VERSION
+        pack.name,
+        actual,
+        hashlib.sha256(raw).hexdigest(),
+        FEATURE_SCHEMA_VERSION,
+        version,
+        label_rule_version,
     )
 
 
