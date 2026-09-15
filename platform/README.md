@@ -42,6 +42,56 @@ anonymous denial, outside-topic denial, Grafana HTTP health and login. Mosquitto
 explicit negative PUBACK warning. CI runs this unprivileged service smoke;
 privileged namespace tests remain dedicated-host-only.
 
+## Schema migrations — KAN-39
+
+```sh
+python3 platform/migrate.py
+```
+
+Numbered files in `platform/migrations/NNN_name.sql` are applied once each, in
+version order, against the running Compose database. `schema_migrations` records
+the version, name and SHA-256 of the file bytes. Each file is sent as a single
+transaction that takes `pg_advisory_xact_lock` first, so a second runner started
+at the same time blocks and then finds the version already recorded; its own
+transaction rolls back and it applies nothing. A migration that fails anywhere is
+rolled back whole and is never recorded, so the next start retries it.
+
+The runner refuses to start, rather than guessing, when the recorded history and
+the files disagree: an applied file whose checksum changed, an applied version no
+longer on disk, or a new file numbered below applied history. Files must not
+contain their own `BEGIN`/`COMMIT` or `CONCURRENTLY`, because the runner owns the
+transaction; PL/pgSQL blocks are allowed and their `BEGIN` is not transaction
+control. Applied migrations are immutable — correct a mistake with a new file.
+
+`001_initial_schema.sql` creates the `events` table for the approved 0.1.0
+`TelemetryPayload` and its nested `StateEvent`: `event_id` as primary key so
+redelivery is an `ON CONFLICT DO NOTHING`, `run_id` because it is a 0.1.0 field,
+the five `StateEvent` fields, and CHECK constraints mirroring
+`StateEvent.__post_init__`. `StateEvent.timestamp` is stored as `event_timestamp`
+because `timestamp` is a SQL type name; the mapping is listed in the file. The
+wire value is kept as sent, with a generated `event_time timestamptz` for
+time-range queries and a separate `ingested_at` so event time and arrival time
+cannot be confused — G10 latency is the difference between them.
+
+Per the Lead decision recorded on KAN-39 on 14 September 2026, this migration
+carries no boots table, no `boot_id` and no producer/boot ordering columns. Those
+are KAN-40's additive `002`. ADR-0003 remains PROPOSED and is not treated as
+accepted by this file.
+
+Two non-owner roles are created: `omniguard_consumer` (SELECT, INSERT on `events`
+only — telemetry history is append-only, and a consumer that could rewrite it
+could not be used as evidence) and `omniguard_readonly` (SELECT, for KAN-41's
+Grafana datasource). Neither is given a password here, so neither can
+authenticate until one is provisioned outside version control; that provisioning
+is not part of KAN-39. Note that the `postgres` image trusts local socket
+connections, so this separates authority over the schema, not access from inside
+the container.
+
+`tests/test_platform_migrations.py` covers the runner's decision logic against an
+injected executor: ordering, drift refusal, rollback, retry and the concurrent
+race. It executes no SQL and is **not** evidence that `001` applies. That comes
+only from running the command above against the real database.
+
 ## Stop and resume
 
 ```sh
@@ -56,10 +106,13 @@ needs coordinated service-side changes.
 
 ## Remaining R3 work
 
-KAN-38–41: StateEvent adapter, application migrations, consumer and provisioned
-PostgreSQL datasource/dashboard. Grafana currently uses its default metadata
-database; HTTP health does not prove telemetry queries. Future tables: devices,
-detection_events, state_events, experiment_runs, resource_metrics. G10 is pending.
+KAN-40–41: the MQTT consumer, its additive `002` boot migration, and a
+provisioned PostgreSQL datasource/dashboard. Grafana currently uses its default
+metadata database; HTTP health does not prove telemetry queries. Role passwords
+are not yet provisioned, so nothing runs as `omniguard_consumer` or
+`omniguard_readonly` today. Further tables (devices, detection_events,
+experiment_runs, resource_metrics) follow their own cards and ADR decisions.
+G5/G8/G10 are pending; a created table is not a delivered event.
 
 References: [Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/),
 [healthchecks](https://docs.docker.com/reference/compose-file/services/),
