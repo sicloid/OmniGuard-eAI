@@ -36,35 +36,97 @@ LOCK_KEY = int.from_bytes(
 # Raised by the guard inside a migration transaction when another runner won the race.
 # It aborts that transaction on purpose: rolling back is how the loser applies nothing.
 ALREADY_APPLIED = "omniguard-migration-already-applied"
+# Raised by the same guard when the row that runner recorded is not the migration this
+# one holds. Losing the race is normal; disagreeing about what was applied is not, and
+# reporting it as a skipped success would accept a schema nobody on disk describes.
+HISTORY_DRIFT = "omniguard-migration-history-drift"
 
 FILENAME = re.compile(r"^(\d{3})_([a-z0-9]+(?:_[a-z0-9]+)*)\.sql$")
-# The runner owns the transaction, so a file must not open or close one itself.
-TRANSACTION_CONTROL = re.compile(
-    r"^\s*(BEGIN|COMMIT|ROLLBACK|START\s+TRANSACTION|SAVEPOINT)\b", re.IGNORECASE | re.MULTILINE
-)
 # CONCURRENTLY cannot run inside a transaction block; it would fail at apply time.
 CONCURRENTLY = re.compile(r"\bCONCURRENTLY\b", re.IGNORECASE)
 DOLLAR_TAG = re.compile(r"\$([A-Za-z_][A-Za-z0-9_]*)?\$")
+LEADING_WORDS = re.compile(r"^([A-Za-z_]+)(?:\s+([A-Za-z_]+))?")
+
+# The runner owns the transaction, so a file must not open or close one itself. These
+# are matched as the first word of a statement, not anywhere in a line: a COMMIT that
+# ends the runner's transaction mid-file leaves earlier DDL committed, records no
+# migration row, releases the advisory lock, and still reports a clean rollback.
+TRANSACTION_CONTROL = frozenset({"BEGIN", "COMMIT", "END", "ROLLBACK", "ABORT", "SAVEPOINT"})
+# Two-word forms whose first word is legitimate on its own (PREPARE stmt, RELEASE lock).
+TRANSACTION_CONTROL_PAIRS = frozenset(
+    {("START", "TRANSACTION"), ("PREPARE", "TRANSACTION"), ("RELEASE", "SAVEPOINT")}
+)
 
 
-def without_dollar_quoted(body: str) -> str:
-    """Blank out $tag$...$tag$ bodies so plpgsql BEGIN/END is not read as SQL BEGIN.
+def sanitised(body: str) -> str:
+    """Blank out comments, string literals, quoted identifiers and dollar-quoted bodies.
 
-    A PL/pgSQL block legitimately contains BEGIN; only transaction control at the
-    statement level is forbidden here, so the quoted regions are removed before the
-    check rather than special-cased inside it.
+    Statement boundaries and leading keywords can only be read once the text that may
+    legitimately contain `;`, `COMMIT` or `BEGIN` is removed. Regions are replaced by
+    spaces rather than deleted so offsets, and therefore reported line numbers, survive.
+    A PL/pgSQL block legitimately contains BEGIN/END; it is dollar-quoted, so it is
+    blanked here and only transaction control at the statement level remains visible.
     """
-    out, position = [], 0
-    while (opening := DOLLAR_TAG.search(body, position)) is not None:
-        tag = opening.group(0)
-        closing = body.find(tag, opening.end())
-        if closing == -1:
-            # Unterminated quoting is the database's error to report, not ours to guess.
-            break
-        out.append(body[position : opening.start()])
-        position = closing + len(tag)
-    out.append(body[position:])
+    out: list[str] = []
+    position, size = 0, len(body)
+    while position < size:
+        character = body[position]
+        if body.startswith("--", position):
+            end = body.find("\n", position)
+            end = size if end == -1 else end
+        elif body.startswith("/*", position):
+            # PostgreSQL block comments nest, so depth is counted rather than assumed.
+            depth, end = 1, position + 2
+            while end < size and depth:
+                if body.startswith("/*", end):
+                    depth, end = depth + 1, end + 2
+                elif body.startswith("*/", end):
+                    depth, end = depth - 1, end + 2
+                else:
+                    end += 1
+        elif character in "'\"":
+            end = position + 1
+            while end < size:
+                if body[end] != character:
+                    end += 1
+                elif end + 1 < size and body[end + 1] == character:
+                    end += 2  # A doubled quote is an escaped quote, not the end.
+                else:
+                    end += 1
+                    break
+        elif (opening := DOLLAR_TAG.match(body, position)) is not None:
+            tag = opening.group(0)
+            closing = body.find(tag, opening.end())
+            # Unterminated quoting is the database's error to report, not ours to guess;
+            # the rest of the file is treated as quoted so nothing inside it is read.
+            end = size if closing == -1 else closing + len(tag)
+        else:
+            out.append(character)
+            position += 1
+            continue
+        out.append(" " * (end - position))
+        position = end
     return "".join(out)
+
+
+def statements(body: str) -> tuple[str, ...]:
+    """Split a file into top-level statements, with their quoted content blanked out."""
+    return tuple(part.strip() for part in sanitised(body).split(";") if part.strip())
+
+
+def transaction_control_in(body: str) -> str | None:
+    """Return the offending statement keyword, or None when the file opens no transaction."""
+    for statement in statements(body):
+        words = LEADING_WORDS.match(statement)
+        if words is None:
+            continue
+        first = words.group(1).upper()
+        second = (words.group(2) or "").upper()
+        if first in TRANSACTION_CONTROL:
+            return first
+        if (first, second) in TRANSACTION_CONTROL_PAIRS:
+            return f"{first} {second}"
+    return None
 
 
 BOOTSTRAP = f"""
@@ -124,10 +186,11 @@ def discover(directory: Path = MIGRATIONS) -> tuple[Migration, ...]:
             raise MigrationError(f"duplicate migration version {version}: {path.name}")
         data = path.read_bytes()
         body = data.decode("utf-8")
-        statements = without_dollar_quoted(body)
-        if TRANSACTION_CONTROL.search(statements):
-            raise MigrationError(f"{path.name} manages its own transaction; the runner does that")
-        if CONCURRENTLY.search(statements):
+        if (control := transaction_control_in(body)) is not None:
+            raise MigrationError(
+                f"{path.name} manages its own transaction ({control}); the runner does that"
+            )
+        if CONCURRENTLY.search(sanitised(body)):
             raise MigrationError(
                 f"{path.name} uses CONCURRENTLY, which cannot run in one transaction"
             )
@@ -142,17 +205,32 @@ def discover(directory: Path = MIGRATIONS) -> tuple[Migration, ...]:
 def script_for(migration: Migration) -> str:
     """One transaction: lock, re-check under the lock, apply, record.
 
-    The re-check matters because the pending list was read before the lock was held.
-    Raising inside the transaction is what makes the losing runner a no-op instead of
-    a second application of the same DDL.
+    The re-check matters because the pending list was read before the lock was held,
+    and it compares the whole recorded row rather than only the version. Another runner
+    that recorded this version from different bytes has left history this runner cannot
+    vouch for; existence alone would read that as "already done" and continue applying
+    later migrations onto a schema no file on disk describes. Raising inside the
+    transaction is what makes the losing runner a no-op instead of a second application
+    of the same DDL.
     """
     return (
         f"BEGIN;\n"
         f"SELECT pg_advisory_xact_lock({LOCK_KEY});\n"
         f"DO $omniguard_guard$\n"
+        f"DECLARE\n"
+        f"    recorded record;\n"
         f"BEGIN\n"
-        f"    IF EXISTS (SELECT 1 FROM schema_migrations WHERE version = '{migration.version}')\n"
-        f"    THEN RAISE EXCEPTION '{ALREADY_APPLIED}';\n"
+        f"    SELECT name, checksum INTO recorded\n"
+        f"    FROM schema_migrations WHERE version = '{migration.version}';\n"
+        f"    IF FOUND THEN\n"
+        f"        IF recorded.name = '{migration.name}'\n"
+        f"           AND recorded.checksum = '{migration.checksum}'\n"
+        f"        THEN RAISE EXCEPTION '{ALREADY_APPLIED}';\n"
+        f"        END IF;\n"
+        f"        RAISE EXCEPTION '{HISTORY_DRIFT}: {migration.version} is recorded as "
+        f"name=% checksum=%, but this runner holds "
+        f"name={migration.name} checksum={migration.checksum}',\n"
+        f"            recorded.name, recorded.checksum;\n"
         f"    END IF;\n"
         f"END\n"
         f"$omniguard_guard$;\n"
@@ -187,6 +265,11 @@ def verify(migrations: tuple[Migration, ...], applied: dict[str, tuple[str, str]
                 f"{migration.path.name} changed after it was applied: "
                 f"recorded {checksum[:12]}, on disk {migration.checksum[:12]}"
             )
+        if migration.name != name:
+            raise MigrationError(
+                f"migration {version} is recorded as {version}_{name}.sql but is on disk as "
+                f"{migration.path.name}; renaming an applied migration is history drift"
+            )
     if applied:
         highest = max(applied)
         for migration in migrations:
@@ -205,19 +288,33 @@ def migrate(executor, directory: Path = MIGRATIONS) -> Outcome:
     done, skipped, current = [], [], tuple(sorted(applied))
     for migration in migrations:
         if migration.version in applied:
+            if migration.version not in current:
+                # Applied by another runner while this one was working, not before it.
+                skipped.append(migration.version)
             continue
         try:
             executor.run_script(script_for(migration))
         except ExecutorError as error:
-            if ALREADY_APPLIED in str(error):
-                # Another runner committed it between our read and our lock. Its
-                # transaction rolled back; nothing of ours was written.
+            message = str(error)
+            if HISTORY_DRIFT in message:
+                raise MigrationError(
+                    f"{migration.path.name} disagrees with the history another runner "
+                    f"recorded under the lock: {message}"
+                ) from error
+            if ALREADY_APPLIED in message:
+                # Another runner committed the same bytes between our read and our lock.
+                # Its transaction rolled back; nothing of ours was written. Its history is
+                # re-read and re-verified before any later migration is sent, because that
+                # runner may also have recorded versions this checkout cannot account for.
                 skipped.append(migration.version)
+                applied = read_applied(executor)
+                verify(migrations, applied)
                 continue
             raise MigrationError(
                 f"{migration.path.name} failed and was rolled back: {error}"
             ) from error
         done.append(migration.version)
+        applied[migration.version] = (migration.name, migration.checksum)
     return Outcome(tuple(done), tuple(skipped), current)
 
 

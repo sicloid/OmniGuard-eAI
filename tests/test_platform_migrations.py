@@ -22,6 +22,10 @@ _spec.loader.exec_module(migrate)
 
 GUARD = re.compile(r"WHERE version = '(\d{3})'")
 RECORD = re.compile(r"VALUES \('(\d{3})', '([a-z0-9_]+)', '([0-9a-f]{64})'\)")
+# What the guard says the recorded row must be for this runner to treat it as its own.
+EXPECTED = re.compile(
+    r"recorded\.name = '([a-z0-9_]+)'\s+AND recorded\.checksum = '([0-9a-f]{64})'"
+)
 
 
 class FakeDatabase:
@@ -47,8 +51,17 @@ class FakeDatabase:
             hook, self.before_apply = self.before_apply, None
             hook(self)
         if version in self.applied:
+            # The guard compares the whole recorded row, so the fake answers the way the
+            # server does: the same bytes are a lost race, different bytes are drift.
+            name, checksum = self.applied[version]
+            if (name, checksum) == EXPECTED.search(sql).groups():
+                raise migrate.ExecutorError(
+                    f"ERROR:  {migrate.ALREADY_APPLIED}\n"
+                    f"CONTEXT:  PL/pgSQL function inline_code_block"
+                )
             raise migrate.ExecutorError(
-                f"ERROR:  {migrate.ALREADY_APPLIED}\nCONTEXT:  PL/pgSQL function inline_code_block"
+                f"ERROR:  {migrate.HISTORY_DRIFT}: {version} is recorded as name={name} "
+                f"checksum={checksum}\nCONTEXT:  PL/pgSQL function inline_code_block"
             )
         if version in self.fail_on:
             # The transaction aborts, so nothing from this script survives.
@@ -110,6 +123,70 @@ class DiscoveryTests(unittest.TestCase):
                 with self.assertRaises(migrate.MigrationError):
                     migrate.discover(Path(directory))
 
+    def test_transaction_control_after_another_statement_on_the_same_line_is_rejected(self):
+        # Reported on PR #31 and reproduced on PostgreSQL 17.6: a line-anchored check
+        # accepts this file, the table survives the failing statement that follows, no
+        # migration row is recorded, the COMMIT releases the advisory lock, and the
+        # runner still reports a clean rollback. The statement boundary is what matters,
+        # not the line boundary.
+        body = "CREATE TABLE partial_probe(id int); COMMIT;\nSELECT 1/0;\n"
+        with tempfile.TemporaryDirectory() as directory:
+            write(directory, "001_initial.sql", body)
+            with self.assertRaises(migrate.MigrationError) as raised:
+                migrate.discover(Path(directory))
+            self.assertIn("COMMIT", str(raised.exception))
+
+    def test_transaction_control_hidden_behind_a_comment_is_rejected(self):
+        bodies = (
+            "/* prepare the table */ COMMIT;\n",
+            "CREATE TABLE t (id int); -- record it\n END;\n",
+            "CREATE TABLE t (id int);\n/* nested /* comment */ */ ABORT;\n",
+        )
+        for body in bodies:
+            with self.subTest(body), tempfile.TemporaryDirectory() as directory:
+                write(directory, "001_initial.sql", body)
+                with self.assertRaises(migrate.MigrationError):
+                    migrate.discover(Path(directory))
+
+    def test_every_transaction_ending_statement_is_rejected(self):
+        endings = (
+            "BEGIN;",
+            "COMMIT;",
+            "END;",
+            "ROLLBACK;",
+            "ABORT;",
+            "SAVEPOINT s;",
+            "RELEASE SAVEPOINT s;",
+            "START TRANSACTION;",
+            "PREPARE TRANSACTION 'x';",
+        )
+        for ending in endings:
+            with self.subTest(ending), tempfile.TemporaryDirectory() as directory:
+                write(directory, "001_initial.sql", f"CREATE TABLE t (id int);\n{ending}\n")
+                with self.assertRaises(migrate.MigrationError):
+                    migrate.discover(Path(directory))
+
+    def test_transaction_keywords_inside_quoted_text_are_not_transaction_control(self):
+        # Rejecting these would make the check unusable for any file that mentions the
+        # words; the scanner must read statements, not search for keywords.
+        bodies = (
+            "INSERT INTO notes (body) VALUES ('COMMIT; BEGIN;');\n",
+            'CREATE TABLE "commit" (id int);\n',
+            "COMMENT ON TABLE t IS 'ends with END;';\n",
+            "CREATE TABLE t (id int); -- do not add CONCURRENTLY here\n",
+            "CREATE INDEX i ON t (id); /* COMMIT belongs to the runner */\n",
+        )
+        for body in bodies:
+            with self.subTest(body), tempfile.TemporaryDirectory() as directory:
+                write(directory, "001_initial.sql", body)
+                self.assertEqual(len(migrate.discover(Path(directory))), 1)
+
+    def test_case_end_is_not_transaction_control(self):
+        body = "CREATE VIEW v AS SELECT CASE WHEN true THEN 1 ELSE 0 END AS flag;\n"
+        with tempfile.TemporaryDirectory() as directory:
+            write(directory, "001_initial.sql", body)
+            self.assertEqual(len(migrate.discover(Path(directory))), 1)
+
     def test_plpgsql_begin_inside_dollar_quoting_is_not_transaction_control(self):
         body = "DO $r$\nBEGIN\n    PERFORM 1;\nEND\n$r$;\n"
         with tempfile.TemporaryDirectory() as directory:
@@ -141,6 +218,15 @@ class ScriptTests(unittest.TestCase):
         self.assertEqual(script.count("COMMIT;"), 1)
         # The lock is taken before anything the migration does.
         self.assertLess(script.index("pg_advisory_xact_lock"), script.index("CREATE TABLE events"))
+
+    def test_the_guard_checks_the_whole_recorded_row_not_only_the_version(self):
+        migration = migrate.discover()[0]
+        script = migrate.script_for(migration)
+        self.assertIn(f"recorded.name = '{migration.name}'", script)
+        self.assertIn(f"recorded.checksum = '{migration.checksum}'", script)
+        self.assertIn(migrate.HISTORY_DRIFT, script)
+        # The guard runs after the lock, so what it reads cannot change under it.
+        self.assertLess(script.index("pg_advisory_xact_lock"), script.index("recorded.checksum"))
 
     def test_the_recorded_checksum_is_the_checksum_of_the_file(self):
         migration = migrate.discover()[0]
@@ -189,6 +275,57 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(outcome.applied, ())
         self.assertEqual(outcome.skipped, ("001",))
         self.assertEqual(database.applied[migration.version][1], migration.checksum)
+
+    def test_a_concurrent_runner_that_recorded_different_bytes_stops_startup(self):
+        # Reported on PR #31: the guard checked existence only, so a version recorded
+        # from bytes this checkout does not have was reported as a skipped success while
+        # its schema body never ran. Disagreement is not a race that was lost.
+        directory = self.directory("001_first.sql")
+        database = FakeDatabase()
+        database.before_apply = lambda db: db.applied.__setitem__("001", ("first", "f" * 64))
+        with self.assertRaises(migrate.MigrationError) as raised:
+            migrate.migrate(database, directory)
+        self.assertIn(migrate.HISTORY_DRIFT, str(raised.exception))
+
+    def test_a_concurrent_runner_that_recorded_another_name_stops_startup(self):
+        directory = self.directory("001_first.sql")
+        database = FakeDatabase()
+        checksum = migrate.discover(directory)[0].checksum
+        database.before_apply = lambda db: db.applied.__setitem__("001", ("renamed", checksum))
+        with self.assertRaises(migrate.MigrationError) as raised:
+            migrate.migrate(database, directory)
+        self.assertIn(migrate.HISTORY_DRIFT, str(raised.exception))
+
+    def test_history_written_by_the_winner_is_reverified_before_later_migrations(self):
+        # The winner may have recorded more than the version this runner was applying.
+        # Re-reading only that one row would let the rest of its history through unseen.
+        directory = self.directory("001_first.sql", "002_second.sql")
+        database = FakeDatabase()
+        migration = migrate.discover(directory)[0]
+
+        def winner(db):
+            db.applied["001"] = (migration.name, migration.checksum)
+            db.applied["003"] = ("from_another_checkout", "a" * 64)
+
+        database.before_apply = winner
+        with self.assertRaises(migrate.MigrationError) as raised:
+            migrate.migrate(database, directory)
+        self.assertIn("not on disk", str(raised.exception))
+        # 002 was never sent: the disagreement is refused before anything later runs.
+        self.assertNotIn("002", database.applied)
+        self.assertEqual([RECORD.search(s).group(1) for s in database.scripts[1:]], ["001"])
+
+    def test_a_version_the_winner_applied_ahead_of_us_is_reported_as_skipped(self):
+        directory = self.directory("001_first.sql", "002_second.sql")
+        database = FakeDatabase()
+        second = migrate.discover(directory)[1]
+        database.before_apply = lambda db: db.applied.__setitem__(
+            "002", (second.name, second.checksum)
+        )
+        outcome = migrate.migrate(database, directory)
+        self.assertEqual(outcome.applied, ("001",))
+        self.assertEqual(outcome.skipped, ("002",))
+        self.assertEqual(outcome.already_current, ())
 
     def test_a_failed_migration_is_not_recorded_and_is_retried_next_start(self):
         directory = self.directory("001_first.sql", "002_second.sql")
