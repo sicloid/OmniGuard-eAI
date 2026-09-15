@@ -9,9 +9,11 @@ silently folds it in.
 Three honesty rules are built into the shape of the data rather than left to a README:
 
 - Every figure is either measured or absent with a reason. There is no 0 default.
-- `measurement_overhead` is the time this harness itself spent taking readings inside
-  the stage window. A harness that costs 8% and does not say so has reported a
-  latency that includes 8% of itself.
+- `measurement_overhead` is the time this harness spent taking readings around the
+  stage window — before it opens and after it closes, so `elapsed` stays the stage's
+  own time. It is reported rather than dropped because a harness that adds 8% on top
+  of a stage has changed what the surrounding system saw, even though the 8% is not
+  inside the latency figure.
 - Counters that belong to other components — kernel packet drops from
   `sources/live.py`, telemetry queue overflow from `telemetry/handoff.py` — are
   supplied by the caller, not invented here. When the caller does not supply one it
@@ -43,21 +45,36 @@ class StageMeasurement:
 
     @property
     def other_thread_cpu_seconds(self) -> float | None:
-        """CPU burned by the rest of the process during this window, or None.
+        """CPU burned by every other thread of this process during the window, or None.
 
-        Not noise to subtract away: with the telemetry worker running, this is the
-        exporter's cost appearing next to the stage rather than inside it.
+        Not noise to subtract away, and not attributable to any one component: the
+        telemetry worker runs here, but so can a native library's worker threads — the
+        RF implementation among them. It says work happened beside the stage, not who
+        did it. Attributing it to the exporter would be a claim this reading cannot
+        support (R2, PR #32).
         """
         if self.thread_cpu_seconds is None:
             return None
         return max(0.0, self.process_cpu_seconds - self.thread_cpu_seconds)
 
     @property
-    def overhead_share(self) -> float | None:
-        """Fraction of the reported elapsed time that was this harness measuring."""
+    def overhead_ratio(self) -> float | None:
+        """Measuring cost per unit of stage time. Not a fraction contained in `elapsed`.
+
+        The readings are taken before the window opens and after it closes, so the
+        overhead is additional to `elapsed`, not part of it: a ratio of 0.05 means the
+        harness added 5% on top of the stage, and the wall cost of the measured pass is
+        `elapsed + measurement_overhead`. Reading it as "5% of the reported latency was
+        the harness" would understate the stage by exactly that much.
+        """
         if self.elapsed.seconds <= 0:
             return None
         return self.measurement_overhead.seconds / self.elapsed.seconds
+
+    @property
+    def measured_span_seconds(self) -> float:
+        """Wall time this pass actually took, stage plus the readings around it."""
+        return self.elapsed.seconds + self.measurement_overhead.seconds
 
 
 class StageTimer:
@@ -170,6 +187,9 @@ class RunRecorder:
                 "measurement_overhead_seconds": sum(
                     m.measurement_overhead.seconds for m in measurements
                 ),
+                # Overhead is taken outside the elapsed window, so the two add up rather
+                # than one containing the other. Published so nobody has to guess which.
+                "measured_span_seconds_total": sum(m.measured_span_seconds for m in measurements),
                 "process_cpu_seconds": sum(m.process_cpu_seconds for m in measurements),
                 "thread_cpu_seconds": (
                     None if any(v is None for v in thread_cpu) else sum(thread_cpu)

@@ -218,5 +218,182 @@ class ManifestTests(unittest.TestCase):
         json.loads(manifest.path.read_text(encoding="utf-8"))
 
 
+class SealedRunTests(unittest.TestCase):
+    """A frozen run must not be editable through any route the caller still holds."""
+
+    def manifest(self, **kwargs):
+        directory = self.enterContext(tempfile.TemporaryDirectory())
+        kwargs.setdefault("config", {"n": 3, "nested": {"lease": 30}})
+        return ExperimentManifest(run_id="run-1", directory=Path(directory), **kwargs)
+
+    def test_a_nested_config_value_changed_after_freezing_is_not_published(self):
+        # Reported on PR #32: the JSON round-trip only detached the caller's original,
+        # and the document was rebuilt from self.config, so this was published silently.
+        manifest = self.manifest()
+        manifest.freeze()
+        manifest.config["n"] = 999
+        manifest.config["nested"]["lease"] = 999
+        manifest.close(measurements={})
+        config = read_manifest(manifest.directory)["config"]
+        self.assertEqual(config["n"], 3)
+        self.assertEqual(config["nested"]["lease"], 30)
+
+    def test_replacing_a_sealed_attribute_outright_is_refused(self):
+        manifest = self.manifest()
+        manifest.freeze()
+        for name, value in (
+            ("config", {"n": 999}),
+            ("r1", ProvenanceFromR1(model_sha256="b" * 64)),
+            ("run_id", "run-2"),
+        ):
+            with self.subTest(name), self.assertRaises(ManifestError):
+                setattr(manifest, name, value)
+
+    def test_provenance_edited_after_freezing_is_not_published(self):
+        manifest = self.manifest(r1=ProvenanceFromR1(model_sha256="a" * 64))
+        manifest.freeze()
+        manifest.r1.model_sha256 = "b" * 64
+        manifest.r1.data_role = "holdout"
+        manifest.close(measurements={})
+        r1 = read_manifest(manifest.directory)["provenance"]["r1"]
+        self.assertEqual(r1["model_sha256"], "a" * 64)
+        self.assertIsNone(r1["data_role"])
+
+
+class RunOwnershipTests(unittest.TestCase):
+    """A run directory holds one run; the second must fail rather than replace it."""
+
+    def directory(self):
+        return Path(self.enterContext(tempfile.TemporaryDirectory()))
+
+    def test_a_second_run_cannot_overwrite_a_completed_record(self):
+        directory = self.directory()
+        first = ExperimentManifest(run_id="run-1", directory=directory, config={})
+        first.freeze()
+        first.close(measurements={}, outcome={"verdict": "ok"})
+        second = ExperimentManifest(run_id="run-2", directory=directory, config={})
+        with self.assertRaises(ManifestError):
+            second.freeze()
+        document = read_manifest(directory)
+        self.assertEqual(document["run_id"], "run-1")
+        self.assertEqual(document["status"], COMPLETED)
+        self.assertEqual(document["outcome"], {"verdict": "ok"})
+
+    def test_a_second_run_cannot_overwrite_an_incomplete_record_either(self):
+        # A run that died is evidence too; reuse must not quietly erase it.
+        directory = self.directory()
+        ExperimentManifest(run_id="run-1", directory=directory, config={}).freeze()
+        second = ExperimentManifest(run_id="run-2", directory=directory, config={})
+        with self.assertRaises(ManifestError):
+            second.freeze()
+        document = read_manifest(directory)
+        self.assertEqual(document["run_id"], "run-1")
+        self.assertEqual(document["status"], INCOMPLETE)
+
+    def test_closing_is_refused_when_the_record_now_belongs_to_another_run(self):
+        directory = self.directory()
+        manifest = ExperimentManifest(run_id="run-1", directory=directory, config={})
+        manifest.freeze()
+        foreign = json.dumps({"run_id": "run-9", "status": COMPLETED})
+        manifest.path.write_text(foreign, encoding="utf-8", newline="\n")
+        with self.assertRaises(ManifestError):
+            manifest.close(measurements={})
+        self.assertEqual(read_manifest(directory)["run_id"], "run-9")
+
+
+class FailingOnce(ExperimentManifest):
+    """A manifest whose next write fails once, to exercise the retry path."""
+
+    def _write(self, document: dict) -> None:
+        if getattr(self, "_fail_next", False):
+            self._fail_next = False
+            raise OSError("no space left on device")
+        super()._write(document)
+
+
+class WriteFailureTests(unittest.TestCase):
+    """A write that fails must leave the run retryable, not permanently unclosable."""
+
+    def manifest(self):
+        directory = self.enterContext(tempfile.TemporaryDirectory())
+        return FailingOnce(run_id="run-1", directory=Path(directory), config={"n": 3})
+
+    def test_a_freeze_whose_write_fails_can_be_frozen_again(self):
+        manifest = self.manifest()
+        manifest._fail_next = True
+        with self.assertRaises(OSError):
+            manifest.freeze()
+        self.assertFalse(manifest._frozen)
+        manifest.freeze()
+        self.assertEqual(read_manifest(manifest.directory)["status"], INCOMPLETE)
+
+    def test_a_close_whose_write_fails_can_be_closed_again(self):
+        # Reported on PR #32: _closed was set before the write, so a failed close left
+        # the run marked closed while the file on disk stayed incomplete.
+        manifest = self.manifest()
+        manifest.freeze()
+        manifest._fail_next = True
+        with self.assertRaises(OSError):
+            manifest.close(measurements={}, outcome={"verdict": "ok"})
+        self.assertFalse(manifest._closed)
+        self.assertEqual(read_manifest(manifest.directory)["status"], INCOMPLETE)
+        manifest.close(measurements={}, outcome={"verdict": "ok"})
+        self.assertEqual(read_manifest(manifest.directory)["status"], COMPLETED)
+
+    def test_a_failed_write_leaves_no_temporary_file_behind(self):
+        manifest = self.manifest()
+        manifest._fail_next = True
+        with self.assertRaises(OSError):
+            manifest.freeze()
+        # The reserved manifest.json is the claim on the directory; nothing else.
+        files = sorted(p.name for p in Path(manifest.directory).iterdir())
+        self.assertEqual(files, ["manifest.json"])
+
+
+class ProvenanceValidationTests(unittest.TestCase):
+    """Supplied provenance is checked, because a wrong hash is worse than a missing one."""
+
+    def test_a_hash_that_is_not_a_full_sha256_is_refused(self):
+        for value in ("d30725a9", "A" * 64, "g" * 64, "a" * 63):
+            with self.subTest(value), self.assertRaises(ManifestError):
+                ProvenanceFromR1(model_sha256=value)
+
+    def test_a_full_lowercase_hash_is_accepted_and_absence_stays_allowed(self):
+        self.assertEqual(ProvenanceFromR1(model_sha256="a" * 64).model_sha256, "a" * 64)
+        self.assertIsNone(ProvenanceFromR1().model_sha256)
+
+    def test_an_unknown_data_role_is_refused(self):
+        with self.assertRaises(ManifestError):
+            ProvenanceFromR1(data_role="dev")
+        for role in ("development", "holdout", "external_transfer"):
+            with self.subTest(role):
+                self.assertEqual(ProvenanceFromR1(data_role=role).data_role, role)
+
+    def test_a_holdout_run_names_the_decision_7b_fields_it_did_not_record(self):
+        directory = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        manifest = ExperimentManifest(
+            run_id="run-1",
+            directory=directory,
+            config={},
+            r1=ProvenanceFromR1(data_role="holdout", model_sha256="a" * 64),
+        )
+        manifest.freeze()
+        unmet = read_manifest(directory)["provenance"]["holdout_preconditions_unmet"]
+        self.assertIn("threshold_policy_sha256", unmet)
+        self.assertIn("holdout_selection_sha256", unmet)
+        self.assertNotIn("model_sha256", unmet)
+
+    def test_a_development_run_is_not_measured_against_the_holdout_preconditions(self):
+        directory = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        manifest = ExperimentManifest(
+            run_id="run-1",
+            directory=directory,
+            config={},
+            r1=ProvenanceFromR1(data_role="development"),
+        )
+        manifest.freeze()
+        self.assertEqual(read_manifest(directory)["provenance"]["holdout_preconditions_unmet"], [])
+
+
 if __name__ == "__main__":
     unittest.main()

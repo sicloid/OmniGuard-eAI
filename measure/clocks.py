@@ -184,16 +184,26 @@ class Clock:
 
 
 class ManualClock(Clock):
-    """A clock driven by the test, including backwards wall jumps."""
+    """A clock driven by the test, including backwards wall jumps.
+
+    Each instance is its own monotonic source. Sharing the process default would make
+    two independent injected clocks subtractable — one at 900 and one at 10 returning
+    Duration(890) — which is the wrong-domain arithmetic this module exists to reject,
+    reintroduced through the seam used to test it. R2 found this on PR #32.
+    """
+
+    _created = 0
 
     def __init__(self, unix: float = 1_000_000.0, monotonic: float = 0.0):
         self._unix, self._monotonic = float(unix), float(monotonic)
+        ManualClock._created += 1
+        self._source = f"manual:{ManualClock._created}:{id(self)}"
 
     def now(self) -> UnixInstant:
         return UnixInstant(self._unix)
 
     def monotonic(self) -> MonotonicInstant:
-        return MonotonicInstant(self._monotonic)
+        return MonotonicInstant(self._monotonic, self._source)
 
     def advance(self, seconds: float) -> None:
         """Move both clocks forward, as an untroubled machine would."""

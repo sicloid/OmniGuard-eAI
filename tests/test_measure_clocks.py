@@ -122,6 +122,23 @@ class ClockBehaviour(unittest.TestCase):
         clock.jump_wall_clock(-3600.0)
         self.assertLess((clock.now() - started).seconds, 0)
 
+    def test_two_injected_clocks_are_not_the_same_monotonic_source(self):
+        # Reported on PR #32: sharing the process default made independent test clocks
+        # subtractable, so 900 - 10 returned Duration(890) from two unrelated timelines.
+        first, second = ManualClock(monotonic=900.0), ManualClock(monotonic=10.0)
+        with self.assertRaises(ClockDomainError):
+            first.monotonic() - second.monotonic()
+
+    def test_an_injected_clock_is_not_comparable_with_the_real_one(self):
+        with self.assertRaises(ClockDomainError):
+            ManualClock().monotonic() - Clock().monotonic()
+
+    def test_one_injected_clock_still_measures_its_own_elapsed_time(self):
+        clock = ManualClock(monotonic=10.0)
+        started = clock.monotonic()
+        clock.advance(2.5)
+        self.assertEqual((clock.monotonic() - started).seconds, 2.5)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -4,24 +4,36 @@ R3 is accountable for this format and for writing it (KAN-42, 12 September 2026)
 values, however, come from three roles, and the manifest says so per field instead of
 leaving a reader to guess whether a blank means "zero" or "nobody supplied it":
 
-- **R1 (Onur)** — dataset and model provenance: capture and parent-capture hashes, the
-  split manifest hash, the model artifact SHA-256 and the label version.
+- **R1 (Onur)** — dataset and model provenance: the pack manifest hash (which itself
+  pins every capture hash), the split manifest hash, the model and metadata hashes, the
+  frozen threshold policy, and which data role the run was allowed to touch.
 - **R2 (Şükrü)** — the run's relationship to the machine and the network: boot and host
   clock mapping, `t0`, and sink/forwarding evidence.
 - **R3 (Gabriel)** — the format, the environment, the measured figures, and writing it.
 
-Two rules this file enforces rather than documents:
+Three rules this file enforces rather than documents:
 
-- **The configuration is frozen before the run.** After `freeze()`, changing it raises.
-  A configuration edited while the run is in flight describes a run that never happened.
+- **The run is sealed before it starts.** `freeze()` takes a deep snapshot of the
+  configuration and both provenance sections, and refuses later changes to either —
+  whether by editing a nested value, replacing the whole attribute, or calling
+  `set_config`. What is published is the snapshot, not whatever the caller holds now.
+  A configuration or a provenance hash edited while the run is in flight describes a
+  run that never happened, and ADR-0004 decision 7b requires those hashes recorded
+  *before* a holdout run rather than alongside its results.
+- **A run directory belongs to one run.** `freeze()` claims `manifest.json` with an
+  exclusive create, so a second run pointed at the same directory fails there instead
+  of replacing the first run's evidence. Only the run that claimed it may close it.
 - **A failed or partial run is kept.** `freeze()` writes the opening document
   immediately, so a process that dies mid-run leaves a manifest marked `incomplete`
-  rather than no manifest at all. Nothing here deletes a run.
+  rather than no manifest at all. Nothing here deletes a run. `_frozen` and `_closed`
+  are set only once the document is actually on disk, so a write that fails can be
+  retried instead of leaving the run permanently unclosable.
 """
 
 import json
 import os
 import platform
+import re
 import sys
 import tempfile
 from dataclasses import asdict, dataclass, field
@@ -34,22 +46,86 @@ FILENAME = "manifest.json"
 
 INCOMPLETE, COMPLETED, FAILED = "incomplete", "completed", "failed"
 
+# ADR-0004 decision 7 separates what a run is allowed to read. A run that does not say
+# which of the three it was cannot be told apart from one that quietly used the holdout.
+DATA_ROLES = ("development", "holdout", "external_transfer")
+
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
+
+# Attributes that describe *which* run this is. Sealed together at freeze time.
+SEALED = frozenset({"run_id", "directory", "config", "clock", "r1", "r2"})
+
 
 class ManifestError(Exception):
     """The manifest would have recorded something untrue."""
 
 
+def _hashes(section) -> None:
+    """Reject anything that is not a full SHA-256, so a truncated copy is not published.
+
+    A hash shortened for a report (`d30725a9…`) identifies nothing, and publishing it
+    beside real ones invites a reader to treat it as provenance.
+    """
+    for name, value in vars(section).items():
+        if name.endswith("_sha256") and value is not None and not SHA256.match(str(value)):
+            raise ManifestError(
+                f"{name} must be 64 lowercase hex characters or None, not {value!r}"
+            )
+
+
 @dataclass
 class ProvenanceFromR1:
-    """Dataset and model identity. Supplied by R1; None means not supplied."""
+    """Dataset and model identity. Supplied by R1; None means not supplied.
 
-    sample_pack_sha256: str | None = None
+    Field names follow what R1's merged runners already write, so the same bytes are
+    not published under two names. The mapping, agreed on this PR's review:
+
+    | here | R1 writes it as |
+    |---|---|
+    | `pack_manifest_sha256` | `PackProvenance.manifest_sha256` |
+    | `windows_sha256` | `windows_sha256` |
+    | `split_manifest_sha256` | `training_manifest_sha256` (hash of `split.manifest.json`) |
+    | `model_sha256` | `model_sha256` |
+    | `model_meta_sha256` | `metadata_sha256` (exact `model.meta.json` bytes) |
+    | `threshold_policy_sha256` | the KAN-19 frozen operating policy hash |
+    | `holdout_selection_sha256` | hash of `data/holdout/selection.json` |
+
+    There is no capture-hash field: the pack manifest already pins every `pcap_sha256`
+    and `conn_log_sha256`, so a second copy here could only disagree with it.
+
+    `label_rule_version` is R1's explicit version for the window-label rule, carried in
+    a versioned pack-manifest update. Until R1 supplies one it stays absent; it is not
+    derived here, because a hash invented at this end would name a rule R1 never
+    published. N and the lease are policy parameters and live in the run's frozen
+    `config`, not here.
+    """
+
+    pack_manifest_sha256: str | None = None
     windows_sha256: str | None = None
     split_manifest_sha256: str | None = None
     model_sha256: str | None = None
     model_meta_sha256: str | None = None
+    threshold_policy_sha256: str | None = None
+    holdout_selection_sha256: str | None = None
     feature_schema_version: str | None = None
-    label_version: str | None = None
+    label_rule_version: str | None = None
+    data_role: str | None = None
+
+    def __post_init__(self) -> None:
+        _hashes(self)
+        if self.data_role is not None and self.data_role not in DATA_ROLES:
+            raise ManifestError(f"data_role must be one of {DATA_ROLES} or None")
+
+
+# What ADR-0004 decision 7b requires on record before the untouched holdout is scored.
+HOLDOUT_PRECONDITIONS = (
+    "feature_schema_version",
+    "model_sha256",
+    "model_meta_sha256",
+    "threshold_policy_sha256",
+    "pack_manifest_sha256",
+    "holdout_selection_sha256",
+)
 
 
 @dataclass
@@ -63,9 +139,19 @@ class ProvenanceFromR2:
     t0_unix: float | None = None
     sink_evidence: str | None = None
 
+    def __post_init__(self) -> None:
+        _hashes(self)
 
-def _pending(section) -> list[str]:
-    return sorted(name for name, value in vars(section).items() if value is None)
+
+def _pending(section: dict) -> list[str]:
+    return sorted(name for name, value in section.items() if value is None)
+
+
+def _unmet_holdout_preconditions(r1: dict) -> list[str]:
+    """Name the 7b fields a holdout run did not record, rather than let it read as clean."""
+    if r1.get("data_role") != "holdout":
+        return []
+    return [name for name in HOLDOUT_PRECONDITIONS if r1.get(name) is None]
 
 
 @dataclass
@@ -79,9 +165,21 @@ class ExperimentManifest:
     r1: ProvenanceFromR1 = field(default_factory=ProvenanceFromR1)
     r2: ProvenanceFromR2 = field(default_factory=ProvenanceFromR2)
     notes: str = ""
+    _sealed: bool = field(default=False, init=False)
+    _reserved: bool = field(default=False, init=False)
     _frozen: bool = field(default=False, init=False)
     _closed: bool = field(default=False, init=False)
     _started: UnixInstant | None = field(default=None, init=False)
+    _snapshot: dict | None = field(default=None, init=False, repr=False)
+
+    def __setattr__(self, name: str, value) -> None:
+        # Replacing the whole attribute would otherwise walk around set_config and the
+        # snapshot both, which is how a frozen run silently became a different one.
+        if name in SEALED and getattr(self, "_sealed", False):
+            raise ManifestError(
+                f"{name} is sealed for this run; a changed {name} describes a different run"
+            )
+        object.__setattr__(self, name, value)
 
     @property
     def path(self) -> Path:
@@ -99,18 +197,30 @@ class ExperimentManifest:
         }
 
     def freeze(self) -> Path:
-        """Write the opening document and refuse further configuration changes."""
+        """Seal the run, claim its directory, and write the opening document.
+
+        Safe to call again only after a write failure: the snapshot and the claim are
+        taken once, and `_frozen` is set after the document reaches disk.
+        """
         if self._frozen:
             raise ManifestError("this run is already frozen")
-        self._started = self.clock.now()
-        # Copy so a later mutation of the caller's dict cannot rewrite a frozen run.
-        self.config = json.loads(json.dumps(self.config, sort_keys=True))
-        self._frozen = True
+        if not self._sealed:
+            self._started = self.clock.now()
+            # A deep copy, kept privately: nothing the caller still holds a reference to
+            # can reach the published document, at any nesting depth.
+            self._snapshot = {
+                "config": json.loads(json.dumps(self.config, sort_keys=True)),
+                "r1": asdict(self.r1),
+                "r2": asdict(self.r2),
+            }
+            self._sealed = True
+        self._reserve()
         self._write(self._document(status=INCOMPLETE, outcome=None, measurements=None))
+        self._frozen = True
         return self.path
 
     def set_config(self, config: dict) -> None:
-        if self._frozen:
+        if self._sealed:
             raise ManifestError("the configuration is frozen; a changed config is a different run")
         self.config = config
 
@@ -122,11 +232,53 @@ class ExperimentManifest:
             raise ManifestError("this run is already closed")
         if status not in (COMPLETED, FAILED):
             raise ManifestError(f"status must be {COMPLETED} or {FAILED}, not {status!r}")
-        self._closed = True
+        self._assert_still_ours()
         self._write(self._document(status=status, outcome=outcome, measurements=measurements))
+        self._closed = True
         return self.path
 
+    def _reserve(self) -> None:
+        """Claim manifest.json for this run with an exclusive create.
+
+        Atomic replacement protects one write; it does not establish who owns the run
+        record. Two runs pointed at one directory must fail here, before either has
+        written anything, rather than at the end when the loser has already overwritten
+        the winner's evidence.
+        """
+        if self._reserved:
+            return
+        directory = Path(self.directory)
+        directory.mkdir(parents=True, exist_ok=True)
+        try:
+            os.close(os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644))
+        except FileExistsError:
+            raise ManifestError(
+                f"{self.path} already holds a run record; recorded runs are never "
+                "overwritten. Give this run its own directory."
+            ) from None
+        self._reserved = True
+
+    def _assert_still_ours(self) -> None:
+        """Refuse to close over a record this run did not write."""
+        try:
+            existing = json.loads(self.path.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            raise ManifestError(
+                f"{self.path} no longer exists; this run cannot close a record it does not hold"
+            ) from None
+        except json.JSONDecodeError:
+            raise ManifestError(
+                f"{self.path} is not a document this run wrote; refusing to overwrite it"
+            ) from None
+        if existing.get("run_id") != self.run_id:
+            raise ManifestError(
+                f"{self.path} now records run {existing.get('run_id')!r}, not "
+                f"{self.run_id!r}; closing would overwrite another run's evidence"
+            )
+
     def _document(self, *, status: str, outcome: dict | None, measurements: dict | None) -> dict:
+        snapshot = self._snapshot or {}
+        r1, r2 = snapshot.get("r1", {}), snapshot.get("r2", {})
         return {
             "manifest_format": MANIFEST_FORMAT,
             "run_id": self.run_id,
@@ -134,12 +286,14 @@ class ExperimentManifest:
             "started_at_unix": None if self._started is None else self._started.seconds,
             "closed_at_unix": self.clock.now().seconds if status != INCOMPLETE else None,
             "environment": self.environment(),
-            "config": self.config,
+            "config": snapshot.get("config"),
             "provenance": {
-                "r1": asdict(self.r1),
-                "r2": asdict(self.r2),
+                "r1": r1,
+                "r2": r2,
                 # Named so a reader never has to infer that a null was a measurement.
-                "not_supplied": {"r1": _pending(self.r1), "r2": _pending(self.r2)},
+                "not_supplied": {"r1": _pending(r1), "r2": _pending(r2)},
+                # ADR-0004 7b, named rather than assumed satisfied by a holdout run.
+                "holdout_preconditions_unmet": _unmet_holdout_preconditions(r1),
             },
             "measurements": measurements,
             "outcome": outcome,
