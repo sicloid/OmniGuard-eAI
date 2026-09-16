@@ -48,7 +48,24 @@ def window_groups(windows: Sequence[LabelledWindow]) -> list[WindowGroup]:
     return [WindowGroup(g, n, m) for g, (n, m) in sorted(totals.items())]
 
 
-def feature_matrix(windows: Sequence[LabelledWindow]) -> list[list[float]]:
+def _check_columns(columns: Sequence[int] | None) -> tuple[int, ...] | None:
+    if columns is None:
+        return None
+    picked = tuple(columns)
+    if (
+        not picked
+        or any(type(c) is not int or not 0 <= c < len(FEATURE_ORDER) for c in picked)
+        or list(picked) != sorted(set(picked))
+    ):
+        raise TrainingError("columns must be distinct catalogue indices in catalogue order")
+    return picked
+
+
+def feature_matrix(
+    windows: Sequence[LabelledWindow], *, columns: Sequence[int] | None = None
+) -> list[list[float]]:
+    """Rows in catalogue order; `columns` keeps a subset of it (KAN-20 ablation)."""
+    picked = _check_columns(columns)
     for w in windows:
         if (
             w.vector.feature_schema_version != FEATURE_SCHEMA_VERSION
@@ -58,7 +75,9 @@ def feature_matrix(windows: Sequence[LabelledWindow]) -> list[list[float]]:
                 f"{w.group_id}: vector is {w.vector.feature_schema_version}, "
                 f"expected {FEATURE_SCHEMA_VERSION} in catalogue order"
             )
-    return [list(w.vector.values) for w in windows]
+    if picked is None:
+        return [list(w.vector.values) for w in windows]
+    return [[w.vector.values[c] for c in picked] for w in windows]
 
 
 def train_random_forest(
@@ -68,6 +87,7 @@ def train_random_forest(
     n_estimators: int = 200,
     max_depth: int | None = None,
     min_samples_leaf: int = 1,
+    columns: Sequence[int] | None = None,
 ):
     labels = [w.malicious for w in windows]
     if not labels or all(labels) or not any(labels):
@@ -82,15 +102,24 @@ def train_random_forest(
         random_state=seed,
         n_jobs=1,
     )
-    model.fit(feature_matrix(windows), [int(label) for label in labels])
+    model.fit(feature_matrix(windows, columns=columns), [int(label) for label in labels])
     return model
 
 
-def rf_scores(model, windows: Sequence[LabelledWindow]) -> list[float]:
-    """Probability of class 1 from the forest; a score, not a calibrated probability."""
+def rf_scores(
+    model, windows: Sequence[LabelledWindow], *, columns: Sequence[int] | None = None
+) -> list[float]:
+    """Probability of class 1 from the forest; a score, not a calibrated probability.
+
+    `columns` must be the subset the model was trained on; a width mismatch is refused.
+    """
     if list(model.classes_) != [0, 1]:
         raise TrainingError("model must be trained on classes [0, 1]")
-    return [float(row[1]) for row in model.predict_proba(feature_matrix(windows))]
+    width = len(FEATURE_ORDER) if columns is None else len(_check_columns(columns))
+    if getattr(model, "n_features_in_", width) != width:
+        raise TrainingError(f"model expects {model.n_features_in_} features, not {width}")
+    rows = feature_matrix(windows, columns=columns)
+    return [float(row[1]) for row in model.predict_proba(rows)]
 
 
 @dataclass(frozen=True)
