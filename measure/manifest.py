@@ -19,7 +19,9 @@ Three rules this file enforces rather than documents:
   `set_config`. What is published is the snapshot, not whatever the caller holds now.
   A configuration or a provenance hash edited while the run is in flight describes a
   run that never happened, and ADR-0004 decision 7b requires those hashes recorded
-  *before* a holdout run rather than alongside its results.
+  *before* a holdout run rather than alongside its results. 7b's other half — N and
+  the lease — is checked in the sealed config by the same rule, so a `holdout` run
+  cannot publish an empty `holdout_preconditions_unmet` while recording no policy.
 - **A run directory belongs to one run.** `freeze()` claims `manifest.json` with an
   exclusive create, so a second run pointed at the same directory fails there instead
   of replacing the first run's evidence. Only the run that claimed it may close it.
@@ -37,6 +39,7 @@ import re
 import sys
 import tempfile
 from dataclasses import asdict, dataclass, field
+from math import isfinite
 from pathlib import Path
 
 from measure.clocks import Clock, UnixInstant
@@ -96,8 +99,12 @@ class ProvenanceFromR1:
     `label_rule_version` is R1's explicit version for the window-label rule, carried in
     a versioned pack-manifest update. Until R1 supplies one it stays absent; it is not
     derived here, because a hash invented at this end would name a rule R1 never
-    published. N and the lease are policy parameters and live in the run's frozen
-    `config`, not here.
+    published.
+
+    N and the lease are policy parameters rather than provenance, so they are not
+    fields here. They live in the sealed `config` under `POLICY_CONFIG_KEY`, and a
+    holdout run that does not record them is reported as unmet exactly like a missing
+    hash — decision 7b asks for both halves.
     """
 
     pack_manifest_sha256: str | None = None
@@ -117,7 +124,7 @@ class ProvenanceFromR1:
             raise ManifestError(f"data_role must be one of {DATA_ROLES} or None")
 
 
-# What ADR-0004 decision 7b requires on record before the untouched holdout is scored.
+# What ADR-0004 decision 7b requires from R1 before the untouched holdout is scored.
 HOLDOUT_PRECONDITIONS = (
     "feature_schema_version",
     "model_sha256",
@@ -126,6 +133,14 @@ HOLDOUT_PRECONDITIONS = (
     "pack_manifest_sha256",
     "holdout_selection_sha256",
 )
+
+# Decision 7b also lists N and the lease. They are policy parameters rather than
+# provenance, so they live in the sealed configuration — under a versioned block, so
+# that widening this contract later cannot change what an already written manifest was
+# claiming. The names are `gateway.policy.DevicePolicy`'s own, so a recorded run can be
+# compared with the policy that produced it without a translation step.
+POLICY_CONFIG_KEY = "policy"
+POLICY_CONFIG_VERSION = "omniguard-policy-config/1"
 
 
 @dataclass
@@ -147,11 +162,52 @@ def _pending(section: dict) -> list[str]:
     return sorted(name for name, value in section.items() if value is None)
 
 
-def _unmet_holdout_preconditions(r1: dict) -> list[str]:
-    """Name the 7b fields a holdout run did not record, rather than let it read as clean."""
+def _positive(value) -> bool:
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and isfinite(value)
+        and value > 0
+    )
+
+
+def _unmet_policy_config(config) -> list[str]:
+    """Name the sealed policy parameters a holdout run did not record.
+
+    A requirement only the prose enforces is not enforced: the R1 hashes were checked
+    while N and the lease, which decision 7b lists beside them, were left to a sentence
+    in a README. A value that is present but unusable — `n: 0`, a negative lease, a
+    block written against a different version of this contract — counts as unrecorded,
+    because it cannot describe the policy that actually ran.
+    """
+    block = config.get(POLICY_CONFIG_KEY) if isinstance(config, dict) else None
+    if not isinstance(block, dict):
+        return [f"config.{POLICY_CONFIG_KEY}"]
+
+    unmet = []
+    if block.get("policy_config_version") != POLICY_CONFIG_VERSION:
+        unmet.append(f"config.{POLICY_CONFIG_KEY}.policy_config_version")
+    n = block.get("n")
+    # N counts windows, so a float is a different quantity, not a rounding question.
+    if not isinstance(n, int) or isinstance(n, bool) or n <= 0:
+        unmet.append(f"config.{POLICY_CONFIG_KEY}.n")
+    lease = block.get("lease_seconds")
+    if not _positive(lease):
+        unmet.append(f"config.{POLICY_CONFIG_KEY}.lease_seconds")
+    bound = block.get("max_lease")
+    # Optional, but a bound that does not bound the lease it is recorded with is worse
+    # than an absent one: it reads as a ceiling this run never had.
+    if bound is not None and (not _positive(bound) or (_positive(lease) and bound < lease)):
+        unmet.append(f"config.{POLICY_CONFIG_KEY}.max_lease")
+    return unmet
+
+
+def _unmet_holdout_preconditions(r1: dict, config) -> list[str]:
+    """Name the 7b requirements a holdout run did not record, rather than read as clean."""
     if r1.get("data_role") != "holdout":
         return []
-    return [name for name in HOLDOUT_PRECONDITIONS if r1.get(name) is None]
+    missing = [name for name in HOLDOUT_PRECONDITIONS if r1.get(name) is None]
+    return missing + _unmet_policy_config(config)
 
 
 @dataclass
@@ -293,7 +349,12 @@ class ExperimentManifest:
                 # Named so a reader never has to infer that a null was a measurement.
                 "not_supplied": {"r1": _pending(r1), "r2": _pending(r2)},
                 # ADR-0004 7b, named rather than assumed satisfied by a holdout run.
-                "holdout_preconditions_unmet": _unmet_holdout_preconditions(r1),
+                # Covers the sealed policy config as well as the R1 hashes: both halves
+                # of 7b, or a holdout run can publish an empty list while recording
+                # neither N nor the lease.
+                "holdout_preconditions_unmet": _unmet_holdout_preconditions(
+                    r1, snapshot.get("config")
+                ),
             },
             "measurements": measurements,
             "outcome": outcome,

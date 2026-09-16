@@ -65,11 +65,33 @@ Three notes on the shape:
   manifest's `label_rule` text: a version R1 publishes names the rule, a hash computed
   at this end names bytes R1 never called a version. Historical pinned manifests are
   not relabelled or overwritten; until the versioned update lands the field is absent.
-- **N and the lease are not provenance.** They are policy parameters and belong in the
-  run's frozen `config`, which is sealed before the run for the same reason 7b wants
-  the hashes recorded first. A `data_role: holdout` run that is missing any 7b field
-  publishes those field names under `provenance.holdout_preconditions_unmet`, so an
-  unqualified holdout run cannot read as a clean one.
+- **N and the lease are not provenance, but they are still checked.** They are policy
+  parameters and belong in the run's `config`, which is sealed before the run for the
+  same reason 7b wants the hashes recorded first. A `data_role: holdout` run publishes
+  every 7b requirement it did not record under
+  `provenance.holdout_preconditions_unmet` — the missing R1 fields *and* the missing
+  policy keys — so an unqualified holdout run cannot read as a clean one.
+
+  The policy block is versioned, so widening this contract later cannot change what an
+  already written manifest was claiming, and it uses `gateway.policy.DevicePolicy`'s
+  own parameter names so a recorded run can be compared with the policy that produced
+  it without a translation step:
+
+  ```python
+  config = {
+      "policy": {
+          "policy_config_version": "omniguard-policy-config/1",
+          "n": 3,                  # positive integer: N counts windows
+          "lease_seconds": 30.0,   # positive
+          "max_lease": 300.0,      # optional; when present it must bound the lease
+      },
+  }
+  ```
+
+  Values that are present but unusable — `n: 0`, a negative lease, a block written
+  against another version of the contract, a `max_lease` below the lease it is recorded
+  with — count as unrecorded. A parameter that cannot describe the policy that ran is
+  not a record of it.
 
 Supplied `*_sha256` values must be 64 lowercase hex characters; a shortened hash copied
 from a report is rejected rather than published as provenance.

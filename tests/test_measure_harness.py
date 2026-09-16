@@ -15,8 +15,10 @@ from measure.clocks import ManualClock
 from measure.manifest import (
     COMPLETED,
     FAILED,
+    HOLDOUT_PRECONDITIONS,
     INCOMPLETE,
     MANIFEST_FORMAT,
+    POLICY_CONFIG_VERSION,
     ExperimentManifest,
     ManifestError,
     ProvenanceFromR1,
@@ -384,6 +386,106 @@ class ProvenanceValidationTests(unittest.TestCase):
         self.assertNotIn("model_sha256", unmet)
 
     def test_a_development_run_is_not_measured_against_the_holdout_preconditions(self):
+        directory = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        manifest = ExperimentManifest(
+            run_id="run-1",
+            directory=directory,
+            config={},
+            r1=ProvenanceFromR1(data_role="development"),
+        )
+        manifest.freeze()
+        self.assertEqual(read_manifest(directory)["provenance"]["holdout_preconditions_unmet"], [])
+
+
+def supplied_r1(**overrides) -> ProvenanceFromR1:
+    """Every decision 7b field R1 owns, filled, so only the policy half is under test."""
+    fields = {name: "a" * 64 for name in HOLDOUT_PRECONDITIONS if name.endswith("_sha256")}
+    fields["feature_schema_version"] = "features-1"
+    return ProvenanceFromR1(data_role="holdout", **(fields | overrides))
+
+
+POLICY = {
+    "policy_config_version": POLICY_CONFIG_VERSION,
+    "n": 3,
+    "lease_seconds": 30.0,
+    "max_lease": 300.0,
+}
+
+
+class HoldoutPolicyConfigTests(unittest.TestCase):
+    """Decision 7b lists N and the lease beside the hashes; both halves are checked.
+
+    Reported on PR #32 after the first round of fixes: a holdout manifest with all six
+    R1 fields and an empty config published `holdout_preconditions_unmet: []`, because
+    only the R1 half was checked while the policy half was left to a sentence in a
+    README. That is the same shape of gap this card exists to close.
+    """
+
+    def unmet(self, config, **overrides) -> list[str]:
+        directory = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        manifest = ExperimentManifest(
+            run_id="holdout-1",
+            directory=directory,
+            config=config,
+            r1=supplied_r1(**overrides),
+        )
+        manifest.freeze()
+        return read_manifest(directory)["provenance"]["holdout_preconditions_unmet"]
+
+    def test_an_empty_config_leaves_the_policy_half_visibly_unmet(self):
+        self.assertEqual(self.unmet({}), ["config.policy"])
+
+    def test_a_config_without_a_policy_block_is_unmet(self):
+        self.assertEqual(self.unmet({"n": 3, "lease_seconds": 30.0}), ["config.policy"])
+
+    def test_a_partial_policy_block_names_the_parameters_it_is_missing(self):
+        unmet = self.unmet({"policy": {"policy_config_version": POLICY_CONFIG_VERSION, "n": 3}})
+        self.assertEqual(unmet, ["config.policy.lease_seconds"])
+
+    def test_a_fully_recorded_holdout_run_is_the_only_one_that_reads_as_met(self):
+        self.assertEqual(self.unmet({"policy": dict(POLICY)}), [])
+
+    def test_a_policy_block_from_another_contract_version_is_unmet(self):
+        self.assertIn(
+            "config.policy.policy_config_version",
+            self.unmet({"policy": dict(POLICY) | {"policy_config_version": "something-else/9"}}),
+        )
+
+    def test_values_that_cannot_describe_the_policy_that_ran_count_as_unrecorded(self):
+        cases = (
+            ({"n": 0}, "config.policy.n"),
+            ({"n": -1}, "config.policy.n"),
+            ({"n": 3.0}, "config.policy.n"),  # N counts windows; a float is not a count
+            ({"n": True}, "config.policy.n"),
+            ({"lease_seconds": 0}, "config.policy.lease_seconds"),
+            ({"lease_seconds": -30.0}, "config.policy.lease_seconds"),
+            ({"lease_seconds": "30"}, "config.policy.lease_seconds"),
+            # A bound below the lease it is recorded with is not the ceiling of this run.
+            ({"max_lease": 10.0}, "config.policy.max_lease"),
+            ({"max_lease": -1.0}, "config.policy.max_lease"),
+        )
+        for override, expected in cases:
+            with self.subTest(override):
+                self.assertIn(expected, self.unmet({"policy": dict(POLICY) | override}))
+
+    def test_max_lease_is_optional_when_it_is_simply_absent(self):
+        block = {k: v for k, v in POLICY.items() if k != "max_lease"}
+        self.assertEqual(self.unmet({"policy": block}), [])
+
+    def test_a_holdout_run_missing_both_halves_reports_both(self):
+        directory = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        manifest = ExperimentManifest(
+            run_id="holdout-1",
+            directory=directory,
+            config={},
+            r1=ProvenanceFromR1(data_role="holdout"),
+        )
+        manifest.freeze()
+        unmet = read_manifest(directory)["provenance"]["holdout_preconditions_unmet"]
+        self.assertIn("threshold_policy_sha256", unmet)
+        self.assertIn("config.policy", unmet)
+
+    def test_a_development_run_is_not_asked_for_a_policy_block(self):
         directory = Path(self.enterContext(tempfile.TemporaryDirectory()))
         manifest = ExperimentManifest(
             run_id="run-1",
