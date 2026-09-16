@@ -10,19 +10,28 @@ training data, never folded into benign.
 A capture that ends mid-record is used up to that point, with the interval that was
 still being recorded dropped rather than padded; the manifest records both facts.
 
-Multicast, broadcast and link-local destinations are excluded from EGRESS: that
-traffic never leaves the house, so counting it as outbound would teach the model
-discovery chatter.
-This exclusion, the declared-label assumption and the IoT-23 primary-source switch are
-R1 proposals, not team decisions: the shared live/offline semantics (R2 source adapter)
-need a documented decision before the catalogue or any research result is frozen.
+Multicast, limited broadcast, link-local and unspecified destinations are excluded
+from EGRESS features by policy, not because all of them are physically link-local.
+The rule lives in sources.scope and PacketNormalizer applies it, so this builder and
+live capture see the same EGRESS set. The manifest's legacy multicast_or_broadcast
+count is the normalizer's on_link policy-exclusion count, not a leakage measurement.
+The Lead approved moving this rule into shared code on 14 September 2026; the
+normalizer change still needs R2 review. The declared-label assumption and the IoT-23
+primary source stay as recorded in ADR-0004.
+
+Manifest version 2 records `manifest_version` and `label_rule_version`, so a run can
+cite which window-labelling rule produced its labels (KAN-42 R1 provenance, Lead
+decision of 15 September 2026). Version-1 manifests have neither field. They stay
+exactly as they were pinned and are never rewritten to add one. Bump
+`LABEL_RULE_VERSION` whenever the rule text, the label vocabulary or the flow matching
+in `labels.py` changes meaning; a test ties the current text and vocabulary to the
+current version.
 """
 
 import hashlib
 import json
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from ipaddress import ip_address
 from math import floor
 from pathlib import Path
 
@@ -32,10 +41,17 @@ from data.samplepack.labels import BENIGN, DEFAULT_TOLERANCE, MALICIOUS, load_co
 from model.train import LabelledWindow
 from sources.from_pcap import read_pcap
 from sources.packets import PacketNormalizer
+from sources.scope import ON_LINK_DESTINATIONS
 
 WINDOWS_FILENAME = "windows.jsonl"
 MANIFEST_FILENAME = "manifest.json"
-EGRESS_EXCLUSIONS = ("224.0.0.0/4", "ff00::/8", "255.255.255.255", "169.254.0.0/16", "fe80::/10")
+MANIFEST_VERSION = 2
+LABEL_RULE_VERSION = "window-label-1"
+LABEL_RULE = (
+    "malicious if any egress packet matches a Malicious flow; unknown if any "
+    "packet is unmatched or ambiguous; benign only if every packet matched Benign"
+)
+EGRESS_EXCLUSIONS = ON_LINK_DESTINATIONS
 MALICIOUS_LABEL, BENIGN_LABEL, UNKNOWN_LABEL = "malicious", "benign", "unknown"
 LABELS = (MALICIOUS_LABEL, BENIGN_LABEL, UNKNOWN_LABEL)
 # sources.from_pcap reports a short read as a plain ValueError with this message. Only
@@ -91,16 +107,6 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _leaves_the_house(destination: str) -> bool:
-    address = ip_address(destination)
-    return not (
-        address.is_multicast
-        or address.is_link_local
-        or address.is_unspecified
-        or str(address) == "255.255.255.255"
-    )
-
-
 def _windows_of(packets: Iterable[PacketTuple], counts: _Counts) -> dict[tuple[str, float], list]:
     grouped: dict[tuple[str, float], list[PacketTuple]] = {}
     stream = iter(packets)
@@ -117,9 +123,7 @@ def _windows_of(packets: Iterable[PacketTuple], counts: _Counts) -> dict[tuple[s
             counts.truncated_tail = True
             break
         counts.packets += 1
-        if packet.direction is Direction.EGRESS and not _leaves_the_house(packet.dst_ip):
-            counts.multicast_or_broadcast += 1
-            continue
+        # Policy-excluded destinations arrive as LOCAL from the shared normalizer.
         if packet.direction is not Direction.EGRESS:
             continue
         counts.egress_packets += 1
@@ -165,6 +169,7 @@ def build_sample_pack(
             )
         normalizer = PacketNormalizer(list(spec.lan_cidrs), spec.devices)
         grouped = _windows_of(read_pcap(spec.pcap, normalizer), counts)
+        counts.multicast_or_broadcast = normalizer.stats.on_link
         for (device_id, start), packets in sorted(grouped.items()):
             vector = extract_features(device_id, start, packets)
             if vector is None:
@@ -222,14 +227,13 @@ def build_sample_pack(
     (out_dir / WINDOWS_FILENAME).write_text(payload, encoding="utf-8")
     manifest = {
         "tool": "data.samplepack.build",
+        "manifest_version": MANIFEST_VERSION,
         "feature_schema_version": FEATURE_SCHEMA_VERSION,
         "window_seconds": WINDOW_SECONDS,
         "flow_match_tolerance_s": tolerance,
         "egress_exclusions": list(EGRESS_EXCLUSIONS),
-        "label_rule": (
-            "malicious if any egress packet matches a Malicious flow; unknown if any "
-            "packet is unmatched or ambiguous; benign only if every packet matched Benign"
-        ),
+        "label_rule_version": LABEL_RULE_VERSION,
+        "label_rule": LABEL_RULE,
         "captures": captures,
         "windows_file": WINDOWS_FILENAME,
         "windows_sha256": hashlib.sha256(payload.encode()).hexdigest(),

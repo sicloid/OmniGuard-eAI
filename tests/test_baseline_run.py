@@ -60,6 +60,31 @@ class VerifyPackTests(unittest.TestCase):
             run(self.pack, self.dir / "out", seeds=[1], bootstrap=0, trees=1)
         self.assertFalse((self.dir / "out").exists())
 
+    def test_version_2_manifest_reports_its_label_rule_version(self):
+        self.write_manifest(manifest_version=2, label_rule_version="window-label-1")
+        provenance = verify_pack(self.pack)
+        self.assertEqual(
+            (provenance.manifest_version, provenance.label_rule_version), (2, "window-label-1")
+        )
+
+    def test_version_1_manifest_reports_the_label_rule_version_as_missing(self):
+        provenance = verify_pack(self.pack)  # setUp writes a manifest with no version field
+        self.assertEqual((provenance.manifest_version, provenance.label_rule_version), (1, None))
+
+    def test_unknown_or_inconsistent_manifest_versions_are_rejected(self):
+        for changes in (
+            {"manifest_version": 3},
+            {"manifest_version": True},
+            {"manifest_version": "2", "label_rule_version": "window-label-1"},
+            {"manifest_version": 2},
+            {"manifest_version": 2, "label_rule_version": " "},
+            {"label_rule_version": "window-label-1"},
+        ):
+            with self.subTest(changes=changes):
+                self.write_manifest(**changes)
+                with self.assertRaises(PackIntegrityError):
+                    verify_pack(self.pack)
+
 
 if __name__ == "__main__":
     unittest.main()

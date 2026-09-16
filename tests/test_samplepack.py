@@ -189,6 +189,30 @@ class SamplePackTests(unittest.TestCase):
         second = build_sample_pack([self.spec()], self.dir / "pack2")
         self.assertEqual(manifest["windows_sha256"], second["windows_sha256"])
 
+    def test_manifest_names_its_version_and_label_rule_version(self):
+        from data.samplepack import build
+
+        manifest, _ = self.build()
+        self.assertEqual(manifest["manifest_version"], 2)
+        self.assertEqual(manifest["manifest_version"], build.MANIFEST_VERSION)
+        self.assertEqual(manifest["label_rule_version"], build.LABEL_RULE_VERSION)
+        self.assertEqual(manifest["label_rule"], build.LABEL_RULE)
+
+    def test_label_rule_version_changes_when_the_rule_changes(self):
+        # If this fails, the rule text or label vocabulary changed. Bump
+        # LABEL_RULE_VERSION and add its fingerprint here; never edit a fingerprint alone.
+        import hashlib
+
+        from data.samplepack import build
+
+        known = {
+            "window-label-1": "d3ad02d529f0e6fecf5af16c6d06158ae3333e2dbdbf7f2848437b7854422f50",
+        }
+        rule = {"label_rule": build.LABEL_RULE, "labels": list(build.LABELS)}
+        fingerprint = hashlib.sha256(json.dumps(rule, sort_keys=True).encode()).hexdigest()
+        self.assertIn(build.LABEL_RULE_VERSION, known)
+        self.assertEqual(fingerprint, known[build.LABEL_RULE_VERSION])
+
     def test_labels_outside_the_vocabulary_are_rejected_not_read_as_benign(self):
         _, out = self.build()
         path = out / "windows.jsonl"
