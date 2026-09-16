@@ -60,18 +60,29 @@ with a bounded device registry owned by the runtime. Configuration is fixed for
 an object's lifetime; create/reconcile a new policy for configuration changes.
 
 N=1 requests quarantine in the first eligible window. Only consecutive complete
-five-second windows count. Stale (>1s after closure), future, duplicate, gap,
-model/threshold change and explicit invalidation reset the series. Call
+five-second windows count. A result older than `max_result_age` after its window
+closes is stale. Its 2.5 s default composes capture delay, pipeline lateness and a
+small extraction/inference allowance; callers may set it explicitly. Stale,
+misaligned, future and duplicate results are dropped and counted in `rejections`.
+Gaps, model/threshold changes and explicit invalidation reset the series and are
+counted in `resets`. Call
 `invalidate` on capture/pipeline reset_generation changes, empty windows and
 inference failure; missing observations are not benign classifications.
 
 Call `tick` independently of capture/inference, even when they stop producing
 results. Durations use monotonic time, while event timestamp/expiry are UTC
 presentation fields. Repeated anomalies and invalidation never renew a lease.
-Expiry/manual `release` disarms the policy. `rearm` is an explicit caller action
+Expiry and `release` from SUSPICIOUS or QUARANTINED disarm the policy and emit a
+NORMAL event. `release` on an already NORMAL device is rejected, preventing an
+unobservable disarm. `rearm` is an explicit caller action
 for a new reconciled episode; old window evidence remains rejected. This initial
-review candidate allows at most one lease per armed episode. Neither the 1s
+review candidate allows at most one lease per armed episode. Neither the configured
 freshness bound nor N/lease choices are validated detection-quality parameters.
+
+After a monotonic regression, clocked calls reject without mutating policy state.
+`reconcile(now=..., mono=...)` accepts the new clock base. It ends an active episode
+with an explicit NORMAL event and disarms the policy; the caller can rearm only after
+enforcement and device binding have also been reconciled.
 
 This is decision logic, not a deployed controller: live scheduling, bounded device
 registry, kernel TTL, restart/binding reconciliation and successful restoration
