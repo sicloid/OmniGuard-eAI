@@ -82,10 +82,26 @@ def write(directory, name, body="CREATE TABLE placeholder (id integer);\n"):
 
 
 class DiscoveryTests(unittest.TestCase):
-    def test_the_real_initial_migration_is_discoverable_and_is_the_only_one(self):
+    def test_the_real_migrations_are_discoverable_in_version_order(self):
         migrations = migrate.discover()
-        self.assertEqual([m.version for m in migrations], ["001"])
-        self.assertEqual(migrations[0].name, "initial_schema")
+        self.assertEqual([m.version for m in migrations], ["001", "002"])
+        self.assertEqual([m.name for m in migrations], ["initial_schema", "boot_ordering"])
+
+    def test_the_additive_migration_does_not_touch_the_applied_one(self):
+        # 001 is applied and its checksum recorded. KAN-40 adds to the schema; a DROP,
+        # an ALTER of an existing column or a re-CREATE of events would be rewriting
+        # history through a new file instead of editing the old one.
+        body = re.sub(r"--[^\n]*", "", migrate.discover()[1].body).upper()
+        for forbidden in ("DROP TABLE", "DROP COLUMN", "ALTER COLUMN", "CREATE TABLE EVENTS"):
+            with self.subTest(forbidden):
+                self.assertNotIn(forbidden, body)
+
+    def test_the_additive_migration_carries_the_boot_ordering_columns(self):
+        body = re.sub(r"--[^\n]*", "", migrate.discover()[1].body).lower()
+        self.assertIn("create table boots", body)
+        for column in ("producer_id", "boot_id", "sequence"):
+            with self.subTest(column):
+                self.assertIn(column, body)
 
     def test_the_initial_migration_declares_no_boot_columns(self):
         # KAN-39's agreed scope: boot identity arrives in KAN-40's additive 002. The

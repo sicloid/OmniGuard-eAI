@@ -29,6 +29,16 @@ ADR-0002 asks. See ADR-0003 sections 5.1 and 5.2.
 | `publisher.py` | topic, QoS 1, injected transport, spool fallback and drain |
 | `handoff.py` | bounded non-blocking queue; the worker owns the transport and spool |
 | `uds.py` | gateway socket bridge: frame to validated 0.1.0 StateEvent, then to the sink |
+| `consumer.py` | the receiving half: envelope to one idempotent PostgreSQL transaction, boot verdicts kept |
+
+`consumer.py` decides; `platform/consume.py` wires it to the broker and to psql, the
+same split `publisher.py` has with `mqtt.py`. Four properties are structural there:
+redelivery is `ON CONFLICT (event_id) DO NOTHING` and is counted apart from a stored
+event; a message is acknowledged only after its transaction commits, so a database
+outage leaves the backlog with the broker instead of dropping it; the boot verdict is
+remembered only once it is durable, never before; and the ledger is rebuilt from the
+database at startup, so a restart cannot turn an `UNORDERED` boot into an `ORDERED` one
+by forgetting it. The last of those is R1's acceptance condition on KAN-40.
 
 A transport reports an `Acknowledgement`, never `None`: `QUEUED` means the client
 took the bytes, `ACKED` means the broker sent PUBACK, and only `ACKED` sets

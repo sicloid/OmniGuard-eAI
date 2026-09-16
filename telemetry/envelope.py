@@ -128,22 +128,40 @@ class BootLedger:
 
     Held by the consumer. KAN-40 decides what to do with an `UNORDERED` verdict;
     this class only refuses to let it pass unnamed.
+
+    Deciding and remembering are separate calls because a consumer must not let
+    memory run ahead of the durable record. If the ledger marked a boot seen and
+    the database write then failed, the retry would read `KNOWN`, skip writing
+    the boot, and the verdict would exist nowhere. `verdict_for` decides without
+    recording; `record` is called after the write commits. `observe` keeps both
+    in one step for callers that hold no separate record.
     """
 
     def __init__(self) -> None:
         self._seen: dict[str, dict[str, float]] = {}
 
-    def observe(self, producer: ProducerRef) -> BootOrder:
+    def verdict_for(self, producer: ProducerRef) -> BootOrder:
+        """Decide how this boot orders against the ones already known. No mutation."""
         if not isinstance(producer, ProducerRef):
             raise IdentityError("producer must be a ProducerRef")
-        boots = self._seen.setdefault(producer.producer_id, {})
+        boots = self._seen.get(producer.producer_id, {})
         if producer.boot_id in boots:
             return BootOrder.KNOWN
         latest = max(boots.values(), default=None)
-        boots[producer.boot_id] = producer.boot_started_at
         if latest is None or producer.boot_started_at > latest:
             return BootOrder.ORDERED
         return BootOrder.UNORDERED
+
+    def record(self, producer: ProducerRef) -> None:
+        """Remember a boot whose verdict is now durable somewhere this ledger trusts."""
+        if not isinstance(producer, ProducerRef):
+            raise IdentityError("producer must be a ProducerRef")
+        self._seen.setdefault(producer.producer_id, {})[producer.boot_id] = producer.boot_started_at
+
+    def observe(self, producer: ProducerRef) -> BootOrder:
+        verdict = self.verdict_for(producer)
+        self.record(producer)
+        return verdict
 
     def boots_for(self, producer_id: str) -> dict[str, float]:
         return dict(self._seen.get(producer_id, {}))

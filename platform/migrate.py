@@ -342,6 +342,11 @@ class ComposePsql:
             ],
             input=stdin,
             text=True,
+            # Not the host locale. text=True encodes stdin with the preferred encoding,
+            # which is cp1254 on this development machine, so a migration containing any
+            # non-ASCII character reached psql as mojibake and was refused: "invalid byte
+            # sequence for encoding UTF8". The database is UTF-8; the pipe must be too.
+            encoding="utf-8",
             capture_output=True,
             timeout=self.timeout,
         )
