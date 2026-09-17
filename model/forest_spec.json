@@ -1,0 +1,31 @@
+{
+  "card": "KAN-20",
+  "purpose": "Forest-size sweep on the full feature set: does a smaller forest keep detection while cutting inference cost? Fixed before the run.",
+  "feature_schema_version": "features-1",
+  "development_pack_windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+  "max_window_fpr": 0.01,
+  "objective": "max_recall_at_fpr",
+  "selected_on": "validation",
+  "bootstrap": 300,
+  "tree_counts": [10, 25, 50, 100, 200],
+  "reference_trees": 200,
+  "seeds": [1, 2, 3],
+  "cost_seed": 1,
+  "kan19_reference_threshold": 0.9798815486832,
+  "smallest_rule": {
+    "tolerance": 0.02,
+    "rule": "A forest size qualifies if it calibrates under the budget on every seed and its validation recall at the budget is at least the reference forest's recall minus the tolerance on each seed. The smallest qualifying size is reported. Timings never choose. If the reference fails on any seed, nothing is named.",
+    "status": "Same tolerance as the feature ablation; R1 proposal pending Lead review."
+  },
+  "cost": {
+    "inference_rows": 300,
+    "batch_rows": 32,
+    "batch_repeats": 50,
+    "note": "Single-window and batched predict_proba latency on the cost seed's validation rows, on a development machine. Gateway numbers come from the KAN-42 harness."
+  },
+  "never_read": [
+    "the development pack's test split (no forest is scored on it)",
+    "the ADR-0004 holdout captures (data/holdout/selection.json)",
+    "KAN-21 fold results"
+  ]
+}
