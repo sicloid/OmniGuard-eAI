@@ -145,9 +145,78 @@ The pack is manifest v2 `8ea8c310…` (`label_rule_version` `window-label-1`); i
   contract change and a new pack, and it saves too little to justify either.
 - **KAN-51's "two feature sets × N" matrix:** if a second set is still wanted, use `full` and
   `without:protocol`. Because the saving is small, forest size may be the better second axis.
-- **Next cost experiment:** inference latency is dominated by `n_estimators` and per-call
-  overhead. A tree-count sweep, or batching windows per device tick, would move gateway latency;
-  feature pruning would not. That needs its own declared experiment, measured on the gateway with
-  the KAN-42 harness.
+- **Forest size:** inference latency is dominated by `n_estimators` and per-call overhead, so the
+  follow-up below measures forest size and batching. Feature pruning would not move gateway
+  latency.
 - **Decision needed from the Lead:** the 0.02 tolerance. The rule and every verdict are recorded,
   so a different tolerance can be checked against the report without re-running.
+
+## Follow-up: forest size — 17 September 2026
+
+Reproduce with:
+
+```sh
+python -m model.forest_run --pack ~/omniguard-data/samplepack-v2-20260915T111555Z/windows.jsonl \
+    --out ~/omniguard-data/runs/kan20-forest
+```
+
+[`model/forest_spec.json`](../model/forest_spec.json) was committed in `6d4790c`, before the
+run. Spec SHA-256: `c3091f68a9afdf10637689c0085a59eb7fb601227174b4768e052e39396a1551`.
+
+**Setup:**
+- Full `features-1` set at 10, 25, 50, 100 and 200 trees; seeds 1–3.
+- Same 1 % budget, validation only, 300 capture-bootstrap resamples.
+- Rule: the smallest forest whose recall stays within 0.02 of 200 trees on every seed.
+
+**Cost measurement:** on seed 1's validation rows.
+- **Single window:** 300 separate `predict_proba` calls.
+- **Batched:** one call on 32 rows, repeated 50 times, reported per window.
+
+**Result: `selected`, smallest forest 100 trees.** The 200-tree reference again reproduces the
+KAN-19 threshold exactly.
+
+| Trees | Val recall @1 % FPR (seed 1 / 2 / 3) | Val AP (1 / 2 / 3) | Single window, ms (median) | Batched, µs per window | Tree nodes | joblib bytes |
+|---:|---|---|---:|---:|---:|---:|
+| 10 | 0.990 / — / 0.856 | 0.996 / 0.992 / 0.995 | 0.25 | 8.3 | 1,084 | 92,025 |
+| 25 | 0.945 / — / 0.856 | 0.997 / 0.982 / 0.995 | 0.55 | 17.6 | 2,763 | 232,105 |
+| 50 | 0.941 / — / 0.858 | 0.997 / 0.995 / 0.996 | 1.03 | 33.0 | 5,562 | 465,625 |
+| **100** | 0.945 / 0.265 / 0.876 | 0.998 / 0.995 / 0.996 | 2.02 | 64.8 | 11,316 | 945,145 |
+| 200 | 0.945 / 0.265 / 0.858 | 0.998 / 0.995 / 0.997 | 3.98 | 126.8 | 22,424 | 1,872,185 |
+
+**Report hashes:**
+- Committed report ([`model/frozen/kan20/forest_report.json`](../model/frozen/kan20/forest_report.json),
+  home paths replaced by `~`): `021a22124d6156d56b4edd7c8c1da68e39c5ed3fffdc0c638bdb265a6b6feb63`.
+- Original run output: `4ecd5259ec9baa46bc7f9fc698cd9d10a619813ffdee322cc6135435cfe860f5`.
+
+**What this says:**
+
+1. **Halving the forest keeps the result and halves the cost.**
+   - 100 trees matches 200 on every seed, and slightly exceeds it on seed 3.
+   - Single-window latency, forest size and file size all fall by about half; latency is close
+     to linear in tree count.
+2. **Smaller forests fail on the budget, not on ranking.**
+   - 10, 25 and 50 trees rank almost as well (AP ≥ 0.98), and on seeds 1 and 3 they match or beat
+     200 trees at the budget.
+   - All three fail on seed 2: with 1,023 benign validation windows the budget allows 10 false
+     positives, and a small forest's coarse scores leave more than 10 benign windows at its top
+     score level.
+   - This is the same cliff as in the feature ablation, now caused by forest size.
+   - The 10-tree forest's 0.990 on seed 1 is the cliff working the other way, not a better model.
+3. **Batching matters more than forest size.**
+   - One call on 32 windows costs about 127 µs per window at 200 trees, against about 4 ms for a
+     single-window call: roughly 30 times less.
+   - A detector that scores every device's closed window in one call per 5 s tick would gain more
+     than any forest reduction.
+   - This is a development-machine measurement, and the live detector's call pattern belongs to
+     R2.
+4. **Timing noise.** The 200-tree single-window median was 4.24 ms in the ablation run and 3.98 ms
+   here, on the same machine. Differences under about 10 % are not meaningful.
+
+**Recommendation (for Lead and R2 review):**
+- **Forest size for KAN-51:** carry 100 trees as a candidate beside the frozen 200-tree policy.
+  It would be a new model with its own validation-selected threshold, so the KAN-19 freeze does
+  not change unless the Lead decides to replace it before the holdout is scored.
+- **Batching:** batch inference per tick is worth asking R2 about. It changes no contract,
+  because each window still gets its own `DetectionResult`.
+- **Gateway numbers:** gateway CPU/RAM/latency for 100 vs 200 trees, single and batched, belong to
+  the KAN-42 harness.
