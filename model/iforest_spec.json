@@ -1,0 +1,33 @@
+{
+  "card": "KAN-22",
+  "purpose": "Offline comparison of a benign-only Isolation Forest with the Random Forest on the same capture splits. Fixed before any run.",
+  "run_gate": "KAN-22 lists G8 and G10 as prerequisites and stretch work waits for them. The runner refuses to start without --approval naming the Lead's decision to run this offline experiment early; the reference is recorded in the report.",
+  "feature_schema_version": "features-1",
+  "development_pack_windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+  "max_window_fpr": 0.01,
+  "objective": "max_recall_at_fpr",
+  "selected_on": "validation",
+  "bootstrap": 300,
+  "seeds": [1, 2, 3],
+  "iforest": {
+    "n_estimators": 200,
+    "trained_on": "windows of the train split's benign-device captures only; benign windows inside infected captures are excluded, because they come from the infected device",
+    "score": "-score_samples, the anomaly score in (0, 1]; not a probability"
+  },
+  "random_forest_reference": {
+    "n_estimators": 200,
+    "note": "Trained, calibrated and judged exactly as KAN-19 on the same split, so both models are compared on identical windows."
+  },
+  "reported": [
+    "per seed and model: validation recall, precision and window FPR at the validation-selected threshold, or no_threshold",
+    "per seed and model: validation average precision",
+    "per seed and model: validation FPR on benign windows inside infected captures, reported separately and never as a benign-device FPR"
+  ],
+  "hypothesis": "Declared before running: with one benign device in each training split, a benign-only model will flag other devices' benign traffic, so the Isolation Forest is expected to calibrate less often and recall less than the Random Forest at the same budget. The result is reported whichever way it falls.",
+  "never": [
+    "score the development pack's test split",
+    "read the ADR-0004 holdout captures",
+    "write a model artifact, a threshold policy or a DetectionResult",
+    "change SCHEMA.md or the 0.1.0 score contract"
+  ]
+}
