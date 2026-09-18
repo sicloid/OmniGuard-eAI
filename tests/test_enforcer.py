@@ -1,5 +1,6 @@
 """KAN-31 bounded enforcer safety and no-renewal tests."""
 
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from gateway.enforcer import (
     DeviceBinding,
     EnforcementAction,
     EnforcementError,
+    NamespaceOwnershipVerifier,
     NftEnforcer,
 )
 
@@ -56,6 +58,47 @@ class BindingTests(unittest.TestCase):
         enforcer = NftEnforcer(runner=fake)
         with self.assertRaises(EnforcementError):
             enforcer.is_quarantined(DeviceBinding("cam-1", "10.203.1.2", namespace="other"))
+
+
+class NamespaceOwnershipTests(unittest.TestCase):
+    def test_recorded_namespace_identity_is_accepted_and_replacement_is_refused(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            namespace_root = root / "netns"
+            namespace_root.mkdir()
+            namespace = namespace_root / "og-b"
+            namespace.write_text("owned", encoding="utf-8")
+            stat = namespace.stat()
+            ownership = root / "owned"
+            ownership.write_text(f"og-b {stat.st_dev}:{stat.st_ino}\n", encoding="utf-8")
+
+            verifier = NamespaceOwnershipVerifier(ownership, namespace_root)
+            verifier("og-b")
+
+            namespace.unlink()
+            namespace.write_text("replacement", encoding="utf-8")
+            with self.assertRaises(EnforcementError):
+                verifier("og-b")
+
+    def test_missing_or_symlinked_ownership_record_is_refused(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            namespace_root = root / "netns"
+            namespace_root.mkdir()
+            namespace = namespace_root / "og-b"
+            namespace.write_text("owned", encoding="utf-8")
+            missing = NamespaceOwnershipVerifier(root / "missing", namespace_root)
+            with self.assertRaises(EnforcementError):
+                missing("og-b")
+
+            real = root / "real-owned"
+            stat = namespace.stat()
+            real.write_text(f"og-b {stat.st_dev}:{stat.st_ino}\n", encoding="utf-8")
+            link = root / "owned-link"
+            link.symlink_to(real)
+            unsafe = NamespaceOwnershipVerifier(link, namespace_root)
+            with self.assertRaises(EnforcementError):
+                unsafe("og-b")
 
 
 class EnforcerTests(unittest.TestCase):
