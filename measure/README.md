@@ -27,3 +27,20 @@ limits of what these numbers mean are listed in
 [docs/KAN42_MEASUREMENT.md](../docs/KAN42_MEASUREMENT.md).
 
 Windows readings prove the code path only. Raspberry Pi figures come from KAN-46/53.
+
+
+## KAN-33 — containment leakage
+
+`measure.leakage` keeps the replay/source t0 interval, the enforcer apply/readback
+interval and independent sink deliveries separate. It never collapses either interval
+to a point estimate.
+
+For complete runs, the lower bound counts only deliveries definitely after t0 and
+before apply begins. The upper bound additionally includes deliveries observed inside
+the t0 and apply uncertainty intervals. Post-ACK deliveries remain a separate
+in-flight-or-bypass bucket.
+
+A run with no containment ACK, an incomplete sink, or an explicit timeout/miss reason
+is `CENSORED`; observed traffic is retained but leakage bounds are `None`. The
+dedicated Linux fixture and exact scope are documented in
+[docs/KAN33_LEAKAGE.md](../docs/KAN33_LEAKAGE.md).
