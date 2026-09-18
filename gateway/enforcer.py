@@ -14,11 +14,12 @@ from __future__ import annotations
 
 import re
 import subprocess
+from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from ipaddress import IPv4Address, ip_address
 from math import isfinite
-from typing import Protocol, Sequence
+from typing import Protocol
 
 NFT_FAMILY = "inet"
 NFT_TABLE = "omniguard"
@@ -202,7 +203,9 @@ class NftEnforcer:
         self._require_ok(result, "delete quarantine element")
         active = self._contains(binding)
         if active:
-            raise EnforcementError("nft delete succeeded but kernel readback still shows the element")
+            raise EnforcementError(
+                "nft delete succeeded but kernel readback still shows the element"
+            )
         return EnforcerReceipt(
             binding.device_id,
             binding.ipv4,
@@ -267,7 +270,13 @@ class NftEnforcer:
         )
         if result.returncode == 0:
             return True
-        return False
+        detail = (result.stderr or result.stdout).strip().lower()
+        if "no such element" in detail or "no such file or directory" in detail:
+            return False
+        raise EnforcementError(
+            "could not verify quarantine element state: "
+            + (detail or f"exit {result.returncode}")
+        )
 
     def _nft(self, namespace: str, *args: str) -> CommandResult:
         argv = ("ip", "netns", "exec", namespace, "nft", *args)
