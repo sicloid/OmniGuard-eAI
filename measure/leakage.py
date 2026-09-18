@@ -67,7 +67,7 @@ class LeakageBucket:
         if type(self.l3_bytes) is not int or self.l3_bytes < 0:
             raise ValueError("l3_bytes must be a nonnegative integer")
 
-    def add(self, delivery: SinkDelivery) -> "LeakageBucket":
+    def add(self, delivery: SinkDelivery) -> LeakageBucket:
         return LeakageBucket(self.packets + 1, self.l3_bytes + delivery.l3_bytes)
 
     def __add__(self, other):
