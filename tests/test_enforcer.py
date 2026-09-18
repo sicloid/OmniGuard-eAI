@@ -126,10 +126,14 @@ class EnforcerTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         ruleset = (root / "lab" / "ruleset.nft").read_text(encoding="utf-8")
         helper = (root / "lab" / "quarantine.sh").read_text(encoding="utf-8")
+        smoke = (root / "lab" / "smoke_netns.sh").read_text(encoding="utf-8")
         self.assertIn("flags timeout", ruleset)
         self.assertNotIn("flush ruleset", ruleset)
         self.assertIn("timeout 30s", helper)
         self.assertNotIn("conntrack -D", helper)
+        self.assertIn("conntrack -L -p tcp", smoke)
+        self.assertIn("timeout 1s", smoke)
+        self.assertIn("kernel timeout did not release", smoke)
 
 
 if __name__ == "__main__":
