@@ -65,9 +65,7 @@ class EnforcerTests(unittest.TestCase):
         self.binding = DeviceBinding("cam-1", "10.203.1.2")
 
     def test_quarantine_uses_timeout_and_verifies_readback(self):
-        receipt = self.enforcer.quarantine(
-            self.binding, lease_seconds=30.0, max_lease_seconds=60.0
-        )
+        receipt = self.enforcer.quarantine(self.binding, lease_seconds=30.0, max_lease_seconds=60.0)
         self.assertEqual(receipt.action, EnforcementAction.APPLIED)
         self.assertEqual(receipt.lease_ms, 30000)
         self.assertTrue(receipt.readback_active)
@@ -104,9 +102,7 @@ class EnforcerTests(unittest.TestCase):
     def test_lease_must_be_positive_and_bounded(self):
         for lease, maximum in ((0, 30), (-1, 30), (31, 30), (0.0001, 30)):
             with self.subTest(lease=lease, maximum=maximum), self.assertRaises(ValueError):
-                self.enforcer.quarantine(
-                    self.binding, lease_seconds=lease, max_lease_seconds=maximum
-                )
+                self.enforcer.quarantine(self.binding, lease_seconds=lease, max_lease_seconds=maximum)
 
     def test_missing_owned_set_is_a_hard_failure_not_an_implicit_create(self):
         self.fake.set_exists = False
