@@ -79,9 +79,7 @@ class EnforcerTests(unittest.TestCase):
     def test_same_evidence_does_not_renew_an_existing_kernel_lease(self):
         self.fake.active.add("10.203.1.2")
         before = len(self.fake.commands)
-        receipt = self.enforcer.quarantine(
-            self.binding, lease_seconds=30.0, max_lease_seconds=60.0
-        )
+        receipt = self.enforcer.quarantine(self.binding, lease_seconds=30.0, max_lease_seconds=60.0)
         new_commands = self.fake.commands[before:]
         self.assertEqual(receipt.action, EnforcementAction.ALREADY_APPLIED)
         self.assertIsNone(receipt.lease_ms)
@@ -117,9 +115,7 @@ class EnforcerTests(unittest.TestCase):
     def test_failed_add_never_reports_quarantined(self):
         self.fake.fail_add = True
         with self.assertRaises(EnforcementError):
-            self.enforcer.quarantine(
-                self.binding, lease_seconds=30, max_lease_seconds=30
-            )
+            self.enforcer.quarantine(self.binding, lease_seconds=30, max_lease_seconds=30)
 
     def test_unexpected_readback_error_is_not_misreported_as_absent(self):
         self.fake.lookup_error = "Operation not permitted"
