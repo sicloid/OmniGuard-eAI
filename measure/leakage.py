@@ -161,11 +161,14 @@ def summarize_leakage(
         else:
             post_ack = post_ack.add(delivery)
 
-    reason = censor_reason
+    reasons = []
+    if censor_reason is not None:
+        reasons.append(censor_reason)
     if not sink_complete:
-        reason = reason or "sink_incomplete"
+        reasons.append("sink_incomplete")
     if apply is None:
-        reason = reason or "no_containment_ack"
+        reasons.append("no_containment_ack")
+    reason = ",".join(reasons) or None
 
     if reason is None:
         status = LeakageStatus.COMPLETE
