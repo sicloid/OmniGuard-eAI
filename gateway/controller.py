@@ -13,7 +13,12 @@ from dataclasses import dataclass
 
 from core.schema import DetectionResult, DeviceState, FeatureVector, StateEvent
 from gateway.detector import CheckedDetector, DetectorError
-from gateway.enforcer import DeviceBinding, EnforcerReceipt, EnforcementError, NftEnforcer
+from gateway.enforcer import (
+    DeviceBinding,
+    EnforcementError,
+    EnforcerReceipt,
+    NftEnforcer,
+)
 from gateway.policy import DevicePolicy
 
 
