@@ -3,6 +3,7 @@
 table inet omniguard {
     set quarantined_v4 {
         type ipv4_addr
+        flags timeout
     }
     counter quarantine_drops {
     }
