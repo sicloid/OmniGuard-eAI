@@ -2,12 +2,7 @@
 
 import unittest
 
-from measure.leakage import (
-    LeakageStatus,
-    MonotonicInterval,
-    SinkDelivery,
-    summarize_leakage,
-)
+from measure.leakage import LeakageStatus, MonotonicInterval, SinkDelivery, summarize_leakage
 
 
 BOOT = "boot-1"
