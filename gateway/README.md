@@ -151,3 +151,23 @@ element, and explicit release removes it with kernel readback.
 
 This is a software/state-enforcement integration proof only. It uses
 `STUB-NOT-TRAINED` scores and therefore is **not** a G8 or trained-RF result.
+
+## KAN-34: gateway to host Unix-socket bridge
+
+`gateway.event_bridge` implements the gateway half of ADR-0003 section 2.1 without
+changing the frozen 0.1.0 contracts. `state_event_document()` serializes exactly
+`device_id`, `previous_state`, `new_state`, `reason`, `timestamp` and
+`expires_at`; identity/envelope fields remain host-side. The body uses the shared
+canonical encoder and the shared four-byte bounded frame.
+
+`GatewayEventBridge.submit()` is a bounded `put_nowait` only. Socket connect/write
+runs on its worker; a full queue returns `OVERFLOWED`, a stopped bridge returns
+`REFUSED`, and transport exceptions are counted rather than escaping into policy or
+enforcement. This preserves the invariant that telemetry loss cannot block quarantine
+or release.
+
+The dedicated Linux probe `lab/uds_bridge_smoke.sh` starts a 0600 parent-namespace
+UDS, sends a real framed StateEvent from the isolated `og-b` network namespace,
+checks Linux peer credentials and verifies before and after that no lab namespace has
+a default/outside IP route. It proves the gateway-to-host filesystem/UDS path; it is
+not G10 and does not replace the R3 host adapter's own decode/sink tests.
