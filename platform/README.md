@@ -116,6 +116,47 @@ injected executor: ordering, drift refusal, rollback, retry and the concurrent
 race. It executes no SQL and is **not** evidence that `001` applies. That comes
 only from running the command above against the real database.
 
+`002_boot_ordering.sql` is additive and touches nothing 001 created. It adds `boots`
+— one row per observed producer boot, carrying the `BootOrder` verdict decided at first
+sight — and the nullable `producer_id`, `boot_id` and `sequence` columns on `events`,
+which together complete the ADR-0003 ordering key. The three arrive together because
+`boot_id` alone is not unique across producers and cannot be joined, and neither can be
+ordered without `sequence`; the Lead approved that shape on 16 September 2026 and the
+file records it. They are nullable because a v1-topic delivery carries no envelope, and
+inventing a boot identity for it would be a claim the wire never made. A CHECK requires
+all three or none, so a partial identity cannot look populated while being unusable.
+
+The `unordered_runs` view names the runs that touched a boot whose start time did not
+order it. Ordering-dependent measurements exclude those runs and report how many they
+excluded; a run absent from the view is not thereby proven ordered, only not
+contradicted.
+
+## Telemetry consumer — KAN-40
+
+```sh
+python3 platform/consume.py --password-file platform/.secrets/mqtt_password
+```
+
+Subscribes to `omniguard/state/v2/+` at QoS 1 and appends each delivery to `events` in
+one transaction, writing the boot row first because the event's foreign key names it.
+What to store lives in `telemetry/consumer.py` and is unit-tested without Docker; this
+script is the broker and psql wiring, and is proved by running it.
+
+Three behaviours are worth knowing before reading the counters. A message is
+acknowledged only after its transaction commits, and the session is persistent
+(`clean_session=False`, fixed client id), so a database outage leaves the backlog with
+the broker rather than dropping it — `left_unacknowledged` is a backlog, not loss, and
+the process exits non-zero while any remains. Redelivery is `ON CONFLICT (event_id) DO
+NOTHING` and is counted as `redelivered` rather than `stored`. The boot ledger is
+rebuilt from `boots` at startup, and the consumer refuses to start if it cannot read
+it: beginning with an empty ledger would let a boot already recorded as `UNORDERED` be
+re-judged `ORDERED` against a blank history, which is the loss this card exists to
+prevent.
+
+A document that can never be stored — an unreadable envelope, an unsupported
+`schema_version`, a record that describes no transition — is counted under `rejected`
+and acknowledged deliberately, because redelivering it forever is a loop.
+
 ## Stop and resume
 
 ```sh
@@ -130,13 +171,15 @@ needs coordinated service-side changes.
 
 ## Remaining R3 work
 
-KAN-40–41: the MQTT consumer, its additive `002` boot migration, and a
-provisioned PostgreSQL datasource/dashboard. Grafana currently uses its default
-metadata database; HTTP health does not prove telemetry queries. Role passwords
-are not yet provisioned, so nothing runs as `omniguard_consumer` or
-`omniguard_readonly` today. Further tables (devices, detection_events,
-experiment_runs, resource_metrics) follow their own cards and ADR decisions.
-G5/G8/G10 are pending; a created table is not a delivered event.
+KAN-41: a provisioned PostgreSQL datasource and dashboard. Grafana currently uses
+its default metadata database; HTTP health does not prove telemetry queries. Role
+passwords are still not provisioned, so `platform/consume.py` connects as the
+owner rather than as `omniguard_consumer`; the grants are in place and verified,
+but running under that identity waits on credential provisioning outside version
+control. Further tables (devices, detection_events, experiment_runs,
+resource_metrics) follow their own cards and ADR decisions. G5/G8/G10 are
+pending: events now reach the database, but the chain that matters for G10 runs
+from a real detection, not from a probe.
 
 References: [Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/),
 [healthchecks](https://docs.docker.com/reference/compose-file/services/),

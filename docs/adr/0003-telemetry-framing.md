@@ -201,7 +201,17 @@ Sıralama anahtarı: **`(boot_started_at, boot_id, sequence)`**.
   Aynı producer için daha önce görülmüş bir boot'tan **küçük veya eşit** başlangıç
   zamanı sunan yeni bir boot, saat geri gitmesi, kaba saat veya geri yüklenmiş
   yedek demektir. `BootLedger` bunu `UNORDERED` olarak **raporlar**; olgu diye
-  geçiştirmez. Bu durumda ne yapılacağı KAN-40 kararıdır.
+  geçiştirmez.
+
+  **KAN-40 kararı (16 Eylül 2026).** Consumer olayı **saklar**, reddetmez ve
+  yeniden sıralamaz: veri kaybı, sıralanamayan bir verinin cezası olamaz. Verdict
+  ilk görüşte `boots` tablosuna yazılır ve bir daha değiştirilmez; consumer
+  açılışta ledger'ı bu tablodan kurar, çünkü bellekte tutulan bir verdict restart'ta
+  silinir ve aynı boot boş bir geçmişe karşı `ORDERED` diye yeniden yargılanır —
+  kaybın kanıtının kendisinin kaybolması. Sıralamaya bağlı ölçümler `unordered_runs`
+  görünümündeki koşuları **dışlar ve kaç tane dışladığını raporlar**; sessizce
+  birleştirmez. Görünümde olmayan bir koşu bu yüzden "sıralı kanıtlandı" sayılmaz,
+  yalnızca çelişilmemiştir.
 - Sıralama kapsamı boot'tur, `run_id` değil: `run_id` bir ölçüm kapsamıdır,
   süreç ömrü değil. `run_id` payload içinde aynen taşınmaya devam eder.
 
