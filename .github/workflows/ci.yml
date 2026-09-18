@@ -18,6 +18,7 @@ jobs:
       - run: python -m pip install -e . --no-deps --no-build-isolation
       - run: python -c "import sklearn, numpy, scipy, joblib; print(sklearn.__version__, numpy.__version__, scipy.__version__, joblib.__version__)"
       - run: ruff check .
+      - run: ruff format --diff lab/leakage_probe.py tests/test_leakage.py
       - run: ruff format --check .
       - run: python -m unittest discover -s tests -v
       - run: python -m stubs
