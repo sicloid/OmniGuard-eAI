@@ -73,7 +73,6 @@ class LeakageTests(unittest.TestCase):
             (2, 50),
         )
 
-
     def test_multiple_censor_causes_are_preserved(self):
         t0 = leakage.MonotonicInterval(BOOT, 100, 110, "reference submission")
         result = leakage.summarize_leakage(
