@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY core /opt/omniguard/core
 COPY gateway /opt/omniguard/gateway
 COPY stubs /opt/omniguard/stubs
+COPY telemetry /opt/omniguard/telemetry
 COPY lab /opt/omniguard/lab
 WORKDIR /opt/omniguard
 ENV PYTHONPATH=/opt/omniguard
