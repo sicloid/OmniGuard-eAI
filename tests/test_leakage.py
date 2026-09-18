@@ -1,6 +1,7 @@
 """KAN-33 leakage accounting tests."""
 
 import unittest
+
 from measure import leakage
 
 
