@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from ipaddress import IPv4Address, ip_address
 from math import isfinite
+from pathlib import Path
 from typing import Protocol
 
 NFT_FAMILY = "inet"
@@ -26,6 +27,8 @@ NFT_TABLE = "omniguard"
 NFT_SET = "quarantined_v4"
 DEFAULT_ALLOWED_NAMESPACES = frozenset({"og-b"})
 COMMAND_TIMEOUT_SECONDS = 5.0
+DEFAULT_OWNERSHIP_FILE = Path("/run/omniguard-lab/owned")
+DEFAULT_NAMESPACE_ROOT = Path("/run/netns")
 _NAMESPACE = re.compile(r"^[A-Za-z0-9_.-]{1,64}$")
 
 
@@ -70,6 +73,46 @@ class CommandResult:
 
 class CommandRunner(Protocol):
     def __call__(self, argv: Sequence[str]) -> CommandResult: ...
+
+
+class NamespaceOwnershipVerifier:
+    """Verify a netns name still refers to the namespace recorded by lab setup.
+
+    `lab/setup_netns.sh` records `st_dev:st_ino` for every owned namespace. A name
+    can later be deleted and recreated, so checking only the string "og-b" is not an
+    ownership proof. This verifier compares the current namespace mount identity with
+    that immutable setup record immediately before every mutation/readback operation.
+    """
+
+    def __init__(
+        self,
+        ownership_file: Path = DEFAULT_OWNERSHIP_FILE,
+        namespace_root: Path = DEFAULT_NAMESPACE_ROOT,
+    ):
+        self.ownership_file = Path(ownership_file)
+        self.namespace_root = Path(namespace_root)
+
+    def __call__(self, namespace: str) -> None:
+        if self.ownership_file.is_symlink() or not self.ownership_file.is_file():
+            raise EnforcementError("owned namespace record is missing or unsafe")
+        expected = None
+        for line in self.ownership_file.read_text(encoding="utf-8").splitlines():
+            parts = line.split()
+            if len(parts) == 2 and parts[0] == namespace:
+                expected = parts[1]
+                break
+        if expected is None:
+            raise EnforcementError(f"namespace {namespace!r} is not present in ownership record")
+
+        path = self.namespace_root / namespace
+        if path.is_symlink() or not path.exists():
+            raise EnforcementError(f"namespace path for {namespace!r} is missing or unsafe")
+        stat = path.stat()
+        actual = f"{stat.st_dev}:{stat.st_ino}"
+        if actual != expected:
+            raise EnforcementError(
+                f"namespace identity changed for {namespace!r}: expected {expected}, got {actual}"
+            )
 
 
 class SubprocessRunner:
@@ -121,14 +164,27 @@ class NftEnforcer:
         *,
         runner: CommandRunner | None = None,
         allowed_namespaces: frozenset[str] = DEFAULT_ALLOWED_NAMESPACES,
+        namespace_verifier=None,
     ):
         if not allowed_namespaces:
             raise ValueError("at least one owned namespace must be allowed")
         for namespace in allowed_namespaces:
             if not _NAMESPACE.fullmatch(namespace):
                 raise ValueError(f"unsafe namespace name: {namespace!r}")
+        using_real_runner = runner is None
         self._runner = runner or SubprocessRunner()
         self._allowed_namespaces = frozenset(allowed_namespaces)
+        if namespace_verifier is not None and not callable(namespace_verifier):
+            raise ValueError("namespace_verifier must be callable")
+        # Production/default execution always verifies the setup-owned namespace
+        # identity. Injected runners are test seams and may inject their own verifier.
+        self._namespace_verifier = (
+            namespace_verifier
+            if namespace_verifier is not None
+            else NamespaceOwnershipVerifier()
+            if using_real_runner
+            else None
+        )
 
     def quarantine(
         self,
@@ -228,6 +284,8 @@ class NftEnforcer:
             raise EnforcementError(
                 f"namespace {binding.namespace!r} is not in the configured owned namespace set"
             )
+        if self._namespace_verifier is not None:
+            self._namespace_verifier(binding.namespace)
 
     @staticmethod
     def _lease_ms(lease_seconds: float, max_lease_seconds: float) -> int:
