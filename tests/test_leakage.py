@@ -1,7 +1,8 @@
 """KAN-33 leakage accounting tests."""
 
-import measure.leakage as leakage
 import unittest
+
+import measure.leakage as leakage
 
 
 BOOT = "boot-1"
