@@ -10,6 +10,7 @@ nft list ruleset > /tmp/parent-rules-before.txt
 ip -j route > /tmp/parent-routes-before.json
 bash lab/setup_netns.sh
 bash lab/setup_netns.sh
+python3 lab/enforcer_smoke.py
 bash lab/smoke_netns.sh
 bash lab/teardown_netns.sh
 bash lab/teardown_netns.sh
