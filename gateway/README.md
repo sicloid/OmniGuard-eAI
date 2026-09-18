@@ -99,7 +99,10 @@ in this component.
 policy decision and the owned nftables set. It accepts an explicit `DeviceBinding`,
 a lease and its caller-provided maximum, then executes fixed argv through
 `ip netns exec <owned-namespace> nft ...`; it never invokes a shell, creates a
-ruleset or flushes host/network state.
+ruleset or flushes host/network state. With the production/default runner it also
+checks the current `/run/netns/<name>` device/inode against the ownership record
+written by `lab/setup_netns.sh`, so deleting and recreating a namespace under the
+same `og-b` name is refused rather than silently adopted.
 
 The lab set now has `flags timeout`. A new quarantine element is installed with a
 per-element kernel timeout and is read back before `APPLIED` is reported. Applying
