@@ -5,7 +5,13 @@ import unittest
 from core.schema import DeviceState
 from gateway.controller import ControlError, StateEnforcementController
 from gateway.detector import CheckedDetector, DetectorSpec
-from gateway.enforcer import CommandResult, DeviceBinding, EnforcementAction, EnforcementError, NftEnforcer
+from gateway.enforcer import (
+    CommandResult,
+    DeviceBinding,
+    EnforcementAction,
+    EnforcementError,
+    NftEnforcer,
+)
 from gateway.policy import DevicePolicy
 from stubs.fake_detector import FakeDetector
 from stubs.fake_features import STUB_FEATURE_ORDER, STUB_FEATURE_VERSION, fake_features
