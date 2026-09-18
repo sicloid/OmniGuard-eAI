@@ -102,7 +102,11 @@ class EnforcerTests(unittest.TestCase):
     def test_lease_must_be_positive_and_bounded(self):
         for lease, maximum in ((0, 30), (-1, 30), (31, 30), (0.0001, 30)):
             with self.subTest(lease=lease, maximum=maximum), self.assertRaises(ValueError):
-                self.enforcer.quarantine(self.binding, lease_seconds=lease, max_lease_seconds=maximum)
+                self.enforcer.quarantine(
+                    self.binding,
+                    lease_seconds=lease,
+                    max_lease_seconds=maximum,
+                )
 
     def test_missing_owned_set_is_a_hard_failure_not_an_implicit_create(self):
         self.fake.set_exists = False
