@@ -274,8 +274,7 @@ class NftEnforcer:
         if "no such element" in detail or "no such file or directory" in detail:
             return False
         raise EnforcementError(
-            "could not verify quarantine element state: "
-            + (detail or f"exit {result.returncode}")
+            "could not verify quarantine element state: " + (detail or f"exit {result.returncode}")
         )
 
     def _nft(self, namespace: str, *args: str) -> CommandResult:
