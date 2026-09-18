@@ -1,5 +1,9 @@
 """KAN-33 leakage accounting tests."""
 
+# Ruff cannot infer the flat-layout `measure` package consistently here; keep the
+# explicit project import and suppress only import-section sorting for this test.
+# ruff: noqa: I001
+
 import unittest
 
 import measure.leakage as leakage
