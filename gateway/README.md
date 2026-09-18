@@ -115,6 +115,9 @@ or claim traffic restoration.
 
 Unit tests cover namespace/IP validation, bounded leases, no-renewal, readback,
 idempotent release, missing-owned-set refusal and static guards against host ruleset
-flush or conntrack deletion. The existing dedicated Linux smoke still provides
-established-flow sink stop/restore evidence through `lab/smoke_netns.sh`; this PR
-does not claim that hosted CI is a privileged G8 run.
+flush or conntrack deletion. The dedicated Linux smoke now exercises both established
+UDP and established TCP flows: the same live flow must stop under quarantine and resume
+after release while conntrack state remains present. It also installs a one-second
+kernel lease, lets the userspace command return, and verifies that nftables expires the
+element without a controller timer. These are runnable acceptance fixtures; hosted CI
+does not execute the privileged netns path and therefore is not G8 evidence.
