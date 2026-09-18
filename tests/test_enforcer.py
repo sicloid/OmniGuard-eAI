@@ -75,8 +75,9 @@ class NamespaceOwnershipTests(unittest.TestCase):
             verifier = NamespaceOwnershipVerifier(ownership, namespace_root)
             verifier("og-b")
 
-            namespace.unlink()
-            namespace.write_text("replacement", encoding="utf-8")
+            replacement = namespace_root / "replacement"
+            replacement.write_text("replacement", encoding="utf-8")
+            replacement.replace(namespace)
             with self.assertRaises(EnforcementError):
                 verifier("og-b")
 
