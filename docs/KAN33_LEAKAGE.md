@@ -26,7 +26,9 @@ alternatively it can indicate a bypass. The raw post-ACK count remains visible.
 
 If containment is never ACKed, the sink reports drops/incompleteness, or a run is
 explicitly marked timeout/miss, the run is **CENSORED**. Its observed traffic is
-preserved; lower/upper leakage bounds are not fabricated.
+preserved; lower/upper leakage bounds are not fabricated. When more than one cause is
+true (for example detector miss + incomplete sink), every cause is retained in the
+summary rather than letting the first one hide the others.
 
 ## Dedicated safe fixture
 
