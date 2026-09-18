@@ -111,9 +111,7 @@ class EnforcerTests(unittest.TestCase):
     def test_missing_owned_set_is_a_hard_failure_not_an_implicit_create(self):
         self.fake.set_exists = False
         with self.assertRaises(EnforcementError):
-            self.enforcer.quarantine(
-                self.binding, lease_seconds=30, max_lease_seconds=30
-            )
+            self.enforcer.quarantine(self.binding, lease_seconds=30, max_lease_seconds=30)
         self.assertFalse(any("add" in command for command in self.fake.commands))
 
     def test_failed_add_never_reports_quarantined(self):
