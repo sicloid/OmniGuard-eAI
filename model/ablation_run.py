@@ -21,7 +21,13 @@ from pathlib import Path
 from core.features import FEATURE_SCHEMA_VERSION
 from data.samplepack.build import read_windows
 from model.ablation import FULL, candidate_sets, run_set, select_compact
-from model.ablation_cost import capture_windows, model_size, time_extraction, time_inference
+from model.ablation_cost import (
+    capture_windows,
+    model_size,
+    time_extraction,
+    time_extractor,
+    time_inference,
+)
 from model.baseline_run import PackIntegrityError, _sha256, verify_pack
 from model.calibrate import OBJECTIVES
 from model.policy_run import _SHA256
@@ -183,6 +189,14 @@ def run(
             )
         costs[feature_set.name] = entry
 
+    extractor_reference = None
+    if timing["windows"]:
+        # The runtime extractor's own cost, so a per-window figure quoted from this
+        # report is not the group arithmetic alone (R3 review, PR #35).
+        extractor_reference = time_extractor(
+            timing["windows"], repeats=spec["cost"]["extraction_repeats"]
+        )
+
     import sklearn
 
     report = {
@@ -201,6 +215,7 @@ def run(
         "full_set_reproduces_kan19_threshold": reproduces,
         "selection": selection,
         "timing_sample": {k: v for k, v in timing.items() if k != "windows"},
+        "full_extractor": extractor_reference,
         "sets": [
             {
                 "name": s.name,

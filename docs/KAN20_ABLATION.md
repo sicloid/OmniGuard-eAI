@@ -8,7 +8,7 @@ python -m model.ablation_run --pack ~/omniguard-data/samplepack-v2-20260915T1115
 ```
 
 **The run was specified before it ran.** [`model/ablation_spec.json`](../model/ablation_spec.json)
-and the runner were committed in `c750d21` before any ablation on real data. The spec fixes:
+and the runner were committed in `155043a` before any ablation on real data. The spec fixes:
 
 - the candidate sets;
 - the KAN-19 window-FPR budget (1 %) and objective, selected on validation only;
@@ -16,7 +16,7 @@ and the runner were committed in `c750d21` before any ablation on real data. The
 - the compact-set rule and its tolerance;
 - the timing sample.
 
-Spec SHA-256: `d43f2ac1dc14ba417f6646d1c2270b6b00e7281b9c7e64972a7b3e5c79826773`.
+Spec SHA-256: `db85c38dc28d38eeef0c802fab1c1bbd660dd864c97cd22a0b2613121ad11e8d`.
 
 **Scope of the evidence.**
 - **Splits:** every detection number is on each seed's **validation** split. The test split is
@@ -58,10 +58,15 @@ it meets both conditions on every seed:
 
 The qualifier with the fewest features wins. Timings never choose.
 
-**Cost.** Three measurements for every set:
-- **Extraction time:** the runtime extractor's arithmetic, split into the four groups. A test pins
-  that the split reproduces `extract_features` exactly. Timed over 4,000 real packet windows from
-  4-1 and 34-1, the seed-1 train captures. Only packets are used, no labels.
+**Cost.** Three measurements for every set, plus one reference:
+- **Group-arithmetic time:** the four groups' arithmetic, split out of the runtime extractor. A
+  test pins that the split reproduces `extract_features`'s values exactly. It does **not** include
+  the extractor's epoch-alignment check or its per-packet validation loop, which every set pays
+  alike. Use it to rank sets, not as the extractor's per-window cost.
+- **Full-extractor reference:** `core.features.extract_features` itself, timed once per run. This
+  is the number to compare with gateway measurements.
+- Both are timed over 4,000 real packet windows from 4-1 and 34-1, the seed-1 train captures.
+  Only packets are used, no labels.
 - **Inference latency:** one `predict_proba` call per window, as the live detector makes it.
 - **Model size:** the seed-1 model's forest size.
 
@@ -71,24 +76,30 @@ The qualifier with the fewest features wins. Timings never choose.
 
 The full set on seed 1 reproduces the frozen KAN-19 threshold exactly (`0.9798815486832`).
 
-| Set | n | Val recall @1 % FPR (seed 1 / 2 / 3) | Val AP (1 / 2 / 3) | Extraction µs/window | Inference ms (median) | Tree nodes |
+| Set | n | Val recall @1 % FPR (seed 1 / 2 / 3) | Val AP (1 / 2 / 3) | Group arithmetic µs/window | Inference ms (median) | Tree nodes |
 |---|---:|---|---|---:|---:|---:|
-| full | 14 | 0.945 / 0.265 / 0.858 | 0.998 / 0.995 / 0.997 | 4.55 | 4.24 | 22,424 |
-| **without:protocol** | 11 | 0.949 / 0.272 / 0.907 | 0.998 / 0.996 / 0.997 | 3.40 | 4.24 | 23,260 |
-| without:destinations | 11 | 0.376 / — / 0.926 | 0.991 / 0.997 / 0.999 | 3.39 | 4.26 | 20,388 |
-| without:connection | 10 | — / — / 0.855 | 0.986 / 0.977 / 0.996 | 3.32 | 4.23 | 15,452 |
-| without:volume | 10 | — / — / — | 0.978 / 0.976 / 0.863 | 3.65 | 4.26 | 50,614 |
-| pair:volume+connection | 8 | 0.377 / — / 0.926 | 0.995 / 0.997 / 0.998 | 2.17 | 4.26 | 23,334 |
-| pair:volume+protocol | 7 | — / — / 0.900 | 0.972 / 0.992 / 0.996 | 2.15 | 4.25 | 14,818 |
-| only:volume | 4 | — / — / 0.906 | 0.977 / 0.992 / 0.993 | 1.00 | 4.28 | 14,344 |
-| only:connection | 4 | — / — / — | 0.981 / 0.994 / 0.985 | 1.28 | 4.25 | 55,778 |
-| only:destinations | 3 | 0.020 / — / 0.108 | 0.830 / 0.957 / 0.676 | 1.27 | 4.23 | 8,672 |
-| only:protocol | 3 | — / — / 0.025 | 0.897 / 0.961 / 0.731 | 1.26 | 4.24 | 2,952 |
+| full | 14 | 0.945 / 0.265 / 0.858 | 0.998 / 0.995 / 0.997 | 4.62 | 4.29 | 22,424 |
+| **without:protocol** | 11 | 0.949 / 0.272 / 0.907 | 0.998 / 0.996 / 0.997 | 3.52 | 4.34 | 23,260 |
+| without:destinations | 11 | 0.376 / — / 0.926 | 0.991 / 0.997 / 0.999 | 3.54 | 4.34 | 20,388 |
+| without:connection | 10 | — / — / 0.855 | 0.986 / 0.977 / 0.996 | 3.46 | 4.33 | 15,452 |
+| without:volume | 10 | — / — / — | 0.978 / 0.976 / 0.862 | 3.70 | 4.35 | 50,614 |
+| pair:volume+connection | 8 | 0.377 / — / 0.926 | 0.995 / 0.997 / 0.998 | 2.33 | 4.52 | 23,334 |
+| pair:volume+protocol | 7 | — / — / 0.900 | 0.972 / 0.992 / 0.996 | 2.26 | 4.45 | 14,818 |
+| pair:destinations+protocol | 6 | 0.121 / 0.013 / 0.011 | 0.909 / 0.943 / 0.617 | 2.65 | 4.44 | 6,164 |
+| only:volume | 4 | — / — / 0.906 | 0.977 / 0.992 / 0.992 | 1.02 | 4.28 | 14,344 |
+| only:connection | 4 | — / — / — | 0.981 / 0.994 / 0.985 | 1.30 | 4.27 | 55,778 |
+| only:destinations | 3 | 0.020 / — / 0.108 | 0.830 / 0.957 / 0.676 | 1.33 | 4.25 | 8,672 |
+| only:protocol | 3 | — / — / 0.025 | 0.897 / 0.961 / 0.731 | 1.29 | 4.25 | 2,952 |
+
+**Full-extractor reference:** `core.features.extract_features` costs **7.36 µs per window** on the
+same 4,000 windows. Every group-arithmetic figure above is smaller than the extractor's own cost,
+because the validation and packet loop that all sets pay alike are outside the timed path.
 
 In the table:
 - **"—"** means no threshold met the 1 % budget on that seed. The budget was not relaxed.
-- **Pairs not shown** (`volume+destinations`, `destinations+protocol`, `destinations+connection`,
-  `protocol+connection`) fail the rule on every seed.
+- **Pairs not shown** (`volume+destinations`, `destinations+connection`, `protocol+connection`)
+  fail the rule on every seed. `pair:destinations+protocol` is listed because it calibrates on all
+  three seeds while detecting almost nothing, which is the point made in §1.
 
 Validation splits by seed:
 
@@ -104,19 +115,27 @@ and costs.
 
 | Artifact | SHA-256 |
 |---|---|
-| Committed report (home paths replaced by `~`) | `503a48b3c1559436cce57971ae0ad743e67a3a8052b9e1d05128406946b525d2` |
-| Original run output | `c4145e68c178d302ff8611d3a30b58b5a9fce5079bed607aae4ad862d43e7d61` |
+| Committed report (home paths replaced by `~`) | `4c85add98f2af26fe38e9dbae69b7bc8b32977e13384b3ae19277b3246ca6d87` |
+| Original run output | `7d7bef0cd24d0edd3e1a39d6687e099634e563c8eda54619b042cb5980369a1a` |
 
 The pack is manifest v2 `8ea8c310…` (`label_rule_version` `window-label-1`); its windows
 `4b97fb95…` are the same as in KAN-18/19.
 
 ## What this says
 
-1. **Volume features are the one group detection cannot lose.**
-   - Without them, no seed finds a threshold under the budget.
-   - Alone, volume and connection both rank well (AP ≥ 0.977), but only volume ever passes the
-     budget by itself, on seed 3.
-   - Destinations or protocol alone are weak (AP 0.68–0.96).
+1. **Volume features carry the detection, and the exact claim matters.**
+   - `without:volume`, the ten non-volume features together, finds no threshold under the budget
+     on any seed.
+   - Volume-free sets are not all uncalibratable, though: `pair:destinations+protocol` calibrates
+     on all three seeds, `only:destinations` on seeds 1 and 3, `only:protocol` on seed 3. What
+     they cannot do is detect: their recall at the budget is 0.011–0.121.
+   - So the supported statement is "no volume-free set reaches useful recall, and the full
+     volume-free set cannot even be calibrated", not "without volume nothing calibrates".
+   - The gap between those two is itself a result: a 6-feature set calibrates on every seed while
+     its 10-feature superset calibrates on none. Adding the connection group removes the ability
+     to calibrate at all, which is the §3 cliff appearing in the group results.
+   - Alone, volume and connection both rank well (AP ≥ 0.977). Destinations or protocol alone are
+     weak (AP 0.68–0.96).
 2. **Protocol mix adds nothing measurable here.**
    - Removing `tcp_share`, `udp_share` and `icmp_share` keeps both recall at the budget and AP
      on every seed.
@@ -133,11 +152,13 @@ The pack is manifest v2 `8ea8c310…` (`label_rule_version` `window-label-1`); i
    - The same effect gives seed 2 its 0.265 recall, with only 10 false positives of room. It
      matches the KAN-19 sensitivity result (thresholds 0.41–0.995 across seeds).
 4. **Feature count is not the cost lever.**
-   - Extraction takes about 1–4.5 µs per window.
-   - A single `predict_proba` takes about 4.2 ms for every set, roughly a thousand times more,
-     dominated by the call overhead of 200 trees.
-   - Dropping the protocol group saves about 1.1 µs per window (−25 % of extraction) and changes
-     neither inference time nor model size meaningfully.
+   - The full extractor costs 7.36 µs per window; the group arithmetic inside it, 1.0–4.6 µs
+     depending on the set.
+   - A single `predict_proba` costs about 4.3 ms for every set: roughly six hundred times the
+     whole extractor, dominated by the call overhead of 200 trees.
+   - Dropping the protocol group saves about 1.1 µs of group arithmetic per window, which is
+     about 15 % of the extractor's cost and changes neither inference time nor model size
+     meaningfully.
 
 ## Recommendation (for Lead review)
 
@@ -160,7 +181,7 @@ python -m model.forest_run --pack ~/omniguard-data/samplepack-v2-20260915T111555
     --out ~/omniguard-data/runs/kan20-forest
 ```
 
-[`model/forest_spec.json`](../model/forest_spec.json) was committed in `6d4790c`, before the
+[`model/forest_spec.json`](../model/forest_spec.json) was committed in `9e8493c`, before the
 run. Spec SHA-256: `c3091f68a9afdf10637689c0085a59eb7fb601227174b4768e052e39396a1551`.
 
 **Setup:**
@@ -177,16 +198,16 @@ KAN-19 threshold exactly.
 
 | Trees | Val recall @1 % FPR (seed 1 / 2 / 3) | Val AP (1 / 2 / 3) | Single window, ms (median) | Batched, µs per window | Tree nodes | joblib bytes |
 |---:|---|---|---:|---:|---:|---:|
-| 10 | 0.990 / — / 0.856 | 0.996 / 0.992 / 0.995 | 0.25 | 8.3 | 1,084 | 92,025 |
-| 25 | 0.945 / — / 0.856 | 0.997 / 0.982 / 0.995 | 0.55 | 17.6 | 2,763 | 232,105 |
-| 50 | 0.941 / — / 0.858 | 0.997 / 0.995 / 0.996 | 1.03 | 33.0 | 5,562 | 465,625 |
-| **100** | 0.945 / 0.265 / 0.876 | 0.998 / 0.995 / 0.996 | 2.02 | 64.8 | 11,316 | 945,145 |
-| 200 | 0.945 / 0.265 / 0.858 | 0.998 / 0.995 / 0.997 | 3.98 | 126.8 | 22,424 | 1,872,185 |
+| 10 | 0.990 / — / 0.856 | 0.996 / 0.992 / 0.995 | 0.28 | 9.2 | 1,084 | 92,076 |
+| 25 | 0.945 / — / 0.856 | 0.997 / 0.982 / 0.995 | 0.60 | 19.4 | 2,763 | 232,156 |
+| 50 | 0.941 / — / 0.858 | 0.997 / 0.995 / 0.996 | 1.13 | 36.0 | 5,562 | 465,676 |
+| **100** | 0.945 / 0.265 / 0.876 | 0.998 / 0.995 / 0.996 | 2.18 | 69.3 | 11,316 | 945,196 |
+| 200 | 0.945 / 0.265 / 0.858 | 0.998 / 0.995 / 0.997 | 4.27 | 136.4 | 22,424 | 1,872,236 |
 
 **Report hashes:**
 - Committed report ([`model/frozen/kan20/forest_report.json`](../model/frozen/kan20/forest_report.json),
-  home paths replaced by `~`): `021a22124d6156d56b4edd7c8c1da68e39c5ed3fffdc0c638bdb265a6b6feb63`.
-- Original run output: `4ecd5259ec9baa46bc7f9fc698cd9d10a619813ffdee322cc6135435cfe860f5`.
+  home paths replaced by `~`): `65d3d0863caafaea02471782c1f8653a853b880d112499fa7276a5c059c2f9d8`.
+- Original run output: `3140f3063b1585382722b43f87cfd73e8cee6804c2d57a6d9365b3ad00816f86`.
 
 **What this says:**
 
@@ -203,14 +224,15 @@ KAN-19 threshold exactly.
    - This is the same cliff as in the feature ablation, now caused by forest size.
    - The 10-tree forest's 0.990 on seed 1 is the cliff working the other way, not a better model.
 3. **Batching matters more than forest size.**
-   - One call on 32 windows costs about 127 µs per window at 200 trees, against about 4 ms for a
+   - One call on 32 windows costs about 136 µs per window at 200 trees, against about 4.3 ms for a
      single-window call: roughly 30 times less.
    - A detector that scores every device's closed window in one call per 5 s tick would gain more
      than any forest reduction.
    - This is a development-machine measurement, and the live detector's call pattern belongs to
      R2.
-4. **Timing noise.** The 200-tree single-window median was 4.24 ms in the ablation run and 3.98 ms
-   here, on the same machine. Differences under about 10 % are not meaningful.
+4. **Timing noise.** The 200-tree single-window median was 4.29 ms in the ablation run and 4.27 ms
+   here, on the same machine; an earlier pair of runs differed by 6 %. Differences under about
+   10 % are not meaningful.
 
 **Recommendation (for Lead and R2 review):**
 - **Forest size for KAN-51:** carry 100 trees as a candidate beside the frozen 200-tree policy.

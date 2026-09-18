@@ -21,7 +21,13 @@ from model.ablation import (
     candidate_sets,
     select_compact,
 )
-from model.ablation_cost import extract_groups, groups_for, packet_windows, time_extraction
+from model.ablation_cost import (
+    extract_groups,
+    groups_for,
+    packet_windows,
+    time_extraction,
+    time_extractor,
+)
 from model.split import split_by_group
 from model.train import TrainingError, feature_matrix, window_groups
 
@@ -108,8 +114,21 @@ class GroupExtractionTests(unittest.TestCase):
         windows = [[pkt(1.0)], [pkt(6.0)]]
         timing = time_extraction(windows, (7,), repeats=2)
         self.assertEqual((timing["groups"], timing["windows"]), (["protocol"], 2))
+        self.assertIn("excludes", timing["measures"])
         with self.assertRaises(ValueError):
             time_extraction([], (7,), repeats=1)
+
+    def test_the_full_extractor_is_timed_separately_and_costs_more(self):
+        rng = random.Random(3)
+        windows = [w for w in (random_window(rng, 5.0 * i) for i in range(60)) if w]
+        groups = time_extraction(windows, tuple(range(14)), repeats=5)
+        whole = time_extractor(windows, repeats=5)
+        self.assertIn("extract_features", whole["measures"])
+        # The extractor pays the same arithmetic plus its validation, so it cannot be
+        # cheaper; timing the groups alone understates what the runtime spends.
+        self.assertGreater(whole["ns_per_window_min"], groups["ns_per_window_min"])
+        with self.assertRaises(ValueError):
+            time_extractor([], repeats=1)
 
     def test_packet_windows_stop_at_the_limit_and_skip_non_egress(self):
         stream = [pkt(1.0), pkt(2.0, egress=False), pkt(6.0), pkt(11.0), pkt(12.0)]
@@ -226,6 +245,27 @@ class ColumnTests(unittest.TestCase):
         with self.assertRaises(TrainingError):
             rf_scores(model, windows)
 
+    @unittest.skipUnless(HAVE_SKLEARN, "scikit-learn is not installed")
+    def test_scoring_a_different_subset_of_the_same_width_is_refused(self):
+        from model.train import rf_scores, train_random_forest
+
+        windows = self.windows()
+        volume, connection = (0, 1, 2, 3), (10, 11, 12, 13)
+        model = train_random_forest(windows, seed=0, n_estimators=3, columns=volume)
+        with self.assertRaises(TrainingError):
+            rf_scores(model, windows, columns=connection)
+
+    @unittest.skipUnless(HAVE_SKLEARN, "scikit-learn is not installed")
+    def test_a_full_catalogue_forest_carries_no_subset_tag(self):
+        from model.train import rf_scores, train_random_forest
+
+        # Tagging every forest would change the bytes of artifacts whose model_sha256
+        # is already pinned (KAN-18/19), so only subsets are recorded.
+        windows = self.windows()
+        model = train_random_forest(windows, seed=0, n_estimators=3)
+        self.assertFalse(hasattr(model, "omniguard_columns"))
+        self.assertEqual(len(rf_scores(model, windows)), len(windows))
+
 
 def quiet(_line):
     pass
@@ -281,6 +321,7 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(len(report["sets"]), len(candidate_sets()))
         self.assertIn(report["selection"]["status"], ("selected", "no_compact_set"))
         self.assertEqual(report["timing_sample"]["status"], "skipped")
+        self.assertIsNone(report["full_extractor"])
         self.assertIn("inference", report["sets"][0]["cost"])
         self.assertTrue((self.dir / "out" / REPORT_FILENAME).is_file())
 

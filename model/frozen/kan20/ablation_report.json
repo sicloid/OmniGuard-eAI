@@ -8,6 +8,13 @@
     "system": "Darwin"
   },
   "evaluated_split": "validation",
+  "full_extractor": {
+    "measures": "core.features.extract_features, the work the runtime pays per window",
+    "ns_per_window_median": 7361.8,
+    "ns_per_window_min": 7328.3,
+    "repeats": 5,
+    "windows": 4000
+  },
   "full_set_reproduces_kan19_threshold": true,
   "pack": {
     "feature_schema_version": "features-1",
@@ -156,18 +163,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4548.7,
-          "ns_per_window_min": 4535.7,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4622.5,
+          "ns_per_window_min": 4585.5,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4241.3,
-          "us_p95": 4286.4
+          "us_median": 4291.2,
+          "us_p95": 4520.6
         },
         "model": {
-          "joblib_bytes": 1872185,
+          "joblib_bytes": 1872236,
           "tree_nodes": 22424
         }
       },
@@ -244,7 +252,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 1.109,
+          "train_seconds": 1.411,
           "validation_average_precision": 0.9975396621539605
         },
         {
@@ -295,7 +303,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.396,
+          "train_seconds": 0.403,
           "validation_average_precision": 0.9948924277490541
         },
         {
@@ -346,7 +354,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.408,
+          "train_seconds": 0.419,
           "validation_average_precision": 0.996519636620122
         }
       ]
@@ -357,18 +365,19 @@
           "groups": [
             "volume"
           ],
-          "ns_per_window_median": 996.6,
-          "ns_per_window_min": 995.9,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 1020.9,
+          "ns_per_window_min": 1012.7,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4279.6,
-          "us_p95": 4310.3
+          "us_median": 4282.8,
+          "us_p95": 4468.2
         },
         "model": {
-          "joblib_bytes": 1225785,
+          "joblib_bytes": 1225816,
           "tree_nodes": 14344
         }
       },
@@ -404,7 +413,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.363,
+          "train_seconds": 0.366,
           "validation_average_precision": 0.977273782432497
         },
         {
@@ -427,7 +436,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.325,
+          "train_seconds": 0.333,
           "validation_average_precision": 0.9918120372267294
         },
         {
@@ -478,7 +487,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.34,
+          "train_seconds": 0.362,
           "validation_average_precision": 0.9924840656228284
         }
       ]
@@ -489,18 +498,19 @@
           "groups": [
             "destinations"
           ],
-          "ns_per_window_median": 1271.2,
-          "ns_per_window_min": 1271.0,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 1327.1,
+          "ns_per_window_min": 1306.4,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4232.0,
-          "us_p95": 4263.4
+          "us_median": 4250.8,
+          "us_p95": 4442.8
         },
         "model": {
-          "joblib_bytes": 772025,
+          "joblib_bytes": 772053,
           "tree_nodes": 8672
         }
       },
@@ -563,7 +573,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.163,
+          "train_seconds": 0.162,
           "validation_average_precision": 0.8300693916668485
         },
         {
@@ -586,7 +596,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.16,
+          "train_seconds": 0.163,
           "validation_average_precision": 0.9573163710469257
         },
         {
@@ -637,7 +647,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.169,
+          "train_seconds": 0.17,
           "validation_average_precision": 0.6755349425056492
         }
       ]
@@ -648,18 +658,19 @@
           "groups": [
             "protocol"
           ],
-          "ns_per_window_median": 1262.1,
-          "ns_per_window_min": 1260.1,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 1292.6,
+          "ns_per_window_min": 1276.9,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4238.4,
-          "us_p95": 4299.3
+          "us_median": 4253.3,
+          "us_p95": 4447.4
         },
         "model": {
-          "joblib_bytes": 314425,
+          "joblib_bytes": 314453,
           "tree_nodes": 2952
         }
       },
@@ -694,7 +705,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.171,
+          "train_seconds": 0.172,
           "validation_average_precision": 0.8967951864613758
         },
         {
@@ -717,7 +728,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.171,
+          "train_seconds": 0.17,
           "validation_average_precision": 0.9605312963488477
         },
         {
@@ -768,7 +779,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.189,
+          "train_seconds": 0.186,
           "validation_average_precision": 0.7305155395684271
         }
       ]
@@ -779,18 +790,19 @@
           "groups": [
             "connection"
           ],
-          "ns_per_window_median": 1275.1,
-          "ns_per_window_min": 1273.2,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 1296.0,
+          "ns_per_window_min": 1295.3,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4252.0,
-          "us_p95": 4308.8
+          "us_median": 4269.3,
+          "us_p95": 4441.4
         },
         "model": {
-          "joblib_bytes": 4540505,
+          "joblib_bytes": 4540536,
           "tree_nodes": 55778
         }
       },
@@ -826,7 +838,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.439,
+          "train_seconds": 0.441,
           "validation_average_precision": 0.9812769012273431
         },
         {
@@ -849,7 +861,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.45,
+          "train_seconds": 0.453,
           "validation_average_precision": 0.9942537642393515
         },
         {
@@ -872,7 +884,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.518,
+          "train_seconds": 0.431,
           "validation_average_precision": 0.9847293379266912
         }
       ]
@@ -884,18 +896,19 @@
             "volume",
             "destinations"
           ],
-          "ns_per_window_median": 2155.6,
-          "ns_per_window_min": 2151.9,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 2317.5,
+          "ns_per_window_min": 2282.2,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4253.9,
-          "us_p95": 4289.0
+          "us_median": 4266.2,
+          "us_p95": 4470.5
         },
         "model": {
-          "joblib_bytes": 1463545,
+          "joblib_bytes": 1463582,
           "tree_nodes": 17316
         }
       },
@@ -935,7 +948,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.296,
+          "train_seconds": 0.286,
           "validation_average_precision": 0.9851669527333349
         },
         {
@@ -1009,7 +1022,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.33,
+          "train_seconds": 0.309,
           "validation_average_precision": 0.9859802396064059
         }
       ]
@@ -1021,18 +1034,19 @@
             "volume",
             "protocol"
           ],
-          "ns_per_window_median": 2145.2,
-          "ns_per_window_min": 2136.6,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 2262.6,
+          "ns_per_window_min": 2163.4,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4245.4,
-          "us_p95": 4274.6
+          "us_median": 4450.4,
+          "us_p95": 4794.2
         },
         "model": {
-          "joblib_bytes": 1263705,
+          "joblib_bytes": 1263742,
           "tree_nodes": 14818
         }
       },
@@ -1072,7 +1086,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.296,
+          "train_seconds": 0.294,
           "validation_average_precision": 0.9719298850077858
         },
         {
@@ -1095,7 +1109,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.296,
+          "train_seconds": 0.299,
           "validation_average_precision": 0.9922973116499666
         },
         {
@@ -1146,7 +1160,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.318,
+          "train_seconds": 0.326,
           "validation_average_precision": 0.9958938163050673
         }
       ]
@@ -1158,18 +1172,19 @@
             "volume",
             "connection"
           ],
-          "ns_per_window_median": 2165.7,
-          "ns_per_window_min": 2162.9,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 2334.9,
+          "ns_per_window_min": 2245.2,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4259.2,
-          "us_p95": 4287.1
+          "us_median": 4524.7,
+          "us_p95": 4941.5
         },
         "model": {
-          "joblib_bytes": 1944985,
+          "joblib_bytes": 1945024,
           "tree_nodes": 23334
         }
       },
@@ -1238,7 +1253,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.375,
+          "train_seconds": 0.384,
           "validation_average_precision": 0.9952550654465135
         },
         {
@@ -1261,7 +1276,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.38,
+          "train_seconds": 0.384,
           "validation_average_precision": 0.9967455092926736
         },
         {
@@ -1312,7 +1327,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.395,
+          "train_seconds": 0.404,
           "validation_average_precision": 0.9983534777592525
         }
       ]
@@ -1324,18 +1339,19 @@
             "destinations",
             "protocol"
           ],
-          "ns_per_window_median": 2466.2,
-          "ns_per_window_min": 2462.0,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 2645.6,
+          "ns_per_window_min": 2546.4,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4238.7,
-          "us_p95": 4266.7
+          "us_median": 4435.1,
+          "us_p95": 4799.9
         },
         "model": {
-          "joblib_bytes": 571385,
+          "joblib_bytes": 571420,
           "tree_nodes": 6164
         }
       },
@@ -1402,7 +1418,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.185,
+          "train_seconds": 0.192,
           "validation_average_precision": 0.9085253886648987
         },
         {
@@ -1453,7 +1469,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.186,
+          "train_seconds": 0.19,
           "validation_average_precision": 0.9429188793958996
         },
         {
@@ -1504,7 +1520,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.185,
+          "train_seconds": 0.188,
           "validation_average_precision": 0.6167291349411129
         }
       ]
@@ -1516,18 +1532,19 @@
             "destinations",
             "connection"
           ],
-          "ns_per_window_median": 2472.0,
-          "ns_per_window_min": 2467.5,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 3554.5,
+          "ns_per_window_min": 2651.2,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4249.9,
-          "us_p95": 4329.2
+          "us_median": 4369.6,
+          "us_p95": 4719.6
         },
         "model": {
-          "joblib_bytes": 4406265,
+          "joblib_bytes": 4406302,
           "tree_nodes": 54100
         }
       },
@@ -1567,7 +1584,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.406,
+          "train_seconds": 0.415,
           "validation_average_precision": 0.9847884453237482
         },
         {
@@ -1590,7 +1607,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.404,
+          "train_seconds": 0.417,
           "validation_average_precision": 0.9938014965998763
         },
         {
@@ -1613,7 +1630,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.388,
+          "train_seconds": 0.397,
           "validation_average_precision": 0.9279046960246878
         }
       ]
@@ -1625,18 +1642,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 2453.4,
-          "ns_per_window_min": 2453.0,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 2464.5,
+          "ns_per_window_min": 2451.6,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4256.3,
-          "us_p95": 4296.6
+          "us_median": 4372.5,
+          "us_p95": 4929.8
         },
         "model": {
-          "joblib_bytes": 4320185,
+          "joblib_bytes": 4320222,
           "tree_nodes": 53024
         }
       },
@@ -1676,7 +1694,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.418,
+          "train_seconds": 0.425,
           "validation_average_precision": 0.9808843888117438
         },
         {
@@ -1699,7 +1717,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.415,
+          "train_seconds": 0.426,
           "validation_average_precision": 0.9953867751025466
         },
         {
@@ -1722,7 +1740,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.414,
+          "train_seconds": 0.421,
           "validation_average_precision": 0.989350120983132
         }
       ]
@@ -1735,18 +1753,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 3646.8,
-          "ns_per_window_min": 3641.3,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 3697.2,
+          "ns_per_window_min": 3685.8,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4260.4,
-          "us_p95": 4302.1
+          "us_median": 4350.3,
+          "us_p95": 4594.7
         },
         "model": {
-          "joblib_bytes": 4127385,
+          "joblib_bytes": 4127428,
           "tree_nodes": 50614
         }
       },
@@ -1790,7 +1809,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.421,
+          "train_seconds": 0.427,
           "validation_average_precision": 0.9776087086611204
         },
         {
@@ -1813,7 +1832,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.425,
+          "train_seconds": 0.436,
           "validation_average_precision": 0.9759244889117091
         },
         {
@@ -1836,7 +1855,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.411,
+          "train_seconds": 0.42,
           "validation_average_precision": 0.8624669377894129
         }
       ]
@@ -1849,18 +1868,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 3393.5,
-          "ns_per_window_min": 3382.4,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 3537.0,
+          "ns_per_window_min": 3504.2,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4262.1,
-          "us_p95": 4326.6
+          "us_median": 4342.3,
+          "us_p95": 4517.6
         },
         "model": {
-          "joblib_bytes": 1709305,
+          "joblib_bytes": 1709350,
           "tree_nodes": 20388
         }
       },
@@ -1933,7 +1953,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.417,
+          "train_seconds": 0.442,
           "validation_average_precision": 0.9911237567551734
         },
         {
@@ -1956,7 +1976,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.421,
+          "train_seconds": 0.445,
           "validation_average_precision": 0.9974312448308092
         },
         {
@@ -2007,7 +2027,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.434,
+          "train_seconds": 0.458,
           "validation_average_precision": 0.9988271833868057
         }
       ]
@@ -2020,18 +2040,19 @@
             "destinations",
             "connection"
           ],
-          "ns_per_window_median": 3402.4,
-          "ns_per_window_min": 3396.7,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 3515.1,
+          "ns_per_window_min": 3488.4,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4242.3,
-          "us_p95": 4282.2
+          "us_median": 4335.9,
+          "us_p95": 4568.0
         },
         "model": {
-          "joblib_bytes": 1939065,
+          "joblib_bytes": 1939110,
           "tree_nodes": 23260
         }
       },
@@ -2104,7 +2125,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.403,
+          "train_seconds": 0.41,
           "validation_average_precision": 0.9976060578100268
         },
         {
@@ -2155,7 +2176,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.408,
+          "train_seconds": 0.422,
           "validation_average_precision": 0.9963679077454762
         },
         {
@@ -2206,7 +2227,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.423,
+          "train_seconds": 0.435,
           "validation_average_precision": 0.9968509522023816
         }
       ]
@@ -2219,18 +2240,19 @@
             "destinations",
             "protocol"
           ],
-          "ns_per_window_median": 3320.1,
-          "ns_per_window_min": 3303.4,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 3458.5,
+          "ns_per_window_min": 3404.5,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4228.1,
-          "us_p95": 4255.4
+          "us_median": 4333.7,
+          "us_p95": 4583.0
         },
         "model": {
-          "joblib_bytes": 1314425,
+          "joblib_bytes": 1314468,
           "tree_nodes": 15452
         }
       },
@@ -2274,7 +2296,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.321,
+          "train_seconds": 0.327,
           "validation_average_precision": 0.9857259208914292
         },
         {
@@ -2297,7 +2319,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.32,
+          "train_seconds": 0.327,
           "validation_average_precision": 0.9772786156764
         },
         {
@@ -2348,7 +2370,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.378,
+          "train_seconds": 0.389,
           "validation_average_precision": 0.995848542483601
         }
       ]
@@ -2362,18 +2384,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4582.0,
-          "ns_per_window_min": 4571.9,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4691.4,
+          "ns_per_window_min": 4587.2,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4227.0,
-          "us_p95": 4255.1
+          "us_median": 4343.6,
+          "us_p95": 4608.5
         },
         "model": {
-          "joblib_bytes": 1868665,
+          "joblib_bytes": 1868714,
           "tree_nodes": 22380
         }
       },
@@ -2449,7 +2472,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.402,
+          "train_seconds": 0.414,
           "validation_average_precision": 0.99770290602625
         },
         {
@@ -2500,7 +2523,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.399,
+          "train_seconds": 0.408,
           "validation_average_precision": 0.9954755992983851
         },
         {
@@ -2551,7 +2574,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.408,
+          "train_seconds": 0.414,
           "validation_average_precision": 0.997899926370661
         }
       ]
@@ -2565,18 +2588,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4599.6,
-          "ns_per_window_min": 4597.9,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4830.8,
+          "ns_per_window_min": 4798.2,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4235.2,
-          "us_p95": 4269.8
+          "us_median": 4382.2,
+          "us_p95": 4712.4
         },
         "model": {
-          "joblib_bytes": 1954585,
+          "joblib_bytes": 1954634,
           "tree_nodes": 23454
         }
       },
@@ -2652,7 +2676,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.397,
+          "train_seconds": 0.403,
           "validation_average_precision": 0.9949867782622343
         },
         {
@@ -2703,7 +2727,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.392,
+          "train_seconds": 0.4,
           "validation_average_precision": 0.9929510551795141
         },
         {
@@ -2754,7 +2778,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.404,
+          "train_seconds": 0.474,
           "validation_average_precision": 0.9955497859261372
         }
       ]
@@ -2768,18 +2792,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4588.9,
-          "ns_per_window_min": 4583.4,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4960.7,
+          "ns_per_window_min": 4924.6,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4241.5,
-          "us_p95": 4275.9
+          "us_median": 4720.9,
+          "us_p95": 5013.6
         },
         "model": {
-          "joblib_bytes": 2099545,
+          "joblib_bytes": 2099594,
           "tree_nodes": 25266
         }
       },
@@ -2855,7 +2880,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.4,
+          "train_seconds": 0.414,
           "validation_average_precision": 0.9947588650737065
         },
         {
@@ -2878,7 +2903,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.428,
+          "train_seconds": 0.441,
           "validation_average_precision": 0.9926099605824117
         },
         {
@@ -2929,7 +2954,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.402,
+          "train_seconds": 0.421,
           "validation_average_precision": 0.9846693418367122
         }
       ]
@@ -2943,18 +2968,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4595.2,
-          "ns_per_window_min": 4584.4,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4739.7,
+          "ns_per_window_min": 4657.2,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4228.4,
-          "us_p95": 4268.0
+          "us_median": 4364.8,
+          "us_p95": 4675.2
         },
         "model": {
-          "joblib_bytes": 2034585,
+          "joblib_bytes": 2034634,
           "tree_nodes": 24454
         }
       },
@@ -3030,7 +3056,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.397,
+          "train_seconds": 0.414,
           "validation_average_precision": 0.9971804625480247
         },
         {
@@ -3081,7 +3107,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.402,
+          "train_seconds": 0.42,
           "validation_average_precision": 0.9915139110878203
         },
         {
@@ -3132,7 +3158,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.419,
+          "train_seconds": 0.434,
           "validation_average_precision": 0.9959269030391579
         }
       ]
@@ -3146,18 +3172,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4583.2,
-          "ns_per_window_min": 4564.7,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4810.0,
+          "ns_per_window_min": 4699.6,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4235.2,
-          "us_p95": 4265.0
+          "us_median": 4342.0,
+          "us_p95": 4592.8
         },
         "model": {
-          "joblib_bytes": 1858905,
+          "joblib_bytes": 1858954,
           "tree_nodes": 22258
         }
       },
@@ -3233,7 +3260,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.406,
+          "train_seconds": 0.423,
           "validation_average_precision": 0.9975508722733905
         },
         {
@@ -3284,7 +3311,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.398,
+          "train_seconds": 0.405,
           "validation_average_precision": 0.9956164507462093
         },
         {
@@ -3335,7 +3362,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.417,
+          "train_seconds": 0.428,
           "validation_average_precision": 0.9976644424393688
         }
       ]
@@ -3349,18 +3376,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4606.8,
-          "ns_per_window_min": 4599.9,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4791.5,
+          "ns_per_window_min": 4760.5,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4222.2,
-          "us_p95": 4258.3
+          "us_median": 4391.3,
+          "us_p95": 5103.8
         },
         "model": {
-          "joblib_bytes": 1845145,
+          "joblib_bytes": 1845194,
           "tree_nodes": 22086
         }
       },
@@ -3436,7 +3464,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.441,
+          "train_seconds": 0.459,
           "validation_average_precision": 0.9956127813952966
         },
         {
@@ -3487,7 +3515,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.396,
+          "train_seconds": 0.407,
           "validation_average_precision": 0.9952783055286504
         },
         {
@@ -3538,7 +3566,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.418,
+          "train_seconds": 0.434,
           "validation_average_precision": 0.9977395375357367
         }
       ]
@@ -3552,18 +3580,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4576.7,
-          "ns_per_window_min": 4576.3,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4689.3,
+          "ns_per_window_min": 4606.3,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4221.7,
-          "us_p95": 4259.4
+          "us_median": 4393.7,
+          "us_p95": 4714.9
         },
         "model": {
-          "joblib_bytes": 1865785,
+          "joblib_bytes": 1865834,
           "tree_nodes": 22344
         }
       },
@@ -3639,7 +3668,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.403,
+          "train_seconds": 0.414,
           "validation_average_precision": 0.994372623612368
         },
         {
@@ -3690,7 +3719,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.404,
+          "train_seconds": 0.414,
           "validation_average_precision": 0.9943046951636273
         },
         {
@@ -3741,7 +3770,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.412,
+          "train_seconds": 0.437,
           "validation_average_precision": 0.9969984122131067
         }
       ]
@@ -3755,18 +3784,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4560.7,
-          "ns_per_window_min": 4548.1,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4759.0,
+          "ns_per_window_min": 4752.2,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4214.2,
-          "us_p95": 4256.2
+          "us_median": 4426.2,
+          "us_p95": 5228.5
         },
         "model": {
-          "joblib_bytes": 1908025,
+          "joblib_bytes": 1908074,
           "tree_nodes": 22872
         }
       },
@@ -3842,7 +3872,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.403,
+          "train_seconds": 0.422,
           "validation_average_precision": 0.9976358469826525
         },
         {
@@ -3893,7 +3923,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.4,
+          "train_seconds": 0.406,
           "validation_average_precision": 0.9959370241168549
         },
         {
@@ -3944,7 +3974,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.409,
+          "train_seconds": 0.417,
           "validation_average_precision": 0.996423101846411
         }
       ]
@@ -3958,18 +3988,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4573.2,
-          "ns_per_window_min": 4557.5,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4604.6,
+          "ns_per_window_min": 4581.8,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4217.5,
-          "us_p95": 4250.1
+          "us_median": 4384.1,
+          "us_p95": 4637.0
         },
         "model": {
-          "joblib_bytes": 1899065,
+          "joblib_bytes": 1899114,
           "tree_nodes": 22760
         }
       },
@@ -4045,7 +4076,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.402,
+          "train_seconds": 0.411,
           "validation_average_precision": 0.9958460666053269
         },
         {
@@ -4096,7 +4127,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.399,
+          "train_seconds": 0.413,
           "validation_average_precision": 0.9961843866874704
         },
         {
@@ -4147,7 +4178,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.409,
+          "train_seconds": 0.416,
           "validation_average_precision": 0.9964485292179756
         }
       ]
@@ -4161,18 +4192,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4585.1,
-          "ns_per_window_min": 4575.0,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4655.5,
+          "ns_per_window_min": 4621.7,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4214.5,
-          "us_p95": 4258.4
+          "us_median": 4325.0,
+          "us_p95": 4585.1
         },
         "model": {
-          "joblib_bytes": 1871385,
+          "joblib_bytes": 1871434,
           "tree_nodes": 22414
         }
       },
@@ -4248,7 +4280,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.41,
+          "train_seconds": 0.417,
           "validation_average_precision": 0.9961572880511517
         },
         {
@@ -4299,7 +4331,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.407,
+          "train_seconds": 0.421,
           "validation_average_precision": 0.9950447041710557
         },
         {
@@ -4350,7 +4382,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.416,
+          "train_seconds": 0.427,
           "validation_average_precision": 0.9964086906319434
         }
       ]
@@ -4364,18 +4396,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4599.9,
-          "ns_per_window_min": 4596.3,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4736.0,
+          "ns_per_window_min": 4626.2,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4204.4,
-          "us_p95": 4243.2
+          "us_median": 4335.7,
+          "us_p95": 4581.7
         },
         "model": {
-          "joblib_bytes": 1877305,
+          "joblib_bytes": 1877354,
           "tree_nodes": 22488
         }
       },
@@ -4451,7 +4484,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.418,
+          "train_seconds": 0.43,
           "validation_average_precision": 0.990845163053646
         },
         {
@@ -4502,7 +4535,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.419,
+          "train_seconds": 0.45,
           "validation_average_precision": 0.9782172106378483
         },
         {
@@ -4553,7 +4586,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.456,
+          "train_seconds": 0.45,
           "validation_average_precision": 0.9860110301907793
         }
       ]
@@ -4567,18 +4600,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4591.0,
-          "ns_per_window_min": 4588.0,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4733.3,
+          "ns_per_window_min": 4692.1,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4203.0,
-          "us_p95": 4229.4
+          "us_median": 4374.0,
+          "us_p95": 4615.3
         },
         "model": {
-          "joblib_bytes": 1845945,
+          "joblib_bytes": 1845994,
           "tree_nodes": 22096
         }
       },
@@ -4654,7 +4688,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.399,
+          "train_seconds": 0.416,
           "validation_average_precision": 0.9966703566899409
         },
         {
@@ -4705,7 +4739,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.416,
+          "train_seconds": 0.413,
           "validation_average_precision": 0.9946449825835059
         },
         {
@@ -4756,7 +4790,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.409,
+          "train_seconds": 0.435,
           "validation_average_precision": 0.9966864239494727
         }
       ]
@@ -4770,18 +4804,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4571.2,
-          "ns_per_window_min": 4565.4,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4779.4,
+          "ns_per_window_min": 4595.1,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4195.9,
-          "us_p95": 4225.3
+          "us_median": 4333.1,
+          "us_p95": 4658.2
         },
         "model": {
-          "joblib_bytes": 1855705,
+          "joblib_bytes": 1855754,
           "tree_nodes": 22218
         }
       },
@@ -4857,7 +4892,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.402,
+          "train_seconds": 0.417,
           "validation_average_precision": 0.9971052973768435
         },
         {
@@ -4908,7 +4943,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.405,
+          "train_seconds": 0.461,
           "validation_average_precision": 0.9947050676443507
         },
         {
@@ -4959,7 +4994,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.415,
+          "train_seconds": 0.432,
           "validation_average_precision": 0.9972443710624528
         }
       ]
@@ -4973,18 +5008,19 @@
             "protocol",
             "connection"
           ],
-          "ns_per_window_median": 4607.1,
-          "ns_per_window_min": 4599.3,
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4775.8,
+          "ns_per_window_min": 4685.3,
           "repeats": 5,
           "windows": 4000
         },
         "inference": {
           "rows": 300,
-          "us_median": 4203.1,
-          "us_p95": 4234.6
+          "us_median": 4332.5,
+          "us_p95": 4575.1
         },
         "model": {
-          "joblib_bytes": 1401465,
+          "joblib_bytes": 1401514,
           "tree_nodes": 16540
         }
       },
@@ -5032,7 +5068,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.306,
+          "train_seconds": 0.313,
           "validation_average_precision": 0.9879246032786514
         },
         {
@@ -5055,7 +5091,7 @@
             ]
           },
           "status": "no_threshold",
-          "train_seconds": 0.308,
+          "train_seconds": 0.312,
           "validation_average_precision": 0.992073415201771
         },
         {
@@ -5106,7 +5142,7 @@
             ]
           },
           "status": "calibrated",
-          "train_seconds": 0.312,
+          "train_seconds": 0.32,
           "validation_average_precision": 0.9969690407265517
         }
       ]
@@ -5123,7 +5159,7 @@
     "cost": {
       "extraction_repeats": 5,
       "inference_rows": 300,
-      "note": "Timing reads packets only, from the seed-1 train captures. It uses no labels or scores and is a development-machine ranking, not a gateway measurement (KAN-42).",
+      "note": "Timing reads packets only, from the seed-1 train captures. It uses no labels or scores and is a development-machine ranking, not a gateway measurement (KAN-42). Per-set timings measure the feature-group arithmetic, excluding the extractor validation and packet loop that every set pays alike; full_extractor reports core.features.extract_features itself.",
       "timing_captures": [
         "CTU-Honeypot-Capture-4-1",
         "CTU-IoT-Malware-Capture-34-1"
@@ -5150,7 +5186,7 @@
       3
     ],
     "selected_on": "validation",
-    "sha256": "d43f2ac1dc14ba417f6646d1c2270b6b00e7281b9c7e64972a7b3e5c79826773"
+    "sha256": "db85c38dc28d38eeef0c802fab1c1bbd660dd864c97cd22a0b2613121ad11e8d"
   },
   "status": "selected",
   "timing_sample": {

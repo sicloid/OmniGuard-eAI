@@ -21,7 +21,7 @@
     "windows_per_capture": 2000,
     "extraction_repeats": 5,
     "inference_rows": 300,
-    "note": "Timing reads packets only, from the seed-1 train captures. It uses no labels or scores and is a development-machine ranking, not a gateway measurement (KAN-42)."
+    "note": "Timing reads packets only, from the seed-1 train captures. It uses no labels or scores and is a development-machine ranking, not a gateway measurement (KAN-42). Per-set timings measure the feature-group arithmetic, excluding the extractor validation and packet loop that every set pays alike; full_extractor reports core.features.extract_features itself."
   },
   "never_read": [
     "the development pack's test split (no set is scored on it)",

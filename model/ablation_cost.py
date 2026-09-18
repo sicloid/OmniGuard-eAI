@@ -3,8 +3,15 @@
 `core.features.extract_features` computes all fourteen values in one function. To
 price a subset, the same arithmetic is split here into the catalogue's four groups,
 plus the pass every set pays (the EGRESS filter and `n`). A test pins that the split
-reproduces the runtime extractor's values exactly, so the timing is of the same work
-and not of a lookalike.
+reproduces the runtime extractor's values exactly.
+
+**What the group timing is and is not.** It measures the group arithmetic only. The
+runtime extractor also pays a per-window epoch-alignment check and a per-packet loop
+validating `device_id` and the window bounds, and that work is constant across feature
+sets, so it is outside the timed path here. Set-to-set ranking is therefore sound, but a
+per-window extraction figure taken from the group timing is lower than the extractor's
+own (R3 review, PR #35). `time_extractor` measures `extract_features` itself and is
+reported beside the groups as the full-extractor reference.
 
 Numbers from here are development-machine numbers. They rank sets against each
 other; the gateway CPU, RAM and latency figures come from the KAN-42 harness on the
@@ -19,7 +26,7 @@ from math import floor, sqrt
 from pathlib import Path
 from time import perf_counter_ns
 
-from core.features import WINDOW_SECONDS
+from core.features import WINDOW_SECONDS, extract_features
 from core.schema import Direction, PacketTuple
 from model.ablation import FEATURE_GROUPS
 
@@ -126,8 +133,39 @@ def time_extraction(
             extract_groups(window, groups)
         runs.append((perf_counter_ns() - started) / len(windows))
     return {
+        "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
         "groups": list(groups),
         "windows": len(windows),
+        "repeats": repeats,
+        "ns_per_window_median": round(statistics.median(runs), 1),
+        "ns_per_window_min": round(min(runs), 1),
+    }
+
+
+def time_extractor(windows: Sequence[Sequence[PacketTuple]], *, repeats: int) -> dict:
+    """Time `core.features.extract_features` itself: every group plus its validation.
+
+    This is the number to compare against gateway measurements; the per-set group
+    timings above are for ranking sets against each other.
+    """
+    if not windows:
+        raise ValueError("no windows to time")
+    if type(repeats) is not int or repeats < 1:
+        raise ValueError("repeats must be a positive int")
+    prepared = []
+    for window in windows:
+        device = window[0].device_id
+        start = float(floor(window[0].timestamp / WINDOW_SECONDS) * WINDOW_SECONDS)
+        prepared.append((device, start, window))
+    runs = []
+    for _ in range(repeats):
+        started = perf_counter_ns()
+        for device, start, window in prepared:
+            extract_features(device, start, window)
+        runs.append((perf_counter_ns() - started) / len(prepared))
+    return {
+        "measures": "core.features.extract_features, the work the runtime pays per window",
+        "windows": len(prepared),
         "repeats": repeats,
         "ns_per_window_median": round(statistics.median(runs), 1),
         "ns_per_window_min": round(min(runs), 1),

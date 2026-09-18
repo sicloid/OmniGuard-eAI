@@ -102,7 +102,15 @@ def train_random_forest(
         random_state=seed,
         n_jobs=1,
     )
+    picked = _check_columns(columns)
     model.fit(feature_matrix(windows, columns=columns), [int(label) for label in labels])
+    # Which catalogue columns this forest was fitted on, so scoring can insist on the
+    # same ones. Width alone is not identity: only:volume and only:connection are both
+    # four wide, and crossing them scores silently and wrongly (R3 review, PR #35).
+    # Only a subset is recorded: tagging every full-catalogue forest would change the
+    # bytes of artifacts whose model_sha256 is already pinned (KAN-18/19).
+    if picked is not None:
+        model.omniguard_columns = picked
     return model
 
 
@@ -111,11 +119,21 @@ def rf_scores(
 ) -> list[float]:
     """Probability of class 1 from the forest; a score, not a calibrated probability.
 
-    `columns` must be the subset the model was trained on; a width mismatch is refused.
+    `columns` must be the subset the model was fitted on. The tuple is compared, not its
+    length: two different subsets of the same width would otherwise score silently and
+    wrongly. A model without a recorded subset (loaded from an artifact, or fitted before
+    this was added) is still checked on width.
     """
     if list(model.classes_) != [0, 1]:
         raise TrainingError("model must be trained on classes [0, 1]")
-    width = len(FEATURE_ORDER) if columns is None else len(_check_columns(columns))
+    picked = _check_columns(columns)
+    trained_on = getattr(model, "omniguard_columns", "unknown")
+    if trained_on != "unknown" and trained_on != picked:
+        raise TrainingError(
+            f"model was fitted on columns {trained_on}, not {picked}; "
+            "scoring a different subset of the same width is not a width error"
+        )
+    width = len(FEATURE_ORDER) if picked is None else len(picked)
     if getattr(model, "n_features_in_", width) != width:
         raise TrainingError(f"model expects {model.n_features_in_} features, not {width}")
     rows = feature_matrix(windows, columns=columns)
