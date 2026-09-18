@@ -77,7 +77,7 @@ class FramingTests(unittest.TestCase):
         frame = state_event_frame(event("iki anomali penceresi"))
         body = read_frame(BytesIO(frame))
         self.assertIsNotNone(body)
-        self.assertIn("iki anomali penceresi".encode(), body)
+        self.assertIn(b"iki anomali penceresi", body)
         self.assertIsNone(read_frame(BytesIO(b"")))
 
     def test_frame_is_deterministic_for_the_same_state_event(self):
