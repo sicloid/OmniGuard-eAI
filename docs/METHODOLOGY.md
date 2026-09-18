@@ -1,6 +1,6 @@
 # OmniGuard eAI — methodology and limitations (KAN-57)
 
-Owner: R1 (Onur), with Lead review. **Status: draft, 17 September 2026.**
+Owner: R1 (Onur), with Lead review. **Status: draft, 18 September 2026.**
 
 This document states how the detection results are produced, what each result may be
 used to claim, and what it may not. It collects rules that are already enforced in code
@@ -11,7 +11,7 @@ run say so. Where a number appears, the linked result document is the authority.
 |---|---|
 | Capture-aware train/validation/test split (KAN-17) | Done, in `model/split.py` |
 | Validation-only threshold calibration (KAN-19) | Done, frozen in `model/frozen/kan19-seed1/` |
-| FPR / containment leakage main experiment (KAN-52) | **Not run.** Sections 8 and 9 stay provisional until it is |
+| FPR / containment leakage main experiment (KAN-52) | **Not run.** Sections 8 and 9 stay provisional until it is. KAN-33 (PR #40) builds the leakage measurement machinery; having the instrument is not having the experiment |
 
 ## 1. What the system claims to do, and what it does not
 
@@ -35,16 +35,32 @@ Out of scope, and never claimed:
 
 Every result states which role its data came from.
 
+**What the experiments use is not the same as what the project has decided.** Every
+result in KAN-18/19/20/21 was produced from audited IoT-23 captures, and that is a
+statement about those runs. The project-wide source decision is still open: ADR-0004
+proposes IoT-23 as the primary source but remains PROPOSED, and it records that the G1
+choice ("CICIoT2023 primary, IoT-23 secondary") stays formally in force until the ADR is
+accepted. Nothing below should be read as that decision having been made.
+
 | Role | Data | May be used for | Status |
 |---|---|---|---|
-| Development | Six audited IoT-23 captures: benign 4-1, 5-1, 7-1; malware 3-1 (Muhstik), 8-1 (Hakai), 34-1 (Mirai) | Training, validation, threshold, ablation, N sweep, exploratory folds | In use. Every capture has already been on a test or validation side (KAN-18, KAN-21), so **nothing here is untouched** |
+| Development | Six audited IoT-23 captures: benign 4-1, 5-1, 7-1; malware 3-1 (Muhstik), 8-1 (Hakai), 34-1 (Mirai) | Training, validation, threshold, ablation, N sweep, exploratory folds | In use by the current experiments. Every capture has already been on a test or validation side (KAN-18, KAN-21), so **nothing here is untouched** |
 | Untouched malware holdout | IoT-23 48-1 (Mirai), 20-1 (Torii), 36-1 (Okiru), selected by a pre-committed rule | Scoring **once**, after the freeze in §5 | Selected (`data/holdout/selection.json`), not downloaded, never scored |
 | Untouched benign holdout | None exists. IoT-23 publishes three benign scenarios, all used | — | Until one exists, holdout reports say "untouched benign FPR: not measured" |
-| External transfer | CICIoT2023 (KAN-23) | A separate transfer test, never a substitute for the holdout | Not accessible; its attacks are mostly LAN-local |
+| External transfer | CICIoT2023 (KAN-23) | A separate transfer test, never a substitute for the holdout | No locally audited capture set yet; see below |
 
-The ADR as a whole is still PROPOSED. The Lead approved the holdout selection rule and
-download budget on 14 September. A second benign source (UNSW-IoTraffic) needs a
-separate decision.
+**CICIoT2023, stated precisely.** We are entitled to the dataset; what is missing is a
+locally audited copy.
+- Earlier download attempts failed, and on 18 September the cause was identified as a
+  local proxy on the development machine rather than a refusal by the host (KAN-13).
+- The published files sit behind a registration form, which at the time of writing also
+  returns its own server error.
+- UNB describes the attacks as running between IoT devices, which is a **topology risk**
+  for a gateway that observes egress. ADR-0004 is explicit that this does not prove any
+  individual capture is LAN-local; only our own audit could show that.
+
+The Lead approved the holdout selection rule and download budget on 14 September. A
+second benign source (UNSW-IoTraffic) needs a separate decision.
 
 ### 2.2 Labels
 
@@ -94,11 +110,16 @@ separate decision.
     capture names or payload.
 
 **"Metadata-only" is a limit, not a privacy guarantee.**
-- **Payloads:** never parsed, stored or sent.
+- **Payload is not an input and not an output:** no payload byte becomes a feature, and
+  OmniGuard telemetry exports none.
+- **Payload can still pass through the machine:** capture, replay and dataset handling
+  work on whole packets, so payload bytes may be buffered in memory or present in the
+  PCAP files we keep. The claim is about the model and the telemetry, not about the
+  capture path (ARCHITECTURE.md, "Artifact ve veri yaşam döngüsü").
 - **Metadata:** IP, MAC and port are still processed locally and are themselves
   sensitive.
 - **Not certified:** being payload-independent is not anonymity and not a legal
-  compliance certificate (ARCHITECTURE.md, "Artifact ve veri yaşam döngüsü").
+  compliance certificate.
 - **Encrypted traffic:** handled only in the sense that its payload is never needed.
 
 ## 4. Splitting
@@ -158,7 +179,7 @@ separate decision.
 - **It does not transfer between benign devices.** In KAN-21, three of the twelve folds
   that found a threshold gave 12.6 % or 63.1 % FPR on an unseen benign capture. In 6 of
   18 folds, no threshold met the budget at all.
-- **Recall at 1 % sits on a score cliff** (KAN-20, PR #35).
+- **Recall at 1 % sits on a score cliff** (KAN-20, PR #35, still in review).
   - Near the top, the 200-tree forest scores in steps of about 0.005.
   - A 2,055-window validation set allows about 20 false positives.
   - Once more benign windows than that share the top levels, the threshold jumps and
@@ -174,12 +195,18 @@ and call it a deployment operating point.
 - **Setup:** 29 declared subsets of `features-1`, validation only, same budget, three
   seeds. The compact-set rule was fixed before the run; its 0.02 tolerance is awaiting
   Lead review.
-- **Volume features are required.** Without them no seed calibrates.
+- **Volume features carry the detection.** The `without:volume` set (the ten non-volume
+  features together) finds no threshold under the budget on any seed, and no volume-free
+  candidate reached a useful recall: the best was about 0.12. Some volume-free sets do
+  calibrate, so the general sentence "without volume nothing calibrates" is not what the
+  report supports.
 - **Protocol mix is the only group whose removal passed the rule.** This is a
   dev-pack observation, and the finalist is tentative because of the cliff above.
 - **Feature count is not the cost lever.**
-  - Extraction takes about 1–4.5 µs per window.
-  - One `predict_proba` call takes about 4.2 ms on a development Mac.
+  - `extract_features` costs about 7.4 µs per window; the group arithmetic inside it, 1–4.6 µs
+    depending on the set.
+  - One `predict_proba` call costs about 4.3 ms on a development Mac, some six hundred times
+    more. Forest size and batching move that; feature count does not.
 - **Timings:** development-machine rankings, not gateway measurements. Gateway
   CPU/RAM/latency come from the KAN-42 harness on finalists.
 
@@ -223,7 +250,8 @@ These hold for every result, whatever the numbers:
 - **Traffic coverage.** The lab design is IPv4-only with IPv6 disabled (ARCHITECTURE.md).
   No containment claim covers IPv6.
   - Leakage is measured from independent sink and forwarding evidence, not by filtering
-    on EGRESS.
+    on EGRESS (KAN-33's counter, PR #40, does this; the experiment that uses it is
+    KAN-52 and has not been run).
   - An unobserved path or address family is unmeasured, never "zero leakage".
 - **Replay is not a live botnet.** PCAP replay does not reproduce an adaptive attacker.
   Replayed traffic is labelled as a lab transformation.
@@ -260,6 +288,8 @@ These hold for every result, whatever the numbers:
 
 1. **KAN-52:** measure false quarantine per device-hour, benign blocked time and
    L3 leakage, and replace the provisional wording in §8–9 with the measured result.
+   KAN-33's counter (PR #40) is the instrument this experiment will use; its own smoke
+   run is not the experiment and is not cited as one.
 2. **KAN-51:** choose and record N and lease. Then score the holdout once and add the
    result under its own heading, including "untouched benign FPR: not measured" unless
    a benign holdout exists by then.
