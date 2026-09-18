@@ -61,7 +61,7 @@ class LeakageTests(unittest.TestCase):
         )
 
         self.assertEqual(result.status, leakage.LeakageStatus.CENSORED)
-        self.assertEqual(result.censor_reason, "detector_miss")
+        self.assertEqual(result.censor_reason, "detector_miss,no_containment_ack")
         self.assertIsNone(result.lower_bound)
         self.assertIsNone(result.upper_bound)
         self.assertEqual(
