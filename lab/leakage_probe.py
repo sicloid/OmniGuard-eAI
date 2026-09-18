@@ -10,7 +10,6 @@ Linux boot, whose boot_id is recorded and checked before correlation.
 
 import argparse
 import json
-import os
 import shutil
 import socket
 import struct
