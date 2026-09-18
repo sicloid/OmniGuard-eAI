@@ -153,13 +153,36 @@ class StateEnforcementE2ETests(unittest.TestCase):
         with self.assertRaises(ControlError):
             controller.rearm()
 
-    def test_enforcement_failure_is_not_hidden_as_policy_success(self):
-        controller, runner = build(1, (0.9,))
+    def test_enforcement_failure_faults_controller_until_reconcile(self):
+        controller, runner = build(1, (0.9, 0.9))
         runner.fail_add = True
         with self.assertRaises(EnforcementError):
             process(controller, 100)
         self.assertEqual(controller.policy.state, DeviceState.QUARANTINED)
+        self.assertTrue(controller.faulted)
         self.assertFalse(runner.active)
+
+        with self.assertRaises(ControlError):
+            process(controller, 105)
+
+        runner.fail_add = False
+        reconciled = controller.reconcile(now=106, mono=106)
+        self.assertFalse(controller.faulted)
+        self.assertEqual(controller.policy.state, DeviceState.NORMAL)
+        self.assertFalse(runner.active)
+        self.assertTrue(reconciled.events)
+        controller.rearm()
+
+    def test_reconcile_releases_lingering_kernel_state_from_a_previous_process(self):
+        controller, runner = build(1, (0.9,))
+        runner.active.add("10.203.1.2")
+
+        step = controller.reconcile(now=100, mono=100)
+
+        self.assertFalse(controller.faulted)
+        self.assertFalse(runner.active)
+        self.assertEqual(step.events, ())
+        self.assertEqual(step.receipts[-1].action, EnforcementAction.RELEASED)
 
 
 if __name__ == "__main__":
