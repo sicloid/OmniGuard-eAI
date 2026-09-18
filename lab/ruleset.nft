@@ -1,5 +1,5 @@
 # Loaded only via: ip netns exec og-b nft -f lab/ruleset.nft
-# Deliberately no flush ruleset and no flowtable/offload.
+# Deliberately no global ruleset reset and no flowtable/offload.
 table inet omniguard {
     set quarantined_v4 {
         type ipv4_addr
