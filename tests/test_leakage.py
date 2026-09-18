@@ -69,6 +69,24 @@ class LeakageTests(unittest.TestCase):
             (2, 50),
         )
 
+
+    def test_multiple_censor_causes_are_preserved(self):
+        t0 = leakage.MonotonicInterval(BOOT, 100, 110, "reference submission")
+        result = leakage.summarize_leakage(
+            t0,
+            None,
+            [delivery(120, 20)],
+            sink_complete=False,
+            censor_reason="detector_miss",
+        )
+
+        self.assertEqual(result.status, leakage.LeakageStatus.CENSORED)
+        self.assertEqual(
+            result.censor_reason,
+            "detector_miss,sink_incomplete,no_containment_ack",
+        )
+        self.assertEqual(result.uncontained_after_t0.packets, 1)
+
     def test_incomplete_sink_never_becomes_a_zero_leakage_claim(self):
         t0 = leakage.MonotonicInterval(BOOT, 100, 110, "reference submission")
         apply = leakage.MonotonicInterval(BOOT, 200, 220, "enforcer call + readback")
