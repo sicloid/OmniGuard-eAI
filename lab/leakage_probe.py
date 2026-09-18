@@ -186,9 +186,7 @@ def sink(*, duration: float) -> int:
 
 def _json_lines(path: Path) -> list[dict]:
     return [
-        json.loads(line)
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
+        json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
     ]
 
 
@@ -294,8 +292,7 @@ def orchestrate() -> int:
         sink_summary = next(row for row in sink_rows if row.get("type") == "sink_summary")
 
         deliveries = [
-            SinkDelivery(row["boot_id"], row["observed_ns"], row["l3_bytes"])
-            for row in sink_events
+            SinkDelivery(row["boot_id"], row["observed_ns"], row["l3_bytes"]) for row in sink_events
         ]
         t0_interval = MonotonicInterval(
             t0["boot_id"],
