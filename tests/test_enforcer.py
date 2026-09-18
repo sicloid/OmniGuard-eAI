@@ -1,7 +1,7 @@
 """KAN-31 bounded enforcer safety and no-renewal tests."""
 
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 from gateway.enforcer import (
     CommandResult,
@@ -18,6 +18,7 @@ class FakeNft:
         self.commands = []
         self.set_exists = True
         self.fail_add = False
+        self.lookup_error = None
 
     def __call__(self, argv):
         argv = tuple(argv)
@@ -26,6 +27,8 @@ class FakeNft:
         if words[:2] == ("list", "set"):
             return CommandResult(0 if self.set_exists else 1, "", "missing")
         if words[:2] == ("get", "element"):
+            if self.lookup_error is not None:
+                return CommandResult(2, "", self.lookup_error)
             ip = words[-2]
             if ip in self.active:
                 return CommandResult(0, "element present", "")
@@ -119,6 +122,11 @@ class EnforcerTests(unittest.TestCase):
             self.enforcer.quarantine(
                 self.binding, lease_seconds=30, max_lease_seconds=30
             )
+
+    def test_unexpected_readback_error_is_not_misreported_as_absent(self):
+        self.fake.lookup_error = "Operation not permitted"
+        with self.assertRaises(EnforcementError):
+            self.enforcer.is_quarantined(self.binding)
 
     def test_lab_ruleset_enables_kernel_timeout_without_host_flush(self):
         root = Path(__file__).resolve().parents[1]
