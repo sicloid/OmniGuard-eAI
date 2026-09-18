@@ -7,4 +7,5 @@ COPY gateway /opt/omniguard/gateway
 COPY measure /opt/omniguard/measure
 COPY lab /opt/omniguard/lab
 WORKDIR /opt/omniguard
+ENV PYTHONPATH=/opt/omniguard
 CMD ["python3", "lab/leakage_probe.py", "run"]

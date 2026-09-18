@@ -14,6 +14,8 @@ not silently counted as pre-containment leakage.
 The types here are measurement artefacts, not runtime wire contracts.
 """
 
+from __future__ import annotations
+
 from dataclasses import asdict, dataclass
 from enum import StrEnum
 
