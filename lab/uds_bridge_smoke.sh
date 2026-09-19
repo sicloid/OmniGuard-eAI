@@ -51,8 +51,10 @@ import sys
 
 with open(sys.argv[1], encoding="utf-8") as handle:
     evidence = json.load(handle)
-assert evidence["peer_uid"] == 0
 assert evidence["socket_mode"] == "0o600"
+assert evidence["adapter"]["peer_verification"] == "VERIFIED"
+assert evidence["adapter"]["connections"] == 1
+assert evidence["adapter"]["accepted"] == 1
 assert evidence["event"]["device_id"] == "lab-camera"
 assert evidence["event"]["new_state"] == "SUSPICIOUS"
 PY

@@ -4,69 +4,63 @@ import argparse
 import json
 import os
 import socket
-import struct
+from dataclasses import asdict
 from pathlib import Path
 
 from core.schema import DeviceState, StateEvent
-from gateway.event_bridge import UnixSocketTransport
-from telemetry.framing import read_frame
+from gateway.event_bridge import UnixSocketTransport, state_event_document
+from telemetry.outcomes import HandoffOutcome
+from telemetry.uds import PeerVerification, UnixSocketAdapter
 
-UCRED = struct.Struct("3i")
-EXPECTED_FIELDS = {
-    "device_id",
-    "previous_state",
-    "new_state",
-    "reason",
-    "timestamp",
-    "expires_at",
-}
+
+class RecordingSink:
+    """Probe-only host sink: accepted events prove the real adapter decoded them."""
+
+    def __init__(self):
+        self.events = []
+
+    def submit(self, event: StateEvent, *, now: float) -> HandoffOutcome:
+        self.events.append((event, now))
+        return HandoffOutcome.ACCEPTED
 
 
 def server(path: Path) -> int:
     if not hasattr(socket, "AF_UNIX") or not hasattr(socket, "SO_PEERCRED"):
         raise RuntimeError("Linux AF_UNIX + SO_PEERCRED required")
-    if path.exists():
-        if not path.is_socket():
-            raise RuntimeError(f"refusing to replace non-socket path {path}")
-        path.unlink()
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    previous = os.umask(0o177)
-    listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sink = RecordingSink()
+    adapter = UnixSocketAdapter(
+        path,
+        sink,
+        clock=lambda: 1_700_000_000.0,
+        allowed_uids=frozenset({os.geteuid()}),
+        require_peer_credentials=True,
+        timeout=5.0,
+    )
     try:
-        listener.bind(str(path))
+        adapter.bind()
+        adapter.accept_once()
+        counters = adapter.counters
+        if counters.peer_verification is not PeerVerification.VERIFIED:
+            raise RuntimeError("adapter did not verify the Unix peer")
+        if counters.connections != 1 or counters.accepted != 1 or len(sink.events) != 1:
+            raise RuntimeError(f"adapter did not accept exactly one event: {counters}")
+        outgoing, _now = sink.events[0]
+        mode = oct(path.stat().st_mode & 0o777)
+        report_counters = asdict(counters)
+        report_counters["peer_verification"] = counters.peer_verification.value
+        print(
+            json.dumps(
+                {
+                    "socket_mode": mode,
+                    "adapter": report_counters,
+                    "event": state_event_document(outgoing),
+                },
+                sort_keys=True,
+            ),
+            flush=True,
+        )
     finally:
-        os.umask(previous)
-    listener.listen(1)
-    listener.settimeout(5.0)
-    try:
-        connection, _ = listener.accept()
-        with connection:
-            raw = connection.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, UCRED.size)
-            pid, uid, gid = UCRED.unpack(raw)
-            body = read_frame(connection.makefile("rb"))
-            if body is None:
-                raise RuntimeError("gateway closed before sending a frame")
-            document = json.loads(body.decode("utf-8"))
-            if set(document) != EXPECTED_FIELDS:
-                raise RuntimeError("gateway body does not match ADR-0003 section 2.1")
-            print(
-                json.dumps(
-                    {
-                        "peer_pid": pid,
-                        "peer_uid": uid,
-                        "peer_gid": gid,
-                        "socket_mode": oct(path.stat().st_mode & 0o777),
-                        "event": document,
-                    },
-                    sort_keys=True,
-                ),
-                flush=True,
-            )
-    finally:
-        listener.close()
-        if path.exists() and path.is_socket():
-            path.unlink()
+        adapter.close()
     return 0
 
 

@@ -13,6 +13,7 @@ from gateway.event_bridge import (
     state_event_frame,
 )
 from telemetry.framing import read_frame
+from telemetry.uds import EVENT_FIELDS, decode_state_event
 
 
 def event(reason="anomaly series started"):
@@ -59,25 +60,17 @@ def wait_until(predicate, timeout=2.0):
 class FramingTests(unittest.TestCase):
     def test_gateway_body_contains_exactly_the_six_approved_fields(self):
         document = state_event_document(event())
-        self.assertEqual(
-            set(document),
-            {
-                "device_id",
-                "previous_state",
-                "new_state",
-                "reason",
-                "timestamp",
-                "expires_at",
-            },
-        )
+        self.assertEqual(set(document), set(EVENT_FIELDS))
         self.assertNotIn("event_id", document)
         self.assertNotIn("run_id", document)
 
     def test_frame_round_trips_through_the_shared_framing_contract(self):
-        frame = state_event_frame(event("iki anomali penceresi"))
+        outgoing = event("iki anomali penceresi")
+        frame = state_event_frame(outgoing)
         body = read_frame(BytesIO(frame))
         self.assertIsNotNone(body)
         self.assertIn(b"iki anomali penceresi", body)
+        self.assertEqual(decode_state_event(body), outgoing)
         self.assertIsNone(read_frame(BytesIO(b"")))
 
     def test_frame_is_deterministic_for_the_same_state_event(self):

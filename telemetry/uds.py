@@ -36,7 +36,7 @@ from typing import Protocol
 
 from core.schema import DeviceState, StateEvent
 from telemetry.framing import FrameError, FrameTooLarge, IncompleteFrame, read_frame
-from telemetry.handoff import HandoffOutcome
+from telemetry.outcomes import HandoffOutcome
 
 SOCKET_MODE = 0o600
 DEFAULT_TIMEOUT_SECONDS = 5.0

@@ -11,6 +11,8 @@ takes a new sequence and therefore a new identity, which the consumer stores as 
 duplicate. KAN-38 tests exercise that window and KAN-50 reports its count.
 """
 
+from __future__ import annotations
+
 import re
 import uuid
 from dataclasses import dataclass

@@ -166,8 +166,9 @@ runs on its worker; a full queue returns `OVERFLOWED`, a stopped bridge returns
 enforcement. This preserves the invariant that telemetry loss cannot block quarantine
 or release.
 
-The dedicated Linux probe `lab/uds_bridge_smoke.sh` starts a 0600 parent-namespace
-UDS, sends a real framed StateEvent from the isolated `og-b` network namespace,
-checks Linux peer credentials and verifies before and after that no lab namespace has
-a default/outside IP route. It proves the gateway-to-host filesystem/UDS path; it is
-not G10 and does not replace the R3 host adapter's own decode/sink tests.
+The dedicated Linux probe `lab/uds_bridge_smoke.sh` starts the real R3
+`UnixSocketAdapter` on a 0600 parent-namespace UDS, sends a real framed StateEvent
+from the isolated `og-b` network namespace, verifies peer credentials and records an
+accepted decoded event. It also verifies before and after that no lab namespace has a
+default/outside IP route. It proves the gateway-to-host filesystem/UDS path; it is not
+G10 and does not replace the R3 host adapter's MQTT/PostgreSQL sink tests.
