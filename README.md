@@ -27,6 +27,11 @@ See [current status](docs/STATUS.md) and [review evidence](docs/REVIEW_CLOSEOUT_
 
 ## Run locally
 
+Start with the [clean-checkout reproduction map](docs/REPRODUCE.md) for data,
+training, lab, platform, G8/G10, Pi and laptop fallback. The
+[demo runbook](docs/DEMO_RUNBOOK.md) gives the presentation order, failure rules
+and cleanup steps; neither document turns a pending gate into a pass.
+
 Reference interpreter: Python 3.14.7, pinned in `.python-version`. Dependencies
 are hash-locked in [requirements.lock](requirements.lock). ML development uses
 [requirements-ml.lock](requirements-ml.lock), which includes the base lock; details and the
