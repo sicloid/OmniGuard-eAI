@@ -26,9 +26,9 @@ recorded as a worker failure and the worker continues.
 import queue
 import threading
 from dataclasses import dataclass, replace
-from enum import StrEnum
 
 from core.schema import StateEvent
+from telemetry.outcomes import HandoffOutcome
 from telemetry.publisher import TelemetryPublisher
 
 STOP_TIMEOUT_SECONDS = 5.0
@@ -37,18 +37,6 @@ POLL_SECONDS = 0.05
 
 class HandoffError(RuntimeError):
     """The handoff was used outside its lifecycle."""
-
-
-class HandoffOutcome(StrEnum):
-    """What the boundary did with one submitted event.
-
-    `ACCEPTED` means the worker owns it now; it says nothing about delivery,
-    which only `broker_ack` on the worker's `PublishOutcome` can report.
-    """
-
-    ACCEPTED = "ACCEPTED"
-    OVERFLOWED = "OVERFLOWED"
-    REFUSED = "REFUSED"
 
 
 @dataclass(frozen=True)

@@ -91,3 +91,84 @@ kernel block disappeared. QUARANTINED is a request, NORMAL after expiry/release
 is not a clean-device or firewall-success claim. ADR-0002 stays PROPOSED; no new
 wire field or production policy is introduced. No MQTT, disk or firewall I/O runs
 in this component.
+
+
+## KAN-31: bounded nftables enforcer
+
+`gateway.enforcer.NftEnforcer` is the narrow mutation boundary between the existing
+policy decision and the owned nftables set. It accepts an explicit `DeviceBinding`,
+a lease and its caller-provided maximum, then executes fixed argv through
+`ip netns exec <owned-namespace> nft ...`; it never invokes a shell, creates a
+ruleset or flushes host/network state. With the production/default runner it also
+checks the current `/run/netns/<name>` device/inode against the ownership record
+written by `lab/setup_netns.sh`, so deleting and recreating a namespace under the
+same `og-b` name is refused rather than silently adopted.
+
+The lab set now has `flags timeout`. A new quarantine element is installed with a
+per-element kernel timeout and is read back before `APPLIED` is reported. Applying
+again while the element exists returns `ALREADY_APPLIED` without issuing another
+add, so repeated anomaly evidence cannot silently renew the lease. Release deletes
+only that device element and verifies absence; a release after kernel expiry is an
+idempotent `ALREADY_RELEASED`.
+
+`EnforcerReceipt` is internal implementation evidence, **not** ADR-0002's proposed
+wire-level EnforcementResult. The five 0.1.0 runtime contracts are unchanged.
+`is_quarantined()` exists for restart/reconcile callers but does not itself mutate
+or claim traffic restoration.
+
+Unit tests cover namespace/IP validation, bounded leases, no-renewal, readback,
+idempotent release, missing-owned-set refusal and static guards against host ruleset
+flush or conntrack deletion. The dedicated Linux smoke now exercises both established
+UDP and established TCP flows: the same live flow must stop under quarantine and resume
+after release while conntrack state remains present. It also installs a one-second
+kernel lease, lets the userspace command return, and verifies that nftables expires the
+element without a controller timer. These are runnable acceptance fixtures; hosted CI
+does not execute the privileged netns path and therefore is not G8 evidence.
+
+## KAN-48: deterministic stub state/enforcement E2E
+
+`gateway.controller.StateEnforcementController` composes the already reviewed
+boundaries without adding a wire contract: `CheckedDetector` returns a 0.1.0
+`DetectionResult`, `DevicePolicy` returns 0.1.0 `StateEvent` values, and the
+KAN-31 `NftEnforcer` returns internal kernel receipts.
+
+Detector failure is treated as observation loss and calls `DevicePolicy.invalidate`;
+it is never converted to a NORMAL result. QUARANTINED events require a bounded expiry
+before the controller calls the enforcer. A QUARANTINED→NORMAL transition performs
+an idempotent kernel release. An enforcement error faults the controller because the
+policy transition may already have happened while the kernel mutation did not; normal
+processing is refused until `reconcile()` restores a known policy/kernel relation.
+Reconcile also releases a lingering kernel element discovered after a fresh process
+starts. `rearm()` refuses while faulted or while the owned nft set still contains
+the device, so a new policy episode cannot silently coexist with a lingering block.
+
+The deterministic unit suite covers N=1/2/3, invalid observations, window gaps, stale
+results, detector exhaustion, explicit release, lease expiry, re-arm boundaries,
+enforcement-fault latching/recovery and previous-process kernel reconciliation. `lab/stub_state_enforcement_e2e.py` is additionally
+executed by the dedicated Linux lab and uses the real `NftEnforcer` against the
+owned `og-b` nft set: first anomaly remains SUSPICIOUS, the Nth anomaly installs the
+element, and explicit release removes it with kernel readback.
+
+This is a software/state-enforcement integration proof only. It uses
+`STUB-NOT-TRAINED` scores and therefore is **not** a G8 or trained-RF result.
+
+## KAN-34: gateway to host Unix-socket bridge
+
+`gateway.event_bridge` implements the gateway half of ADR-0003 section 2.1 without
+changing the frozen 0.1.0 contracts. `state_event_document()` serializes exactly
+`device_id`, `previous_state`, `new_state`, `reason`, `timestamp` and
+`expires_at`; identity/envelope fields remain host-side. The body uses the shared
+canonical encoder and the shared four-byte bounded frame.
+
+`GatewayEventBridge.submit()` is a bounded `put_nowait` only. Socket connect/write
+runs on its worker; a full queue returns `OVERFLOWED`, a stopped bridge returns
+`REFUSED`, and transport exceptions are counted rather than escaping into policy or
+enforcement. This preserves the invariant that telemetry loss cannot block quarantine
+or release.
+
+The dedicated Linux probe `lab/uds_bridge_smoke.sh` starts the real R3
+`UnixSocketAdapter` on a 0600 parent-namespace UDS, sends a real framed StateEvent
+from the isolated `og-b` network namespace, verifies peer credentials and records an
+accepted decoded event. It also verifies before and after that no lab namespace has a
+default/outside IP route. It proves the gateway-to-host filesystem/UDS path; it is not
+G10 and does not replace the R3 host adapter's MQTT/PostgreSQL sink tests.
