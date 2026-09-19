@@ -44,7 +44,7 @@ ip netns exec og-b python -m lab.g8_core \
     --seconds 24 --n 1 --lease-seconds 6 \
     > "$EVIDENCE/core.jsonl" 2> "$EVIDENCE/core.err" &
 core_pid=$!
-for i in $(seq 1 40); do
+for _ in $(seq 1 40); do
     grep -q '"kind": "ready"' "$EVIDENCE/core.jsonl" && break
     kill -0 "$core_pid"
     sleep 0.1
@@ -54,7 +54,7 @@ ip netns exec og-a python -m lab.replay /opt/g8-input/prepared.pcap \
     --provenance /opt/g8-input/provenance.json \
     --output "$EVIDENCE/replay-runs" --speed 1 --reference-record 1 \
     > "$EVIDENCE/replay.log" 2> "$EVIDENCE/replay.err"
-for i in $(seq 1 120); do
+for _ in $(seq 1 120); do
     grep -q '"action": "APPLIED"' "$EVIDENCE/core.jsonl" && break
     kill -0 "$core_pid"
     sleep 0.1
