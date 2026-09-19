@@ -4,9 +4,7 @@ import json
 import sys
 from pathlib import Path
 
-
-def _times(path: Path) -> list[int]:
-    return [int(line) for line in path.read_text().splitlines() if line.strip()]
+from lab.g8_probe_evidence import assess_protocol
 
 
 def main() -> int:
@@ -39,18 +37,17 @@ def main() -> int:
         released["mono_ns"] - 100_000_000,
         applied["mono_ns"] + int(ready["lease_seconds"] * 1_000_000_000) - 100_000_000,
     )
-    result = {}
-    for protocol in ("udp", "tcp"):
-        times = _times(root / f"{protocol}-sink.log")
-        before = sum(t < applied["mono_ns"] for t in times)
-        blocked = sum(applied["mono_ns"] + 300_000_000 < t < blocked_end for t in times)
-        after = sum(t > released["mono_ns"] + 300_000_000 for t in times)
-        if before < 3 or blocked or after < 3:
-            raise RuntimeError(
-                f"{protocol} sink did not show baseline/stop/restore: "
-                f"before={before}, blocked={blocked}, after={after}"
-            )
-        result[protocol] = {"before": before, "blocked": blocked, "after": after}
+    result = {
+        protocol: assess_protocol(
+            root,
+            protocol,
+            applied_ns=applied["mono_ns"],
+            blocked_begin_ns=applied["mono_ns"] + 300_000_000,
+            blocked_end_ns=blocked_end,
+            release_ns=released["mono_ns"],
+        )
+        for protocol in ("udp", "tcp")
+    }
     print(
         json.dumps(
             {"synthetic_only_not_g8": True, "sink": result, "summary": summary}, sort_keys=True

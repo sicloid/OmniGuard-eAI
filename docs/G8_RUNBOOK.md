@@ -148,7 +148,26 @@ fixed-lab provenance/IP/MTU checks; do not relabel a synthetic probe as IoT-23.
 Record the parent capture hash, preparation commands, labels/exclusions, replay
 manifest/t0, frozen model hashes, chosen N/lease, core log and independent
 TCP/UDP sink logs in one run directory. Correlate by same-container monotonic
-clock; a send return or a StateEvent alone is not a sink-stop observation.
+clock. The source-attempt logs must show packets attempted *during* the blocked
+interval, while independent sink logs show zero delivery there; a silent sink
+without source attempts proves nothing. Report the first post-release TCP and
+UDP sink delivery delay and the reorder wrapper's inversion/heap counters.
+These are integration observations, not model accuracy or external FPR.
+
+On 20 September, the pinned KAN-19 model and hash-pinned prepared 8-1 SYN slice
+were exercised in the disposable Docker topology after these checks were added.
+In the orderly run, TCP and UDP each attempted 33 sends while blocked; both
+sinks recorded zero deliveries, then 293 TCP and 307 UDP deliveries after
+release. The first counted post-release delivery was 1.444315 s (TCP) and
+0.344552 s (UDP). Kernel drops were 0, local service succeeded 111 times,
+and the reorder wrapper reported 0 inversions with a high-water mark of 3.
+In the SIGKILL run, each source attempted 12 sends while the kernel element
+remained active after process death; both sinks recorded zero deliveries and
+then 73 each after kernel TTL expiry. The first counted deliveries were
+0.342523 s (TCP) and 0.350128 s (UDP) after the inactive readback. These
+numbers describe one N=1, six-second-lease development validation run, not a
+distribution or Raspberry Pi measurement. The synthetic wiring smoke separately
+exercised 5 timestamp inversions (maximum 8.82 microseconds) and passed.
 
 ## Gate decision
 

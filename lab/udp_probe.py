@@ -20,6 +20,7 @@ def main():
             sock.bind(("10.203.1.2", 49001))
             sock.settimeout(0.1)
             while True:
+                print(time.monotonic_ns(), flush=True)
                 sock.sendto(b"omniguard-lab-probe", ("10.203.2.2", 49000))
                 try:
                     sock.recvfrom(128)

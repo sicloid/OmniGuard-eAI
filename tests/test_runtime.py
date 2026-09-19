@@ -153,6 +153,20 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(self.controller.policy.resets["invalidated"], 1)
         self.assertFalse(self.nft.active)
 
+    def test_expiry_and_loss_are_recorded_before_capture_failure(self):
+        records = []
+        self.runtime.on_control_step = records.append
+        self.controller.policy.state = DeviceState.QUARANTINED
+        self.controller.policy.deadline = 102.0
+        self.nft.active.add("10.203.1.2")
+        self.clock.now = 103.0
+        self.runtime.pipeline.reset_generation += 1
+        with self.assertRaisesRegex(OSError, "capture lost"):
+            self.runtime.poll(Capture(self.clock, [OSError("capture lost")]))
+        self.assertTrue(any(step.receipts for step in records))
+        self.assertTrue(any(step.detector_error for step in records))
+        self.assertFalse(self.nft.active)
+
 
 if __name__ == "__main__":
     unittest.main()

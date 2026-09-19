@@ -4,6 +4,8 @@ import json
 import sys
 from pathlib import Path
 
+from lab.g8_probe_evidence import assess_protocol
+
 MODEL_ID = "rf-iot23"
 
 
@@ -54,15 +56,17 @@ def validate(root: Path) -> dict:
     )
     if end - applied["mono_ns"] < 1_000_000_000:
         raise ValueError("blocked interval too short to verify both sinks")
-    sinks = {}
-    for protocol in ("udp", "tcp"):
-        times = [int(line) for line in (root / f"{protocol}-sink.log").read_text().splitlines()]
-        before = sum(value < applied["mono_ns"] for value in times)
-        blocked = sum(applied["mono_ns"] + 300_000_000 < value < end for value in times)
-        after = sum(value > released["mono_ns"] + 300_000_000 for value in times)
-        if before < 3 or blocked or after < 3:
-            raise ValueError(f"{protocol} baseline/stop/restore failed: {before}/{blocked}/{after}")
-        sinks[protocol] = {"before": before, "blocked": blocked, "after": after}
+    sinks = {
+        protocol: assess_protocol(
+            root,
+            protocol,
+            applied_ns=applied["mono_ns"],
+            blocked_begin_ns=applied["mono_ns"] + 300_000_000,
+            blocked_end_ns=end,
+            release_ns=released["mono_ns"],
+        )
+        for protocol in ("udp", "tcp")
+    }
     local = [int(line) for line in (root / "local-source.log").read_text().splitlines()]
     local_during = sum(applied["mono_ns"] + 300_000_000 < value < end for value in local)
     if local_during < 3:
@@ -78,6 +82,7 @@ def validate(root: Path) -> dict:
         "local_successes_during_block": local_during,
         "windows": summary["windows"],
         "kernel_drops": summary["capture_stats"]["kernel_drops"],
+        "reorder_stats": summary["reorder_stats"],
     }
 
 

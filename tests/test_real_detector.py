@@ -14,6 +14,7 @@ from model.artifact import ArtifactIntegrityError, LoadedArtifact, build_metadat
 
 class FakeRF:
     classes_ = (0, 1)
+    n_features_in_ = len(FEATURE_ORDER)
 
     def __init__(self, rows):
         self.rows = rows
@@ -69,6 +70,16 @@ class RealDetectorTests(unittest.TestCase):
         rf = FakeRF([[0.5, 0.5]])
         rf.classes_ = (1, 0)
         with self.assertRaises(ValueError):
+            RandomForestDetector(LoadedArtifact(self.meta, rf))
+
+    def test_wrong_width_and_ablation_rejected_at_load(self):
+        rf = FakeRF([[0.5, 0.5]])
+        rf.n_features_in_ = 4
+        with self.assertRaisesRegex(ValueError, "feature width"):
+            RandomForestDetector(LoadedArtifact(self.meta, rf))
+        rf.n_features_in_ = len(FEATURE_ORDER)
+        rf.omniguard_columns = (0, 1, 2, 3)
+        with self.assertRaisesRegex(ValueError, "ablation"):
             RandomForestDetector(LoadedArtifact(self.meta, rf))
 
     def test_pins_and_extractor_catalogue_are_checked(self):

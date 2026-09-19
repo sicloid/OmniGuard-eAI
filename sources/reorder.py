@@ -37,6 +37,19 @@ class BoundedReorderCapture:
         self._last_emitted = -1.0
         self._pending_cutoff: float | None = None
         self._failed = False
+        self.reordered_packets = 0
+        self.max_inversion_seconds = 0.0
+        self.buffer_high_water = 0
+        self.excess_lateness_seconds = 0.0
+
+    @property
+    def stats(self) -> dict[str, float | int]:
+        return {
+            "reordered_packets": self.reordered_packets,
+            "max_inversion_seconds": self.max_inversion_seconds,
+            "buffer_high_water": self.buffer_high_water,
+            "excess_lateness_seconds": self.excess_lateness_seconds,
+        }
 
     def _fail(self, reason: str) -> None:
         self._failed = True
@@ -84,10 +97,19 @@ class BoundedReorderCapture:
                 raise
             if packet is not None:
                 if packet.timestamp < self._last_emitted:
+                    self.excess_lateness_seconds = max(
+                        self.excess_lateness_seconds, self._last_emitted - packet.timestamp
+                    )
                     self._fail("packet arrived behind emitted packet/watermark")
                 if len(self._heap) >= self.capacity:
                     self._fail("timestamp reorder buffer exceeded capacity")
+                if packet.timestamp < self._max_seen:
+                    self.reordered_packets += 1
+                    self.max_inversion_seconds = max(
+                        self.max_inversion_seconds, self._max_seen - packet.timestamp
+                    )
                 heapq.heappush(self._heap, (packet.timestamp, self._sequence, packet))
+                self.buffer_high_water = max(self.buffer_high_water, len(self._heap))
                 self._sequence += 1
                 self._max_seen = max(self._max_seen, packet.timestamp)
             elif watermark is not None:

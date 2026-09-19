@@ -5,6 +5,7 @@ an independent sink.  Telemetry is deliberately outside this safety path.
 """
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from gateway.controller import ControlStep, StateEnforcementController
@@ -25,8 +26,9 @@ class GatewayCore:
 
     The caller must poll continuously with a finite capture timeout so lease expiry
     is checked even when no packets arrive.  A failed read invalidates observation
-    before the original capture error is propagated.  Kernel failure remains fatal
-    until the controller is explicitly reconciled.
+    before the original capture error is propagated.  on_control_step records tick
+    and observation-loss receipts immediately, including on that exception path.
+    Kernel failure remains fatal until the controller is explicitly reconciled.
     """
 
     def __init__(
@@ -36,6 +38,7 @@ class GatewayCore:
         *,
         utc_clock=time.time,
         monotonic_clock=time.monotonic,
+        on_control_step: Callable[[ControlStep], None] | None = None,
     ):
         if not isinstance(pipeline, WindowFeaturePipeline):
             raise TypeError("pipeline must be a WindowFeaturePipeline")
@@ -45,6 +48,7 @@ class GatewayCore:
         self.controller = controller
         self.utc_clock = utc_clock
         self.monotonic_clock = monotonic_clock
+        self.on_control_step = on_control_step
         self._generation = pipeline.reset_generation
 
     def _clock(self) -> dict[str, float]:
@@ -58,12 +62,18 @@ class GatewayCore:
 
     def poll(self, capture: PacketCapture, *, timeout: float = 0.25) -> CoreCycle:
         tick = self.controller.tick(**self._clock())
+        if self.on_control_step is not None:
+            self.on_control_step(tick)
         try:
             vectors = self.pipeline.capture_once(capture, timeout)
         except Exception:
-            self._sync_loss()
+            loss = self._sync_loss()
+            if loss is not None and self.on_control_step is not None:
+                self.on_control_step(loss)
             raise
         loss = self._sync_loss()
+        if loss is not None and self.on_control_step is not None:
+            self.on_control_step(loss)
         if loss is not None and vectors:
             raise RuntimeError("window reset returned feature vectors; refusing mixed evidence")
         decisions = tuple(self.controller.process(vector, **self._clock()) for vector in vectors)

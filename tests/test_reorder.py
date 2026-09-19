@@ -53,6 +53,9 @@ class ReorderTests(unittest.TestCase):
         self.assertEqual(ordered.read_progress()[0].timestamp, 100.002)
         self.assertEqual(ordered.read_progress()[0].timestamp, 100.005)
         self.assertEqual(ordered.read_progress(), (None, 105.0))
+        self.assertEqual(ordered.stats["reordered_packets"], 1)
+        self.assertAlmostEqual(ordered.stats["max_inversion_seconds"], 0.001)
+        self.assertEqual(ordered.stats["buffer_high_water"], 3)
         ordered.close()
         self.assertTrue(source.closed)
 
@@ -69,6 +72,7 @@ class ReorderTests(unittest.TestCase):
         self.assertEqual(ordered.read_progress(), (None, 100.1))
         with self.assertRaises(CaptureError):
             ordered.read_progress()
+        self.assertAlmostEqual(ordered.stats["excess_lateness_seconds"], 0.05)
         with self.assertRaises(CaptureError):
             ordered.read_progress()
 

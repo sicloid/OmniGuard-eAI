@@ -79,7 +79,7 @@ sleep 2
 ip netns exec og-b python -m lab.g8_kernel_readback > "$EVIDENCE/kernel-during.json"
 sleep 5
 ip netns exec og-b python -m lab.g8_kernel_readback > "$EVIDENCE/kernel-after.json"
-sleep 1
+sleep 4
 for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done
 for pid in "${pids[@]}"; do wait "$pid" 2>/dev/null || true; done
 pids=()

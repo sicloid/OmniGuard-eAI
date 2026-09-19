@@ -4,6 +4,8 @@ import json
 import sys
 from pathlib import Path
 
+from lab.g8_probe_evidence import assess_protocol
+
 
 def validate(root: Path) -> dict:
     records = [json.loads(line) for line in (root / "core.jsonl").read_text().splitlines()]
@@ -55,17 +57,17 @@ def validate(root: Path) -> dict:
         < after["mono_ns"]
     ):
         raise ValueError("clock ordering invalid")
-    sinks = {}
-    for protocol in ("udp", "tcp"):
-        times = [int(line) for line in (root / f"{protocol}-sink.log").read_text().splitlines()]
-        baseline = sum(value < applied["mono_ns"] for value in times)
-        blocked = sum(
-            before["mono_ns"] + 300_000_000 < value < during["mono_ns"] for value in times
+    sinks = {
+        protocol: assess_protocol(
+            root,
+            protocol,
+            applied_ns=applied["mono_ns"],
+            blocked_begin_ns=before["mono_ns"] + 300_000_000,
+            blocked_end_ns=during["mono_ns"],
+            release_ns=after["mono_ns"],
         )
-        restored = sum(value > after["mono_ns"] + 300_000_000 for value in times)
-        if baseline < 3 or blocked or restored < 3:
-            raise ValueError(f"{protocol} baseline/block/restore: {baseline}/{blocked}/{restored}")
-        sinks[protocol] = {"before": baseline, "blocked": blocked, "after": restored}
+        for protocol in ("udp", "tcp")
+    }
     local = [int(line) for line in (root / "local-source.log").read_text().splitlines()]
     local_during = sum(
         before["mono_ns"] + 300_000_000 < value < during["mono_ns"] for value in local

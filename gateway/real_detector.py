@@ -22,6 +22,11 @@ class RandomForestDetector:
             raise ValueError("RF artifact must have classes [0, 1] in that order")
         if not callable(getattr(model, "predict_proba", None)):
             raise ValueError("RF artifact must implement predict_proba")
+        if getattr(model, "n_features_in_", None) != len(meta.feature_order):
+            raise ValueError("RF artifact feature width differs from its metadata")
+        columns = getattr(model, "omniguard_columns", None)
+        if columns is not None and tuple(columns) != tuple(range(len(FEATURE_ORDER))):
+            raise ValueError("RF ablation artifact cannot serve the full feature catalogue")
         self.model = model
         self.meta = meta
 

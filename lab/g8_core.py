@@ -84,7 +84,7 @@ def run(args) -> int:
     controller.rearm()
     start = math.floor(time.time() / 5) * 5
     pipeline = WindowFeaturePipeline(start)
-    runtime = GatewayCore(pipeline, controller)
+    runtime = GatewayCore(pipeline, controller, on_control_step=_record_step)
     normalizer = PacketNormalizer(["10.203.1.0/24"], {LAB_IPV4: LAB_DEVICE})
     windows = 0
     quarantines = 0
@@ -104,9 +104,7 @@ def run(args) -> int:
         try:
             while time.monotonic() < deadline:
                 cycle = runtime.poll(capture)
-                for step in (cycle.tick, cycle.observation_loss, *cycle.windows):
-                    if step is None:
-                        continue
+                for step in cycle.windows:
                     _record_step(step)
                     windows += step.detection is not None
                     quarantines += any(e.new_state == DeviceState.QUARANTINED for e in step.events)
@@ -120,6 +118,7 @@ def run(args) -> int:
                 policy_rejections=policy.rejections,
                 policy_resets=policy.resets,
                 capture_stats=asdict(raw_capture.stats),
+                reorder_stats=capture.stats,
                 kernel_quarantined=enforcer.is_quarantined(binding),
             )
     return int(windows == 0)
