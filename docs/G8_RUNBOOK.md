@@ -46,6 +46,26 @@ read-only artifact directory. `load_pinned_rf_detector` checks both hashes, the
 frozen 0.1.0 schema, `features-1` order and Python/sklearn/numpy versions before
 joblib deserialization. Never substitute a newly trained model under these pins.
 
+### 19 September reconstruction check
+
+The development pack supplied as `omniguard-samplepack-v2.zip` contains the
+byte-pinned `windows.jsonl` plus the original v1 manifest. All three archive
+members passed its `SHA256SUMS`. Running `model.policy_run` with that v1 manifest,
+the unchanged policy spec and Python 3.14.7 / scikit-learn 1.8.0 / NumPy 2.5.3
+reproduced seed 1's validation threshold (0.9798815486832), recall and FPR,
+but produced `model.joblib` SHA-256
+`4b6b87dba1a48d450689bfb0ec1e6c2b4a71068150489604380c2759420d1591`
+instead of the frozen `d30725a9...` pin. The regenerated threshold policy also
+counts 146 rather than 143 candidates. Equal headline metrics do not make these
+artifacts byte-identical; the regenerated model is **not** the frozen G8 model.
+Keep the original pin until its original binary is supplied and verified, or a
+separate reviewed policy/artifact re-freeze explicitly replaces it.
+
+The independently downloaded original IoT-23 4-1 and 8-1 PCAPs matched the
+parent hashes in `data/DATASET_AUDIT.md`. They are unprepared originals, not
+inputs accepted by this fixed-lab replay path. Preparation, transformations and
+label mapping still need an audited record before replay.
+
 For a manual isolated run, build `lab/Dockerfile.g8` and create a network-none
 container with `NET_ADMIN`, `NET_RAW`, `SYS_ADMIN`, the same two security options
 as `lab/run_g8_synthetic_docker.sh`, and **read-only** mounts for the trusted
