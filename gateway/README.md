@@ -91,3 +91,36 @@ kernel block disappeared. QUARANTINED is a request, NORMAL after expiry/release
 is not a clean-device or firewall-success claim. ADR-0002 stays PROPOSED; no new
 wire field or production policy is introduced. No MQTT, disk or firewall I/O runs
 in this component.
+
+
+## KAN-31: bounded nftables enforcer
+
+`gateway.enforcer.NftEnforcer` is the narrow mutation boundary between the existing
+policy decision and the owned nftables set. It accepts an explicit `DeviceBinding`,
+a lease and its caller-provided maximum, then executes fixed argv through
+`ip netns exec <owned-namespace> nft ...`; it never invokes a shell, creates a
+ruleset or flushes host/network state. With the production/default runner it also
+checks the current `/run/netns/<name>` device/inode against the ownership record
+written by `lab/setup_netns.sh`, so deleting and recreating a namespace under the
+same `og-b` name is refused rather than silently adopted.
+
+The lab set now has `flags timeout`. A new quarantine element is installed with a
+per-element kernel timeout and is read back before `APPLIED` is reported. Applying
+again while the element exists returns `ALREADY_APPLIED` without issuing another
+add, so repeated anomaly evidence cannot silently renew the lease. Release deletes
+only that device element and verifies absence; a release after kernel expiry is an
+idempotent `ALREADY_RELEASED`.
+
+`EnforcerReceipt` is internal implementation evidence, **not** ADR-0002's proposed
+wire-level EnforcementResult. The five 0.1.0 runtime contracts are unchanged.
+`is_quarantined()` exists for restart/reconcile callers but does not itself mutate
+or claim traffic restoration.
+
+Unit tests cover namespace/IP validation, bounded leases, no-renewal, readback,
+idempotent release, missing-owned-set refusal and static guards against host ruleset
+flush or conntrack deletion. The dedicated Linux smoke now exercises both established
+UDP and established TCP flows: the same live flow must stop under quarantine and resume
+after release while conntrack state remains present. It also installs a one-second
+kernel lease, lets the userspace command return, and verifies that nftables expires the
+element without a controller timer. These are runnable acceptance fixtures; hosted CI
+does not execute the privileged netns path and therefore is not G8 evidence.
