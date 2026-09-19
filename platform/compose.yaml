@@ -47,9 +47,16 @@ services:
       GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
     ports:
       - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
-    secrets: [grafana_password]
+    secrets: [grafana_password, readonly_password]
     volumes:
       - grafana_data:/var/lib/grafana
+      # KAN-41: datasource, dashboard provider and dashboard JSON come from Git,
+      # read-only. A dashboard built by hand in the UI lives in the named volume and
+      # is invisible after a clean checkout, which is what "clean checkout demo" rules
+      # out. Dashboards sit outside /var/lib/grafana so they are not nested inside the
+      # named volume above.
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
     healthcheck:
       test: [CMD-SHELL, 'wget -q -O - http://127.0.0.1:3000/api/health | grep -q ''"database": "ok"''']
       interval: 5s
@@ -73,3 +80,5 @@ secrets:
     file: ./.secrets/postgres_password
   grafana_password:
     file: ./.secrets/grafana_password
+  readonly_password:
+    file: ./.secrets/readonly_password

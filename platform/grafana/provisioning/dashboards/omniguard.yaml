@@ -1,0 +1,15 @@
+# KAN-41. Loads dashboard JSON from the read-only Git mount.
+apiVersion: 1
+
+providers:
+  - name: OmniGuard
+    orgId: 1
+    type: file
+    # The files are a read-only bind mount, so let Grafana refuse UI edits rather than
+    # accept them and silently lose them on the next restart.
+    disableDeletion: true
+    allowUiUpdates: false
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/dashboards
+      foldersFromFilesStructure: false
