@@ -16,6 +16,14 @@ def delivery(timestamp, size):
     return leakage.SinkDelivery(BOOT, timestamp, size)
 
 
+def source_window(begin=90, end=240):
+    return leakage.MonotonicInterval(BOOT, begin, end, "source attempts")
+
+
+def sink_window(begin=80, end=250):
+    return leakage.MonotonicInterval(BOOT, begin, end, "independent sink observation")
+
+
 class LeakageTests(unittest.TestCase):
     def test_complete_run_reports_bounds_and_keeps_post_ack_separate(self):
         t0 = leakage.MonotonicInterval(BOOT, 100, 110, "reference submission")
@@ -33,6 +41,9 @@ class LeakageTests(unittest.TestCase):
                 delivery(230, 16),
             ],
             sink_complete=True,
+            source_attempt_window=source_window(),
+            sink_window=sink_window(),
+            source_attempted_after_ack=True,
         )
 
         self.assertEqual(result.status, leakage.LeakageStatus.COMPLETE)
@@ -57,6 +68,9 @@ class LeakageTests(unittest.TestCase):
             None,
             [delivery(105, 10), delivery(120, 20), delivery(130, 30)],
             sink_complete=True,
+            source_attempt_window=source_window(),
+            sink_window=sink_window(),
+            source_attempted_after_ack=None,
             censor_reason="detector_miss",
         )
 
@@ -80,6 +94,9 @@ class LeakageTests(unittest.TestCase):
             None,
             [delivery(120, 20)],
             sink_complete=False,
+            source_attempt_window=source_window(),
+            sink_window=sink_window(),
+            source_attempted_after_ack=None,
             censor_reason="detector_miss",
         )
 
@@ -93,7 +110,15 @@ class LeakageTests(unittest.TestCase):
     def test_incomplete_sink_never_becomes_a_zero_leakage_claim(self):
         t0 = leakage.MonotonicInterval(BOOT, 100, 110, "reference submission")
         apply = leakage.MonotonicInterval(BOOT, 200, 220, "enforcer call + readback")
-        result = leakage.summarize_leakage(t0, apply, [], sink_complete=False)
+        result = leakage.summarize_leakage(
+            t0,
+            apply,
+            [],
+            sink_complete=False,
+            source_attempt_window=source_window(),
+            sink_window=sink_window(),
+            source_attempted_after_ack=True,
+        )
 
         self.assertEqual(result.status, leakage.LeakageStatus.CENSORED)
         self.assertEqual(result.censor_reason, "sink_incomplete")
@@ -108,6 +133,9 @@ class LeakageTests(unittest.TestCase):
             apply,
             [delivery(230, 99)],
             sink_complete=True,
+            source_attempt_window=source_window(),
+            sink_window=sink_window(),
+            source_attempted_after_ack=True,
         )
 
         self.assertEqual(result.upper_bound.packets, 0)
@@ -123,6 +151,9 @@ class LeakageTests(unittest.TestCase):
                 apply,
                 [leakage.SinkDelivery("other-boot", 150, 10)],
                 sink_complete=True,
+                source_attempt_window=source_window(),
+                sink_window=sink_window(),
+                source_attempted_after_ack=True,
             )
 
     def test_invalid_intervals_and_sizes_are_rejected(self):
@@ -136,7 +167,75 @@ class LeakageTests(unittest.TestCase):
                 leakage.MonotonicInterval(BOOT, 90, 95, "apply"),
                 [],
                 sink_complete=True,
+                source_attempt_window=source_window(),
+                sink_window=sink_window(),
+                source_attempted_after_ack=True,
             )
+
+    def test_missing_source_evidence_censors_empty_zero_result(self):
+        t0 = leakage.MonotonicInterval(BOOT, 100, 110, "reference submission")
+        apply = leakage.MonotonicInterval(BOOT, 200, 220, "enforcer call + readback")
+        result = leakage.summarize_leakage(
+            t0,
+            apply,
+            [],
+            sink_complete=True,
+            source_attempt_window=None,
+            sink_window=sink_window(),
+            source_attempted_after_ack=None,
+        )
+
+        self.assertEqual(result.status, leakage.LeakageStatus.CENSORED)
+        self.assertEqual(result.censor_reason, "no_source_attempts")
+        self.assertIsNone(result.lower_bound)
+
+    def test_sink_window_must_cover_source_attempt_window(self):
+        t0 = leakage.MonotonicInterval(BOOT, 100, 110, "reference submission")
+        apply = leakage.MonotonicInterval(BOOT, 200, 220, "enforcer call + readback")
+        result = leakage.summarize_leakage(
+            t0,
+            apply,
+            [],
+            sink_complete=True,
+            source_attempt_window=source_window(),
+            sink_window=sink_window(end=210),
+            source_attempted_after_ack=True,
+        )
+
+        self.assertEqual(result.status, leakage.LeakageStatus.CENSORED)
+        self.assertEqual(result.censor_reason, "sink_window_short")
+
+    def test_source_must_attempt_after_containment_ack(self):
+        t0 = leakage.MonotonicInterval(BOOT, 100, 110, "reference submission")
+        apply = leakage.MonotonicInterval(BOOT, 200, 220, "enforcer call + readback")
+        result = leakage.summarize_leakage(
+            t0,
+            apply,
+            [],
+            sink_complete=True,
+            source_attempt_window=source_window(end=210),
+            sink_window=sink_window(),
+            source_attempted_after_ack=False,
+        )
+
+        self.assertEqual(result.status, leakage.LeakageStatus.CENSORED)
+        self.assertEqual(result.censor_reason, "source_inactive_after_ack")
+
+    def test_overlap_is_explicit_when_lower_bound_is_structurally_empty(self):
+        t0 = leakage.MonotonicInterval(BOOT, 100, 210, "reference submission")
+        apply = leakage.MonotonicInterval(BOOT, 200, 220, "enforcer call + readback")
+        result = leakage.summarize_leakage(
+            t0,
+            apply,
+            [],
+            sink_complete=True,
+            source_attempt_window=source_window(),
+            sink_window=sink_window(),
+            source_attempted_after_ack=True,
+        )
+
+        self.assertTrue(result.intervals_overlapped)
+        self.assertEqual(result.lower_bound, leakage.LeakageBucket())
 
 
 if __name__ == "__main__":

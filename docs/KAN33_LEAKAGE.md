@@ -23,12 +23,21 @@ The reported lower bound is bucket 3. The upper bound is buckets 2+3+4.
 Post-ACK packets are **not** folded into the upper bound. A downstream packet can
 have crossed the gateway before the apply ACK and only reach userspace afterwards;
 alternatively it can indicate a bypass. The raw post-ACK count remains visible.
+The upper bound is therefore an upper bound on **sink-observed pre-ACK** leakage,
+not an unqualified bound on every byte that crossed the gateway.
 
 If containment is never ACKed, the sink reports drops/incompleteness, or a run is
 explicitly marked timeout/miss, the run is **CENSORED**. Its observed traffic is
 preserved; lower/upper leakage bounds are not fabricated. When more than one cause is
 true (for example detector miss + incomplete sink), every cause is retained in the
 summary rather than letting the first one hide the others.
+
+A complete run also requires source-side evidence. The source attempt window must be
+fully covered by the sink observation window, and the source must make at least one
+attempt after the containment ACK. Missing source evidence, a short sink window, or a
+source that stopped before ACK are censored rather than reported as a zero-leakage
+result. When t0 and apply overlap, `intervals_overlapped` makes the structurally empty
+definite bucket explicit.
 
 ## Dedicated safe fixture
 

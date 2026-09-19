@@ -37,10 +37,15 @@ to a point estimate.
 
 For complete runs, the lower bound counts only deliveries definitely after t0 and
 before apply begins. The upper bound additionally includes deliveries observed inside
-the t0 and apply uncertainty intervals. Post-ACK deliveries remain a separate
-in-flight-or-bypass bucket.
+the t0 and apply uncertainty intervals. It is an upper bound on sink-observed
+pre-ACK leakage only. Post-ACK deliveries remain a separate in-flight-or-bypass
+bucket.
 
 A run with no containment ACK, an incomplete sink, or an explicit timeout/miss reason
 is `CENSORED`; observed traffic is retained but leakage bounds are `None`. The
 dedicated Linux fixture and exact scope are documented in
 [docs/KAN33_LEAKAGE.md](../docs/KAN33_LEAKAGE.md).
+
+A complete result also requires a source attempt window covered by the sink window and
+at least one source attempt after the containment ACK. Otherwise the result is censored
+instead of allowing an empty delivery list to become a zero-leakage claim.

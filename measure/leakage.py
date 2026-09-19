@@ -60,6 +60,8 @@ class SinkDelivery:
 
 @dataclass(frozen=True)
 class LeakageBucket:
+    """Immutable packet/byte counter that is safe to reuse across summaries."""
+
     packets: int = 0
     l3_bytes: int = 0
 
@@ -80,6 +82,13 @@ class LeakageBucket:
 
 @dataclass(frozen=True)
 class LeakageSummary:
+    """Classified independent-sink evidence.
+
+    ``upper_bound`` is an upper bound on *sink-observed pre-ACK* leakage only.
+    Packets observed after ACK remain in ``post_ack`` because they can be delayed
+    pre-ACK traffic or an enforcement bypass and cannot be assigned honestly.
+    """
+
     status: LeakageStatus
     censor_reason: str | None
     before_t0: LeakageBucket
@@ -91,6 +100,7 @@ class LeakageSummary:
     observed_after_t0: LeakageBucket
     lower_bound: LeakageBucket | None
     upper_bound: LeakageBucket | None
+    intervals_overlapped: bool
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -102,6 +112,9 @@ def summarize_leakage(
     deliveries,
     *,
     sink_complete: bool,
+    source_attempt_window: MonotonicInterval | None,
+    sink_window: MonotonicInterval | None,
+    source_attempted_after_ack: bool | None,
     censor_reason: str | None = None,
 ) -> LeakageSummary:
     """Classify sink deliveries without pretending uncertain boundaries are exact.
@@ -113,8 +126,12 @@ def summarize_leakage(
     Post-ACK deliveries are never folded into either bound. They remain explicit
     evidence of in-flight traffic or a possible enforcement bypass.
 
-    If containment was not observed, the sink was incomplete, or the caller gives a
-    censor reason (timeout/miss/etc.), bounds are None. Observed traffic is still kept.
+    A COMPLETE result needs independent evidence that a source made attempts through
+    the observed sink window, including after a containment ACK. Missing source
+    evidence or a sink window that does not cover it is CENSORED rather than a zero
+    leakage claim. If containment was not observed, the sink was incomplete, or the
+    caller gives a censor reason (timeout/miss/etc.), bounds are also None. Observed
+    traffic is still kept.
     """
     if not isinstance(t0, MonotonicInterval):
         raise TypeError("t0 must be a MonotonicInterval")
@@ -127,6 +144,17 @@ def summarize_leakage(
             raise ValueError("apply interval begins before t0")
     if not isinstance(sink_complete, bool):
         raise TypeError("sink_complete must be bool")
+    for name, interval in (
+        ("source_attempt_window", source_attempt_window),
+        ("sink_window", sink_window),
+    ):
+        if interval is not None:
+            if not isinstance(interval, MonotonicInterval):
+                raise TypeError(f"{name} must be a MonotonicInterval or None")
+            if interval.boot_id != t0.boot_id:
+                raise ValueError(f"{name} comes from a different boot")
+    if source_attempted_after_ack is not None and not isinstance(source_attempted_after_ack, bool):
+        raise TypeError("source_attempted_after_ack must be bool or None")
     if censor_reason is not None and (
         not isinstance(censor_reason, str) or not censor_reason.strip()
     ):
@@ -166,10 +194,19 @@ def summarize_leakage(
     reasons = []
     if censor_reason is not None:
         reasons.append(censor_reason)
+    if source_attempt_window is None:
+        reasons.append("no_source_attempts")
+    elif sink_window is None or (
+        sink_window.begin_ns > source_attempt_window.begin_ns
+        or sink_window.end_ns < source_attempt_window.end_ns
+    ):
+        reasons.append("sink_window_short")
     if not sink_complete:
         reasons.append("sink_incomplete")
     if apply is None:
         reasons.append("no_containment_ack")
+    elif source_attempt_window is not None and source_attempted_after_ack is not True:
+        reasons.append("source_inactive_after_ack")
     reason = ",".join(reasons) or None
 
     if reason is None:
@@ -192,4 +229,7 @@ def summarize_leakage(
         observed_after_t0=observed_after_t0,
         lower_bound=lower,
         upper_bound=upper,
+        intervals_overlapped=(
+            apply is not None and apply.begin_ns <= t0.end_ns and t0.begin_ns <= apply.end_ns
+        ),
     )

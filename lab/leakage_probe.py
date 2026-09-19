@@ -31,7 +31,12 @@ TP_STATS = struct.Struct("II")
 
 
 def run(*args):
-    return subprocess.run(args, check=True, text=True, capture_output=True, timeout=30).stdout
+    try:
+        return subprocess.run(args, check=True, text=True, capture_output=True, timeout=30).stdout
+    except subprocess.CalledProcessError as exc:
+        detail = (exc.stderr or exc.stdout or "no command output").strip()
+        command = " ".join(str(part) for part in args)
+        raise RuntimeError(f"command failed: {command}\n{detail}") from exc
 
 
 def current_boot_id() -> str:
@@ -141,6 +146,7 @@ def sink(*, duration: float) -> int:
         raw.bind(("og-c0", 0))
         raw.settimeout(0.05)
         print(json.dumps({"ready": True, "boot_id": boot_id}), file=sys.stderr, flush=True)
+        window_begin_ns = time.monotonic_ns()
         deadline = time.monotonic() + duration
         matched = 0
         while time.monotonic() < deadline:
@@ -165,6 +171,7 @@ def sink(*, duration: float) -> int:
                 ),
                 flush=True,
             )
+        window_end_ns = time.monotonic_ns()
         raw_packets, raw_drops = TP_STATS.unpack(
             raw.getsockopt(SOL_PACKET, PACKET_STATISTICS, TP_STATS.size)
         )
@@ -176,6 +183,8 @@ def sink(*, duration: float) -> int:
                 "matched_packets": matched,
                 "raw_packets": raw_packets,
                 "raw_drops": raw_drops,
+                "window_begin_ns": window_begin_ns,
+                "window_end_ns": window_end_ns,
             },
             sort_keys=True,
         ),
@@ -207,6 +216,12 @@ def orchestrate() -> int:
     enforcer = NftEnforcer()
     boot_id = current_boot_id()
 
+    source_count = 300
+    source_interval = 0.003
+    # The source reports completion separately, but this bound also keeps the sink
+    # alive under a cold interpreter or loaded Docker host.
+    sink_duration = source_count * source_interval + 1.0
+
     run("bash", "lab/setup_netns.sh")
     try:
         enforcer.release(binding)
@@ -224,7 +239,7 @@ def orchestrate() -> int:
                     __file__,
                     "sink",
                     "--duration",
-                    "1.4",
+                    str(sink_duration),
                 ],
                 stdout=sink_out,
                 stderr=sink_err,
@@ -251,9 +266,9 @@ def orchestrate() -> int:
                         "--marker",
                         str(marker),
                         "--count",
-                        "300",
+                        str(source_count),
                         "--interval",
-                        "0.003",
+                        str(source_interval),
                         "--reference-record",
                         "20",
                     ],
@@ -306,13 +321,32 @@ def orchestrate() -> int:
             apply_ack,
             "NftEnforcer quarantine call through successful kernel readback",
         )
+        source_attempt_window = (
+            MonotonicInterval(
+                boot_id,
+                source_events[0]["begin_ns"],
+                source_events[-1]["return_ns"],
+                "first through last synthetic source attempt",
+            )
+            if source_events
+            else None
+        )
+        sink_window = MonotonicInterval(
+            sink_summary["boot_id"],
+            sink_summary["window_begin_ns"],
+            sink_summary["window_end_ns"],
+            "AF_PACKET sink observation window",
+        )
+        attempts_after_ack = sum(row["begin_ns"] > apply_ack for row in source_events)
         leakage = summarize_leakage(
             t0_interval,
             apply_interval,
             deliveries,
             sink_complete=sink_summary["raw_drops"] == 0,
+            source_attempt_window=source_attempt_window,
+            sink_window=sink_window,
+            source_attempted_after_ack=attempts_after_ack > 0,
         )
-        attempts_after_ack = sum(row["begin_ns"] > apply_ack for row in source_events)
 
         if leakage.lower_bound is None or leakage.upper_bound is None:
             raise RuntimeError("fixture unexpectedly produced censored leakage evidence")
@@ -344,6 +378,14 @@ def orchestrate() -> int:
             },
             "source_attempts": len(source_events),
             "source_attempts_after_ack": attempts_after_ack,
+            "source_attempt_window": (
+                None
+                if source_attempt_window is None
+                else {
+                    "begin_ns": source_attempt_window.begin_ns,
+                    "end_ns": source_attempt_window.end_ns,
+                }
+            ),
             "sink": sink_summary,
             "leakage": leakage.to_dict(),
         }
@@ -366,11 +408,11 @@ def orchestrate() -> int:
                     process.kill()
                     process.wait()
         run("bash", "lab/teardown_netns.sh")
+        after_rules = run("nft", "list", "ruleset")
+        after_routes = run("ip", "-j", "route")
+        (root / "parent-rules-after.txt").write_text(after_rules, encoding="utf-8")
+        (root / "parent-routes-after.json").write_text(after_routes, encoding="utf-8")
 
-    after_rules = run("nft", "list", "ruleset")
-    after_routes = run("ip", "-j", "route")
-    (root / "parent-rules-after.txt").write_text(after_rules, encoding="utf-8")
-    (root / "parent-routes-after.json").write_text(after_routes, encoding="utf-8")
     if after_rules != before_rules or after_routes != before_routes:
         raise RuntimeError("parent namespace rules/routes changed across leakage run")
     return 0

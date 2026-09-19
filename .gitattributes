@@ -2,6 +2,8 @@
 *.sh text eol=lf
 *.py text eol=lf
 *.yml text eol=lf
+*.nft text eol=lf
+Dockerfile* text eol=lf
 
 # Migration checksums are taken over the exact file bytes, so a CRLF checkout would be
 # recorded history drift against a database migrated from a LF one. Pin the line ending
