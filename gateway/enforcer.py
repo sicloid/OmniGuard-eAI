@@ -12,6 +12,7 @@ turned into shell code.
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 from collections.abc import Sequence
@@ -116,7 +117,12 @@ class NamespaceOwnershipVerifier:
 
 
 class SubprocessRunner:
-    """Run fixed argv without a shell. stderr is evidence, never executable input."""
+    """Run fixed argv without a shell under a stable diagnostic locale.
+
+    stderr is evidence, never executable input. nft's absence diagnostics are parsed
+    only after forcing the C locale, so a host UI locale cannot change safe
+    absence-detection behavior.
+    """
 
     def __init__(self, *, timeout: float = COMMAND_TIMEOUT_SECONDS):
         if isinstance(timeout, bool) or not isinstance(timeout, int | float) or timeout <= 0:
@@ -130,9 +136,11 @@ class SubprocessRunner:
                 shell=False,
                 text=True,
                 encoding="utf-8",
+                errors="replace",
                 capture_output=True,
                 timeout=self.timeout,
                 check=False,
+                env={**os.environ, "LC_ALL": "C", "LANG": "C"},
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
             raise EnforcementError(f"could not execute enforcement command: {exc}") from exc
@@ -328,7 +336,7 @@ class NftEnforcer:
         )
         if result.returncode == 0:
             return True
-        detail = (result.stderr or result.stdout).strip().lower()
+        detail = self._detail(result).lower()
         if "no such element" in detail or "no such file or directory" in detail:
             return False
         raise EnforcementError(
@@ -345,5 +353,12 @@ class NftEnforcer:
     def _require_ok(result: CommandResult, operation: str) -> None:
         if result.returncode == 0:
             return
-        detail = (result.stderr or result.stdout).strip() or f"exit {result.returncode}"
+        detail = NftEnforcer._detail(result) or f"exit {result.returncode}"
         raise EnforcementError(f"{operation} failed: {detail}")
+
+    @staticmethod
+    def _detail(result: CommandResult) -> str:
+        """Return diagnostic output without letting a bad runner escape the contract."""
+        stderr = result.stderr if isinstance(result.stderr, str) else ""
+        stdout = result.stdout if isinstance(result.stdout, str) else ""
+        return (stderr or stdout).strip()

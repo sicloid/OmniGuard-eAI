@@ -1,8 +1,10 @@
 """KAN-31 bounded enforcer safety and no-renewal tests."""
 
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from gateway.enforcer import (
     CommandResult,
@@ -11,6 +13,7 @@ from gateway.enforcer import (
     EnforcementError,
     NamespaceOwnershipVerifier,
     NftEnforcer,
+    SubprocessRunner,
 )
 
 
@@ -165,6 +168,33 @@ class EnforcerTests(unittest.TestCase):
         self.fake.lookup_error = "Operation not permitted"
         with self.assertRaises(EnforcementError):
             self.enforcer.is_quarantined(self.binding)
+
+    def test_subprocess_runner_forces_c_locale_before_absence_is_parsed(self):
+        captured = {}
+
+        def fake_run(*args, **kwargs):
+            captured.update(kwargs)
+            stderr = "No such element" if kwargs["env"]["LC_ALL"] == "C" else "Böyle bir eleman yok"
+            return subprocess.CompletedProcess(args[0], 1, "", stderr)
+
+        with patch("gateway.enforcer.subprocess.run", side_effect=fake_run):
+            result = SubprocessRunner()(("nft", "get", "element"))
+
+        self.assertEqual(result.stderr, "No such element")
+        self.assertEqual(captured["env"]["LC_ALL"], "C")
+        self.assertEqual(captured["env"]["LANG"], "C")
+        self.assertEqual(captured["encoding"], "utf-8")
+        self.assertEqual(captured["errors"], "replace")
+
+    def test_non_text_runner_output_is_wrapped_as_an_enforcement_error(self):
+        # Make the runner return a malformed diagnostic for the readback command.
+        def malformed(argv):
+            if tuple(argv)[5:7] == ("list", "set"):
+                return CommandResult(0)
+            return CommandResult(2, None, None)
+
+        with self.assertRaises(EnforcementError):
+            NftEnforcer(runner=malformed).is_quarantined(self.binding)
 
     def test_lab_ruleset_enables_kernel_timeout_without_host_flush(self):
         root = Path(__file__).resolve().parents[1]
