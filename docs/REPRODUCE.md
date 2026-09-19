@@ -144,4 +144,23 @@ unavailable, use the laptop-only path after G8 and label results `Linux x86_64`;
 never copy a laptop number into the Pi column. KAN-44/46/53 remain open until
 hardware evidence is recorded.
 
+On the Pi, wrap each measurement command with the KAN-46 host guard, using a
+fresh run directory and a **declared before-run** load budget. Example (replace
+the sample command with the real measurement runner):
+
+```sh
+.venv/bin/python -m measure.pi_guard --out ~/omniguard-runs/pi-run-001 \
+  --max-load-per-core 0.5 -- .venv/bin/python -m stubs
+```
+
+The example executes only a stub and cannot become a Pi performance result.
+`before.json`, `after.json` and `verdict.json` remain even on failure. The guard
+invalidates the environment when a sensor is missing, the command fails, load or
+temperature exceeds the declared ceiling, or `vcgencmd get_throttled` reports
+current **or historical** undervoltage/throttling. This is a pre/post guard;
+short transients that neither sample nor sticky firmware bits catch need separate
+monitoring. A clean verdict does not validate the command's measurements, G8,
+G10 or ARM64 compatibility. Raspberry Pi documents the `get_throttled` bit
+meanings and [temperature interface](https://www.raspberrypi.com/documentation/computers/config_txt.html).
+
 For the live demonstration order and cleanup, see [the demo runbook](DEMO_RUNBOOK.md).
