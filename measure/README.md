@@ -28,6 +28,10 @@ limits of what these numbers mean are listed in
 
 Windows readings prove the code path only. Raspberry Pi figures come from KAN-46/53.
 
+`pi_guard.py` wraps a Pi measurement with pre/post host, boot, monotonic-time,
+load, temperature and firmware throttle evidence. It rejects missing or contaminated
+readings; post-run one-minute load is context because it includes the workload.
+
 
 ## KAN-33 — containment leakage
 

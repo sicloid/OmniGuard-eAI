@@ -159,9 +159,14 @@ the sample command with the real measurement runner):
 
 The example executes only a stub and cannot become a Pi performance result.
 `before.json`, `after.json` and `verdict.json` remain even on failure. The guard
-invalidates the environment when a sensor is missing, the command fails, load or
-temperature exceeds the declared ceiling, or `vcgencmd get_throttled` reports
-current **or historical** undervoltage/throttling. This is a pre/post guard;
+invalidates the environment when a sensor is missing, the command fails, **pre-run**
+load or either temperature exceeds the declared ceiling, or `vcgencmd get_throttled`
+reports current, pre-existing historical, or newly occurring undervoltage/throttling.
+Sticky historical bits persist until reboot; a clean boot is required before a
+certifiable run. The after-run one-minute load includes the measured command, so it
+is recorded as context rather than treated as foreign workload. The host and boot ID
+must match across the two samples; elapsed time uses monotonic readings while UTC
+timestamps remain separate. This is a pre/post guard;
 short transients that neither sample nor sticky firmware bits catch need separate
 monitoring. A clean verdict does not validate the command's measurements, G8,
 G10 or ARM64 compatibility. Raspberry Pi documents the `get_throttled` bit
