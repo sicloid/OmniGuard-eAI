@@ -14,3 +14,6 @@ Dockerfile* text eol=lf
 # KAN-19 exact-byte freeze pins must survive a Windows checkout.
 model/operating_policy_spec.json text eol=lf
 model/frozen/kan19-seed1/*.json text eol=lf
+model/ablation_spec.json text eol=lf
+model/frozen/kan20/*.json text eol=lf
+model/forest_spec.json text eol=lf

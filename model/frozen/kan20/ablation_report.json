@@ -1,0 +1,5199 @@
+{
+  "card": "KAN-20",
+  "environment": {
+    "machine": "arm64",
+    "python": "3.14.7",
+    "release": "25.3.0",
+    "sklearn": "1.8.0",
+    "system": "Darwin"
+  },
+  "evaluated_split": "validation",
+  "full_extractor": {
+    "measures": "core.features.extract_features, the work the runtime pays per window",
+    "ns_per_window_median": 7361.8,
+    "ns_per_window_min": 7328.3,
+    "repeats": 5,
+    "windows": 4000
+  },
+  "full_set_reproduces_kan19_threshold": true,
+  "pack": {
+    "feature_schema_version": "features-1",
+    "label_rule_version": "window-label-1",
+    "manifest_sha256": "8ea8c310d6b66a82515a693e5347da274a622146e5347e381f11c4f80821d2a7",
+    "manifest_version": 2,
+    "path": "~/omniguard-data/samplepack-v2-20260915T111555Z/windows.jsonl",
+    "windows_file": "windows.jsonl",
+    "windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625"
+  },
+  "selection": {
+    "finalist": "without:protocol",
+    "status": "selected",
+    "verdicts": {
+      "only:connection": {
+        "below_tolerance_seeds": [],
+        "no_threshold_seeds": [
+          1,
+          2,
+          3
+        ],
+        "qualifies": false
+      },
+      "only:destinations": {
+        "below_tolerance_seeds": [
+          1,
+          3
+        ],
+        "no_threshold_seeds": [
+          2
+        ],
+        "qualifies": false
+      },
+      "only:protocol": {
+        "below_tolerance_seeds": [
+          3
+        ],
+        "no_threshold_seeds": [
+          1,
+          2
+        ],
+        "qualifies": false
+      },
+      "only:volume": {
+        "below_tolerance_seeds": [],
+        "no_threshold_seeds": [
+          1,
+          2
+        ],
+        "qualifies": false
+      },
+      "pair:destinations+connection": {
+        "below_tolerance_seeds": [],
+        "no_threshold_seeds": [
+          1,
+          2,
+          3
+        ],
+        "qualifies": false
+      },
+      "pair:destinations+protocol": {
+        "below_tolerance_seeds": [
+          1,
+          2,
+          3
+        ],
+        "no_threshold_seeds": [],
+        "qualifies": false
+      },
+      "pair:protocol+connection": {
+        "below_tolerance_seeds": [],
+        "no_threshold_seeds": [
+          1,
+          2,
+          3
+        ],
+        "qualifies": false
+      },
+      "pair:volume+connection": {
+        "below_tolerance_seeds": [
+          1
+        ],
+        "no_threshold_seeds": [
+          2
+        ],
+        "qualifies": false
+      },
+      "pair:volume+destinations": {
+        "below_tolerance_seeds": [
+          3
+        ],
+        "no_threshold_seeds": [
+          1,
+          2
+        ],
+        "qualifies": false
+      },
+      "pair:volume+protocol": {
+        "below_tolerance_seeds": [],
+        "no_threshold_seeds": [
+          1,
+          2
+        ],
+        "qualifies": false
+      },
+      "without:connection": {
+        "below_tolerance_seeds": [],
+        "no_threshold_seeds": [
+          1,
+          2
+        ],
+        "qualifies": false
+      },
+      "without:destinations": {
+        "below_tolerance_seeds": [
+          1
+        ],
+        "no_threshold_seeds": [
+          2
+        ],
+        "qualifies": false
+      },
+      "without:protocol": {
+        "below_tolerance_seeds": [],
+        "no_threshold_seeds": [],
+        "qualifies": true
+      },
+      "without:volume": {
+        "below_tolerance_seeds": [],
+        "no_threshold_seeds": [
+          1,
+          2,
+          3
+        ],
+        "qualifies": false
+      }
+    }
+  },
+  "sets": [
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4622.5,
+          "ns_per_window_min": 4585.5,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4291.2,
+          "us_p95": 4520.6
+        },
+        "model": {
+          "joblib_bytes": 1872236,
+          "tree_nodes": 22424
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "full",
+      "role": "reference",
+      "runs": [
+        {
+          "error": null,
+          "name": "full",
+          "policy": {
+            "candidates": 143,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9710839098811425,
+              "fn": 475,
+              "fp": 14,
+              "fpr": 0.006812652068126521,
+              "fpr_ci": [
+                0.0,
+                0.013738959764474975
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9982978723404256,
+              "recall": 0.9453142988717477,
+              "recall_ci": [
+                0.9453142988717477,
+                0.9453142988717477
+              ],
+              "threshold": 0.9798815486832,
+              "tn": 2041,
+              "tp": 8211,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.9798815486832
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 1.411,
+          "validation_average_precision": 0.9975396621539605
+        },
+        {
+          "error": null,
+          "name": "full",
+          "policy": {
+            "candidates": 149,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.41906170101346146,
+              "fn": 18849,
+              "fp": 10,
+              "fpr": 0.009775171065493646,
+              "fpr_ci": [
+                0.0,
+                0.009813542688910697
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9985320023487962,
+              "recall": 0.26517484698452304,
+              "recall_ci": [
+                0.26517484698452304,
+                0.26517484698452304
+              ],
+              "threshold": 0.995,
+              "tn": 1013,
+              "tp": 6802,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.403,
+          "validation_average_precision": 0.9948924277490541
+        },
+        {
+          "error": null,
+          "name": "full",
+          "policy": {
+            "candidates": 170,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9224999476209432,
+              "fn": 3636,
+              "fp": 63,
+              "fpr": 0.006445672191528545,
+              "fpr_ci": [
+                0.0,
+                0.006448311156601843
+              ],
+              "malicious_groups": 1,
+              "precision": 0.99714648065948,
+              "recall": 0.8582511403064208,
+              "recall_ci": [
+                0.8582511403064208,
+                0.8582511403064208
+              ],
+              "threshold": 0.41,
+              "tn": 9711,
+              "tp": 22015,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.41
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.419,
+          "validation_average_precision": 0.996519636620122
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 1020.9,
+          "ns_per_window_min": 1012.7,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4282.8,
+          "us_p95": 4468.2
+        },
+        "model": {
+          "joblib_bytes": 1225816,
+          "tree_nodes": 14344
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std"
+      ],
+      "groups": [
+        "volume"
+      ],
+      "name": "only:volume",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "only:volume",
+          "policy": null,
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.366,
+          "validation_average_precision": 0.977273782432497
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "only:volume",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.333,
+          "validation_average_precision": 0.9918120372267294
+        },
+        {
+          "error": null,
+          "name": "only:volume",
+          "policy": {
+            "candidates": 210,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9504091653027823,
+              "fn": 2423,
+              "fp": 1,
+              "fpr": 0.0001023122570083896,
+              "fpr_ci": [
+                0.0,
+                0.00010235414534288638
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9999569503637694,
+              "recall": 0.9055397450391798,
+              "recall_ci": [
+                0.9055397450391798,
+                0.9055397450391798
+              ],
+              "threshold": 0.37,
+              "tn": 9773,
+              "tp": 23228,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.37
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.362,
+          "validation_average_precision": 0.9924840656228284
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "destinations"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 1327.1,
+          "ns_per_window_min": 1306.4,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4250.8,
+          "us_p95": 4442.8
+        },
+        "model": {
+          "joblib_bytes": 772053,
+          "tree_nodes": 8672
+        }
+      },
+      "features": [
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share"
+      ],
+      "groups": [
+        "destinations"
+      ],
+      "name": "only:destinations",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": null,
+          "name": "only:destinations",
+          "policy": {
+            "candidates": 50,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.038981523208652544,
+              "fn": 8513,
+              "fp": 17,
+              "fpr": 0.00827250608272506,
+              "fpr_ci": [
+                0.0,
+                0.016683022571148183
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9105263157894737,
+              "recall": 0.019917107989868753,
+              "recall_ci": [
+                0.019917107989868753,
+                0.019917107989868753
+              ],
+              "threshold": 0.9867201167044293,
+              "tn": 2038,
+              "tp": 173,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.9867201167044293
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.162,
+          "validation_average_precision": 0.8300693916668485
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "only:destinations",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.163,
+          "validation_average_precision": 0.9573163710469257
+        },
+        {
+          "error": null,
+          "name": "only:destinations",
+          "policy": {
+            "candidates": 118,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.19559867819728607,
+              "fn": 22869,
+              "fp": 13,
+              "fpr": 0.0013300593411090648,
+              "fpr_ci": [
+                0.0,
+                0.0013306038894575231
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9953488372093023,
+              "recall": 0.10845581068964173,
+              "recall_ci": [
+                0.10845581068964173,
+                0.10845581068964173
+              ],
+              "threshold": 0.515,
+              "tn": 9761,
+              "tp": 2782,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.515
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.17,
+          "validation_average_precision": 0.6755349425056492
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "protocol"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 1292.6,
+          "ns_per_window_min": 1276.9,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4253.3,
+          "us_p95": 4447.4
+        },
+        "model": {
+          "joblib_bytes": 314453,
+          "tree_nodes": 2952
+        }
+      },
+      "features": [
+        "tcp_share",
+        "udp_share",
+        "icmp_share"
+      ],
+      "groups": [
+        "protocol"
+      ],
+      "name": "only:protocol",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "only:protocol",
+          "policy": null,
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.172,
+          "validation_average_precision": 0.8967951864613758
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "only:protocol",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.17,
+          "validation_average_precision": 0.9605312963488477
+        },
+        {
+          "error": null,
+          "name": "only:protocol",
+          "policy": {
+            "candidates": 22,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.048513421032621094,
+              "fn": 25013,
+              "fp": 13,
+              "fpr": 0.0013300593411090648,
+              "fpr_ci": [
+                0.0,
+                0.0013306038894575231
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9800307219662059,
+              "recall": 0.02487232466570504,
+              "recall_ci": [
+                0.02487232466570504,
+                0.02487232466570504
+              ],
+              "threshold": 0.7202260216451021,
+              "tn": 9761,
+              "tp": 638,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.7202260216451021
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.186,
+          "validation_average_precision": 0.7305155395684271
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 1296.0,
+          "ns_per_window_min": 1295.3,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4269.3,
+          "us_p95": 4441.4
+        },
+        "model": {
+          "joblib_bytes": 4540536,
+          "tree_nodes": 55778
+        }
+      },
+      "features": [
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "connection"
+      ],
+      "name": "only:connection",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "only:connection",
+          "policy": null,
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.441,
+          "validation_average_precision": 0.9812769012273431
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "only:connection",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.453,
+          "validation_average_precision": 0.9942537642393515
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "only:connection",
+          "policy": null,
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.431,
+          "validation_average_precision": 0.9847293379266912
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 2317.5,
+          "ns_per_window_min": 2282.2,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4266.2,
+          "us_p95": 4470.5
+        },
+        "model": {
+          "joblib_bytes": 1463582,
+          "tree_nodes": 17316
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share"
+      ],
+      "groups": [
+        "volume",
+        "destinations"
+      ],
+      "name": "pair:volume+destinations",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:volume+destinations",
+          "policy": null,
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.286,
+          "validation_average_precision": 0.9851669527333349
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:volume+destinations",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.295,
+          "validation_average_precision": 0.9766250109420411
+        },
+        {
+          "error": null,
+          "name": "pair:volume+destinations",
+          "policy": {
+            "candidates": 209,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.8871583514099783,
+              "fn": 5202,
+              "fp": 0,
+              "fpr": 0.0,
+              "fpr_ci": [
+                0.0,
+                0.0
+              ],
+              "malicious_groups": 1,
+              "precision": 1.0,
+              "recall": 0.7972008888542357,
+              "recall_ci": [
+                0.7972008888542357,
+                0.7972008888542357
+              ],
+              "threshold": 0.515,
+              "tn": 9774,
+              "tp": 20449,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.515
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.309,
+          "validation_average_precision": 0.9859802396064059
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "protocol"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 2262.6,
+          "ns_per_window_min": 2163.4,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4450.4,
+          "us_p95": 4794.2
+        },
+        "model": {
+          "joblib_bytes": 1263742,
+          "tree_nodes": 14818
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "tcp_share",
+        "udp_share",
+        "icmp_share"
+      ],
+      "groups": [
+        "volume",
+        "protocol"
+      ],
+      "name": "pair:volume+protocol",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:volume+protocol",
+          "policy": null,
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.294,
+          "validation_average_precision": 0.9719298850077858
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:volume+protocol",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.299,
+          "validation_average_precision": 0.9922973116499666
+        },
+        {
+          "error": null,
+          "name": "pair:volume+protocol",
+          "policy": {
+            "candidates": 217,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.947396495835214,
+              "fn": 2562,
+              "fp": 2,
+              "fpr": 0.0002046245140167792,
+              "fpr_ci": [
+                0.0,
+                0.00020470829068577277
+              ],
+              "malicious_groups": 1,
+              "precision": 0.999913386167771,
+              "recall": 0.9001208529881876,
+              "recall_ci": [
+                0.9001208529881876,
+                0.9001208529881876
+              ],
+              "threshold": 0.415,
+              "tn": 9772,
+              "tp": 23089,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.415
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.326,
+          "validation_average_precision": 0.9958938163050673
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 2334.9,
+          "ns_per_window_min": 2245.2,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4524.7,
+          "us_p95": 4941.5
+        },
+        "model": {
+          "joblib_bytes": 1945024,
+          "tree_nodes": 23334
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "connection"
+      ],
+      "name": "pair:volume+connection",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": null,
+          "name": "pair:volume+connection",
+          "policy": {
+            "candidates": 130,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.5470941883767535,
+              "fn": 5410,
+              "fp": 14,
+              "fpr": 0.006812652068126521,
+              "fpr_ci": [
+                0.0,
+                0.013738959764474975
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9957446808510638,
+              "recall": 0.37715864609716787,
+              "recall_ci": [
+                0.37715864609716787,
+                0.37715864609716787
+              ],
+              "threshold": 0.995,
+              "tn": 2041,
+              "tp": 3276,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.384,
+          "validation_average_precision": 0.9952550654465135
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:volume+connection",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.384,
+          "validation_average_precision": 0.9967455092926736
+        },
+        {
+          "error": null,
+          "name": "pair:volume+connection",
+          "policy": {
+            "candidates": 178,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9597057753708119,
+              "fn": 1905,
+              "fp": 89,
+              "fpr": 0.009105790873746675,
+              "fpr_ci": [
+                0.008904810644831116,
+                0.5
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9962659953849381,
+              "recall": 0.9257338895169779,
+              "recall_ci": [
+                0.9257338895169779,
+                0.9257338895169779
+              ],
+              "threshold": 0.325,
+              "tn": 9685,
+              "tp": 23746,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.325
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.404,
+          "validation_average_precision": 0.9983534777592525
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "destinations",
+            "protocol"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 2645.6,
+          "ns_per_window_min": 2546.4,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4435.1,
+          "us_p95": 4799.9
+        },
+        "model": {
+          "joblib_bytes": 571420,
+          "tree_nodes": 6164
+        }
+      },
+      "features": [
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share"
+      ],
+      "groups": [
+        "destinations",
+        "protocol"
+      ],
+      "name": "pair:destinations+protocol",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": null,
+          "name": "pair:destinations+protocol",
+          "policy": {
+            "candidates": 49,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.21547301457008003,
+              "fn": 7636,
+              "fp": 10,
+              "fpr": 0.004866180048661801,
+              "fpr_ci": [
+                0.0,
+                0.009813542688910697
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9905660377358491,
+              "recall": 0.12088418144139995,
+              "recall_ci": [
+                0.12088418144139995,
+                0.12088418144139995
+              ],
+              "threshold": 0.8961627000768067,
+              "tn": 2045,
+              "tp": 1050,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.8961627000768067
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.192,
+          "validation_average_precision": 0.9085253886648987
+        },
+        {
+          "error": null,
+          "name": "pair:destinations+protocol",
+          "policy": {
+            "candidates": 94,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.02516642936853042,
+              "fn": 25324,
+              "fp": 9,
+              "fpr": 0.008797653958944282,
+              "fpr_ci": [
+                0.0,
+                0.008832188420019628
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9732142857142857,
+              "recall": 0.012748041012046313,
+              "recall_ci": [
+                0.012748041012046313,
+                0.012748041012046313
+              ],
+              "threshold": 0.9052380460705138,
+              "tn": 1014,
+              "tp": 327,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.9052380460705138
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.19,
+          "validation_average_precision": 0.9429188793958996
+        },
+        {
+          "error": null,
+          "name": "pair:destinations+protocol",
+          "policy": {
+            "candidates": 42,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.02234722971410958,
+              "fn": 25361,
+              "fp": 13,
+              "fpr": 0.0013300593411090648,
+              "fpr_ci": [
+                0.0,
+                0.0013306038894575231
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9570957095709571,
+              "recall": 0.011305602120775018,
+              "recall_ci": [
+                0.011305602120775018,
+                0.011305602120775018
+              ],
+              "threshold": 0.88,
+              "tn": 9761,
+              "tp": 290,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.88
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.188,
+          "validation_average_precision": 0.6167291349411129
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "destinations",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 3554.5,
+          "ns_per_window_min": 2651.2,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4369.6,
+          "us_p95": 4719.6
+        },
+        "model": {
+          "joblib_bytes": 4406302,
+          "tree_nodes": 54100
+        }
+      },
+      "features": [
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "destinations",
+        "connection"
+      ],
+      "name": "pair:destinations+connection",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:destinations+connection",
+          "policy": null,
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.415,
+          "validation_average_precision": 0.9847884453237482
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:destinations+connection",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.417,
+          "validation_average_precision": 0.9938014965998763
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:destinations+connection",
+          "policy": null,
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.397,
+          "validation_average_precision": 0.9279046960246878
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 2464.5,
+          "ns_per_window_min": 2451.6,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4372.5,
+          "us_p95": 4929.8
+        },
+        "model": {
+          "joblib_bytes": 4320222,
+          "tree_nodes": 53024
+        }
+      },
+      "features": [
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "protocol",
+        "connection"
+      ],
+      "name": "pair:protocol+connection",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:protocol+connection",
+          "policy": null,
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.425,
+          "validation_average_precision": 0.9808843888117438
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:protocol+connection",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.426,
+          "validation_average_precision": 0.9953867751025466
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "pair:protocol+connection",
+          "policy": null,
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.421,
+          "validation_average_precision": 0.989350120983132
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 3697.2,
+          "ns_per_window_min": 3685.8,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4350.3,
+          "us_p95": 4594.7
+        },
+        "model": {
+          "joblib_bytes": 4127428,
+          "tree_nodes": 50614
+        }
+      },
+      "features": [
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "without:volume",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "without:volume",
+          "policy": null,
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.427,
+          "validation_average_precision": 0.9776087086611204
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "without:volume",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.436,
+          "validation_average_precision": 0.9759244889117091
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "without:volume",
+          "policy": null,
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.42,
+          "validation_average_precision": 0.8624669377894129
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 3537.0,
+          "ns_per_window_min": 3504.2,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4342.3,
+          "us_p95": 4517.6
+        },
+        "model": {
+          "joblib_bytes": 1709350,
+          "tree_nodes": 20388
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "protocol",
+        "connection"
+      ],
+      "name": "without:destinations",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": null,
+          "name": "without:destinations",
+          "policy": {
+            "candidates": 135,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.5455609429861227,
+              "fn": 5423,
+              "fp": 13,
+              "fpr": 0.006326034063260341,
+              "fpr_ci": [
+                0.0,
+                0.012757605495583905
+              ],
+              "malicious_groups": 1,
+              "precision": 0.996031746031746,
+              "recall": 0.37566198480313145,
+              "recall_ci": [
+                0.37566198480313145,
+                0.37566198480313145
+              ],
+              "threshold": 1.0,
+              "tn": 2042,
+              "tp": 3263,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 1.0
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.442,
+          "validation_average_precision": 0.9911237567551734
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "without:destinations",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.445,
+          "validation_average_precision": 0.9974312448308092
+        },
+        {
+          "error": null,
+          "name": "without:destinations",
+          "policy": {
+            "candidates": 170,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9597333063945853,
+              "fn": 1900,
+              "fp": 93,
+              "fpr": 0.009515039901780233,
+              "fpr_ci": [
+                0.0,
+                0.009518935516888434
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9960996477101157,
+              "recall": 0.9259288136914741,
+              "recall_ci": [
+                0.9259288136914741,
+                0.9259288136914741
+              ],
+              "threshold": 0.3,
+              "tn": 9681,
+              "tp": 23751,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.3
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.458,
+          "validation_average_precision": 0.9988271833868057
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 3515.1,
+          "ns_per_window_min": 3488.4,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4335.9,
+          "us_p95": 4568.0
+        },
+        "model": {
+          "joblib_bytes": 1939110,
+          "tree_nodes": 23260
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "connection"
+      ],
+      "name": "without:protocol",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": null,
+          "name": "without:protocol",
+          "policy": {
+            "candidates": 157,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9728453364817001,
+              "fn": 446,
+              "fp": 14,
+              "fpr": 0.006812652068126521,
+              "fpr_ci": [
+                0.0,
+                0.013738959764474975
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9983038526774897,
+              "recall": 0.9486530048353673,
+              "recall_ci": [
+                0.9486530048353673,
+                0.9486530048353673
+              ],
+              "threshold": 0.97,
+              "tn": 2041,
+              "tp": 8240,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.97
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.41,
+          "validation_average_precision": 0.9976060578100268
+        },
+        {
+          "error": null,
+          "name": "without:protocol",
+          "policy": {
+            "candidates": 139,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4271529267545204,
+              "fn": 18682,
+              "fp": 10,
+              "fpr": 0.009775171065493646,
+              "fpr_ci": [
+                0.0,
+                0.009813542688910697
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9985671299613125,
+              "recall": 0.27168531441269345,
+              "recall_ci": [
+                0.27168531441269345,
+                0.27168531441269345
+              ],
+              "threshold": 0.99,
+              "tn": 1013,
+              "tp": 6969,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.99
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.422,
+          "validation_average_precision": 0.9963679077454762
+        },
+        {
+          "error": null,
+          "name": "without:protocol",
+          "policy": {
+            "candidates": 199,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9505043492465389,
+              "fn": 2376,
+              "fp": 48,
+              "fpr": 0.004910988336402701,
+              "fpr_ci": [
+                0.0,
+                0.004912998976458547
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9979419457188183,
+              "recall": 0.9073720322794433,
+              "recall_ci": [
+                0.9073720322794433,
+                0.9073720322794433
+              ],
+              "threshold": 0.355,
+              "tn": 9726,
+              "tp": 23275,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.355
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.435,
+          "validation_average_precision": 0.9968509522023816
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 3458.5,
+          "ns_per_window_min": 3404.5,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4333.7,
+          "us_p95": 4583.0
+        },
+        "model": {
+          "joblib_bytes": 1314468,
+          "tree_nodes": 15452
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol"
+      ],
+      "name": "without:connection",
+      "role": "compact_candidate",
+      "runs": [
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "without:connection",
+          "policy": null,
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.327,
+          "validation_average_precision": 0.9857259208914292
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "without:connection",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.327,
+          "validation_average_precision": 0.9772786156764
+        },
+        {
+          "error": null,
+          "name": "without:connection",
+          "policy": {
+            "candidates": 224,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.921754481830983,
+              "fn": 3722,
+              "fp": 1,
+              "fpr": 0.0001023122570083896,
+              "fpr_ci": [
+                0.0,
+                0.00010235414534288638
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9999544003647971,
+              "recall": 0.8548984445050876,
+              "recall_ci": [
+                0.8548984445050876,
+                0.8548984445050876
+              ],
+              "threshold": 0.43,
+              "tn": 9773,
+              "tp": 21929,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.43
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.389,
+          "validation_average_precision": 0.995848542483601
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4691.4,
+          "ns_per_window_min": 4587.2,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4343.6,
+          "us_p95": 4608.5
+        },
+        "model": {
+          "joblib_bytes": 1868714,
+          "tree_nodes": 22380
+        }
+      },
+      "features": [
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:pkt_count",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:pkt_count",
+          "policy": {
+            "candidates": 151,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9729027687584864,
+              "fn": 446,
+              "fp": 13,
+              "fpr": 0.006326034063260341,
+              "fpr_ci": [
+                0.0,
+                0.012757605495583905
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9984248152187083,
+              "recall": 0.9486530048353673,
+              "recall_ci": [
+                0.9486530048353673,
+                0.9486530048353673
+              ],
+              "threshold": 0.975,
+              "tn": 2042,
+              "tp": 8240,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.975
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.414,
+          "validation_average_precision": 0.99770290602625
+        },
+        {
+          "error": null,
+          "name": "drop:pkt_count",
+          "policy": {
+            "candidates": 153,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4197432028820396,
+              "fn": 18835,
+              "fp": 10,
+              "fpr": 0.009775171065493646,
+              "fpr_ci": [
+                0.0,
+                0.009813542688910697
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9985350131848814,
+              "recall": 0.26572063467311213,
+              "recall_ci": [
+                0.26572063467311213,
+                0.26572063467311213
+              ],
+              "threshold": 0.99,
+              "tn": 1013,
+              "tp": 6816,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.99
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.408,
+          "validation_average_precision": 0.9954755992983851
+        },
+        {
+          "error": null,
+          "name": "drop:pkt_count",
+          "policy": {
+            "candidates": 185,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9579032584497066,
+              "fn": 1986,
+              "fp": 94,
+              "fpr": 0.009617352158788622,
+              "fpr_ci": [
+                0.0,
+                0.00962128966223132
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9960436045288101,
+              "recall": 0.9225761178901407,
+              "recall_ci": [
+                0.9225761178901407,
+                0.9225761178901407
+              ],
+              "threshold": 0.28,
+              "tn": 9680,
+              "tp": 23665,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.28
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.414,
+          "validation_average_precision": 0.997899926370661
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4830.8,
+          "ns_per_window_min": 4798.2,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4382.2,
+          "us_p95": 4712.4
+        },
+        "model": {
+          "joblib_bytes": 1954634,
+          "tree_nodes": 23454
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:l3_bytes_sum",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:l3_bytes_sum",
+          "policy": {
+            "candidates": 148,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4974075354303491,
+              "fn": 5808,
+              "fp": 8,
+              "fpr": 0.0038929440389294406,
+              "fpr_ci": [
+                0.0,
+                0.007850834151128557
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9972279972279973,
+              "recall": 0.33133778494128485,
+              "recall_ci": [
+                0.33133778494128485,
+                0.33133778494128485
+              ],
+              "threshold": 0.995,
+              "tn": 2047,
+              "tp": 2878,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.403,
+          "validation_average_precision": 0.9949867782622343
+        },
+        {
+          "error": null,
+          "name": "drop:l3_bytes_sum",
+          "policy": {
+            "candidates": 146,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.41839250493096647,
+              "fn": 18863,
+              "fp": 9,
+              "fpr": 0.008797653958944282,
+              "fpr_ci": [
+                0.0,
+                0.008832188420019628
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9986758864204797,
+              "recall": 0.2646290592959339,
+              "recall_ci": [
+                0.2646290592959339,
+                0.2646290592959339
+              ],
+              "threshold": 1.0,
+              "tn": 1014,
+              "tp": 6788,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 1.0
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.4,
+          "validation_average_precision": 0.9929510551795141
+        },
+        {
+          "error": null,
+          "name": "drop:l3_bytes_sum",
+          "policy": {
+            "candidates": 178,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.923041484304651,
+              "fn": 3612,
+              "fp": 63,
+              "fpr": 0.006445672191528545,
+              "fpr_ci": [
+                0.0,
+                0.006448311156601843
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9971495792235997,
+              "recall": 0.8591867763440022,
+              "recall_ci": [
+                0.8591867763440022,
+                0.8591867763440022
+              ],
+              "threshold": 0.445,
+              "tn": 9711,
+              "tp": 22039,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.445
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.474,
+          "validation_average_precision": 0.9955497859261372
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4960.7,
+          "ns_per_window_min": 4924.6,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4720.9,
+          "us_p95": 5013.6
+        },
+        "model": {
+          "joblib_bytes": 2099594,
+          "tree_nodes": 25266
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:l3_bytes_mean",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:l3_bytes_mean",
+          "policy": {
+            "candidates": 139,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4966755893273465,
+              "fn": 5810,
+              "fp": 19,
+              "fpr": 0.009245742092457421,
+              "fpr_ci": [
+                0.0,
+                0.018645731108930325
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9934369602763385,
+              "recall": 0.3311075293575869,
+              "recall_ci": [
+                0.3311075293575869,
+                0.3311075293575869
+              ],
+              "threshold": 0.995,
+              "tn": 2036,
+              "tp": 2876,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.414,
+          "validation_average_precision": 0.9947588650737065
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "drop:l3_bytes_mean",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.441,
+          "validation_average_precision": 0.9926099605824117
+        },
+        {
+          "error": null,
+          "name": "drop:l3_bytes_mean",
+          "policy": {
+            "candidates": 182,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.6545140705094675,
+              "fn": 13138,
+              "fp": 72,
+              "fpr": 0.007366482504604052,
+              "fpr_ci": [
+                0.0,
+                0.00736949846468782
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9942789034564958,
+              "recall": 0.48781723909399244,
+              "recall_ci": [
+                0.48781723909399244,
+                0.48781723909399244
+              ],
+              "threshold": 0.68,
+              "tn": 9702,
+              "tp": 12513,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.68
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.421,
+          "validation_average_precision": 0.9846693418367122
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4739.7,
+          "ns_per_window_min": 4657.2,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4364.8,
+          "us_p95": 4675.2
+        },
+        "model": {
+          "joblib_bytes": 2034634,
+          "tree_nodes": 24454
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:l3_bytes_std",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:l3_bytes_std",
+          "policy": {
+            "candidates": 138,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9710230632761679,
+              "fn": 476,
+              "fp": 14,
+              "fpr": 0.006812652068126521,
+              "fpr_ci": [
+                0.0,
+                0.013738959764474975
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9982976653696498,
+              "recall": 0.9451991710798987,
+              "recall_ci": [
+                0.9451991710798987,
+                0.9451991710798987
+              ],
+              "threshold": 0.9798815486831997,
+              "tn": 2041,
+              "tp": 8210,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.9798815486831997
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.414,
+          "validation_average_precision": 0.9971804625480247
+        },
+        {
+          "error": null,
+          "name": "drop:l3_bytes_std",
+          "policy": {
+            "candidates": 157,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4188697849263573,
+              "fn": 18854,
+              "fp": 6,
+              "fpr": 0.005865102639296188,
+              "fpr_ci": [
+                0.0,
+                0.005888125613346418
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9991180361605174,
+              "recall": 0.2649799228100269,
+              "recall_ci": [
+                0.2649799228100269,
+                0.2649799228100269
+              ],
+              "threshold": 0.995,
+              "tn": 1017,
+              "tp": 6797,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.42,
+          "validation_average_precision": 0.9915139110878203
+        },
+        {
+          "error": null,
+          "name": "drop:l3_bytes_std",
+          "policy": {
+            "candidates": 156,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.8926213466956279,
+              "fn": 4898,
+              "fp": 95,
+              "fpr": 0.009719664415797013,
+              "fpr_ci": [
+                0.0,
+                0.009723643807574206
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9954432079815809,
+              "recall": 0.8090522786635999,
+              "recall_ci": [
+                0.8090522786635999,
+                0.8090522786635999
+              ],
+              "threshold": 0.425,
+              "tn": 9679,
+              "tp": 20753,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.425
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.434,
+          "validation_average_precision": 0.9959269030391579
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4810.0,
+          "ns_per_window_min": 4699.6,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4342.0,
+          "us_p95": 4592.8
+        },
+        "model": {
+          "joblib_bytes": 1858954,
+          "tree_nodes": 22258
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:uniq_dst_ip",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:uniq_dst_ip",
+          "policy": {
+            "candidates": 141,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9710839098811425,
+              "fn": 475,
+              "fp": 14,
+              "fpr": 0.006812652068126521,
+              "fpr_ci": [
+                0.0,
+                0.013738959764474975
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9982978723404256,
+              "recall": 0.9453142988717477,
+              "recall_ci": [
+                0.9453142988717477,
+                0.9453142988717477
+              ],
+              "threshold": 0.9798815486831997,
+              "tn": 2041,
+              "tp": 8211,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.9798815486831997
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.423,
+          "validation_average_precision": 0.9975508722733905
+        },
+        {
+          "error": null,
+          "name": "drop:uniq_dst_ip",
+          "policy": {
+            "candidates": 142,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4191362208120264,
+              "fn": 18848,
+              "fp": 8,
+              "fpr": 0.007820136852394917,
+              "fpr_ci": [
+                0.0,
+                0.007850834151128557
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9988254294523565,
+              "recall": 0.26521383181942226,
+              "recall_ci": [
+                0.26521383181942226,
+                0.26521383181942226
+              ],
+              "threshold": 0.995,
+              "tn": 1015,
+              "tp": 6803,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.405,
+          "validation_average_precision": 0.9956164507462093
+        },
+        {
+          "error": null,
+          "name": "drop:uniq_dst_ip",
+          "policy": {
+            "candidates": 183,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9588597343699384,
+              "fn": 1971,
+              "fp": 61,
+              "fpr": 0.006241047677511766,
+              "fpr_ci": [
+                0.0,
+                0.00624360286591607
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9974306052820016,
+              "recall": 0.9231608904136291,
+              "recall_ci": [
+                0.9231608904136291,
+                0.9231608904136291
+              ],
+              "threshold": 0.275,
+              "tn": 9713,
+              "tp": 23680,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.275
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.428,
+          "validation_average_precision": 0.9976644424393688
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4791.5,
+          "ns_per_window_min": 4760.5,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4391.3,
+          "us_p95": 5103.8
+        },
+        "model": {
+          "joblib_bytes": 1845194,
+          "tree_nodes": 22086
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:uniq_dst_port",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:uniq_dst_port",
+          "policy": {
+            "candidates": 147,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4954557257855103,
+              "fn": 5824,
+              "fp": 5,
+              "fpr": 0.0024330900243309003,
+              "fpr_ci": [
+                0.0,
+                0.004906771344455349
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9982560167422393,
+              "recall": 0.3294957402717016,
+              "recall_ci": [
+                0.3294957402717016,
+                0.3294957402717016
+              ],
+              "threshold": 1.0,
+              "tn": 2050,
+              "tp": 2862,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 1.0
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.459,
+          "validation_average_precision": 0.9956127813952966
+        },
+        {
+          "error": null,
+          "name": "drop:uniq_dst_port",
+          "policy": {
+            "candidates": 147,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.41899011060106595,
+              "fn": 18851,
+              "fp": 8,
+              "fpr": 0.007820136852394917,
+              "fpr_ci": [
+                0.0,
+                0.007850834151128557
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9988249118683902,
+              "recall": 0.2650968773147246,
+              "recall_ci": [
+                0.2650968773147246,
+                0.2650968773147246
+              ],
+              "threshold": 0.995,
+              "tn": 1015,
+              "tp": 6800,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.407,
+          "validation_average_precision": 0.9952783055286504
+        },
+        {
+          "error": null,
+          "name": "drop:uniq_dst_port",
+          "policy": {
+            "candidates": 190,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9589851665721002,
+              "fn": 1989,
+              "fp": 35,
+              "fpr": 0.0035809289952936363,
+              "fpr_ci": [
+                0.0,
+                0.0035823950870010235
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9985230197915348,
+              "recall": 0.9224591633854431,
+              "recall_ci": [
+                0.9224591633854431,
+                0.9224591633854431
+              ],
+              "threshold": 0.29,
+              "tn": 9739,
+              "tp": 23662,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.29
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.434,
+          "validation_average_precision": 0.9977395375357367
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4689.3,
+          "ns_per_window_min": 4606.3,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4393.7,
+          "us_p95": 4714.9
+        },
+        "model": {
+          "joblib_bytes": 1865834,
+          "tree_nodes": 22344
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:max_dst_ip_share",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:max_dst_ip_share",
+          "policy": {
+            "candidates": 132,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.5037011533826821,
+              "fn": 5760,
+              "fp": 6,
+              "fpr": 0.00291970802919708,
+              "fpr_ci": [
+                0.0,
+                0.005888125613346418
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9979536152796725,
+              "recall": 0.33686391895003454,
+              "recall_ci": [
+                0.33686391895003454,
+                0.33686391895003454
+              ],
+              "threshold": 0.995,
+              "tn": 2049,
+              "tp": 2926,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.414,
+          "validation_average_precision": 0.994372623612368
+        },
+        {
+          "error": null,
+          "name": "drop:max_dst_ip_share",
+          "policy": {
+            "candidates": 152,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4197918591046247,
+              "fn": 18834,
+              "fp": 10,
+              "fpr": 0.009775171065493646,
+              "fpr_ci": [
+                0.0,
+                0.009813542688910697
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9985352277720815,
+              "recall": 0.26575961950801136,
+              "recall_ci": [
+                0.26575961950801136,
+                0.26575961950801136
+              ],
+              "threshold": 0.995,
+              "tn": 1013,
+              "tp": 6817,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.414,
+          "validation_average_precision": 0.9943046951636273
+        },
+        {
+          "error": null,
+          "name": "drop:max_dst_ip_share",
+          "policy": {
+            "candidates": 178,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9531949531949532,
+              "fn": 2231,
+              "fp": 69,
+              "fpr": 0.007059545733578883,
+              "fpr_ci": [
+                0.0,
+                0.007062436028659161
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9970624547660607,
+              "recall": 0.9130248333398308,
+              "recall_ci": [
+                0.9130248333398308,
+                0.9130248333398308
+              ],
+              "threshold": 0.375,
+              "tn": 9705,
+              "tp": 23420,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.375
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.437,
+          "validation_average_precision": 0.9969984122131067
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4759.0,
+          "ns_per_window_min": 4752.2,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4426.2,
+          "us_p95": 5228.5
+        },
+        "model": {
+          "joblib_bytes": 1908074,
+          "tree_nodes": 22872
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:tcp_share",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:tcp_share",
+          "policy": {
+            "candidates": 147,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9719482666981634,
+              "fn": 457,
+              "fp": 18,
+              "fpr": 0.008759124087591242,
+              "fpr_ci": [
+                0.0,
+                0.017664376840039256
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9978173881411422,
+              "recall": 0.9473865991250288,
+              "recall_ci": [
+                0.9473865991250288,
+                0.9473865991250288
+              ],
+              "threshold": 0.97,
+              "tn": 2037,
+              "tp": 8229,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.97
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.422,
+          "validation_average_precision": 0.9976358469826525
+        },
+        {
+          "error": null,
+          "name": "drop:tcp_share",
+          "policy": {
+            "candidates": 155,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4198534392511854,
+              "fn": 18833,
+              "fp": 9,
+              "fpr": 0.008797653958944282,
+              "fpr_ci": [
+                0.0,
+                0.008832188420019628
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9986817049948733,
+              "recall": 0.2657986043429106,
+              "recall_ci": [
+                0.2657986043429106,
+                0.2657986043429106
+              ],
+              "threshold": 0.99,
+              "tn": 1014,
+              "tp": 6818,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.99
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.406,
+          "validation_average_precision": 0.9959370241168549
+        },
+        {
+          "error": null,
+          "name": "drop:tcp_share",
+          "policy": {
+            "candidates": 181,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9548740861088546,
+              "fn": 2142,
+              "fp": 80,
+              "fpr": 0.008184980560671169,
+              "fpr_ci": [
+                0.0,
+                0.008188331627430911
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9966085887489932,
+              "recall": 0.9164944836458617,
+              "recall_ci": [
+                0.9164944836458617,
+                0.9164944836458617
+              ],
+              "threshold": 0.315,
+              "tn": 9694,
+              "tp": 23509,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.315
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.417,
+          "validation_average_precision": 0.996423101846411
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4604.6,
+          "ns_per_window_min": 4581.8,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4384.1,
+          "us_p95": 4637.0
+        },
+        "model": {
+          "joblib_bytes": 1899114,
+          "tree_nodes": 22760
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:udp_share",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:udp_share",
+          "policy": {
+            "candidates": 150,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.5011632916846187,
+              "fn": 5778,
+              "fp": 11,
+              "fpr": 0.00535279805352798,
+              "fpr_ci": [
+                0.0,
+                0.010794896957801767
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9962315861596437,
+              "recall": 0.3347916186967534,
+              "recall_ci": [
+                0.3347916186967534,
+                0.3347916186967534
+              ],
+              "threshold": 0.985,
+              "tn": 2044,
+              "tp": 2908,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.985
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.411,
+          "validation_average_precision": 0.9958460666053269
+        },
+        {
+          "error": null,
+          "name": "drop:udp_share",
+          "policy": {
+            "candidates": 150,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.42192977061681325,
+              "fn": 18790,
+              "fp": 10,
+              "fpr": 0.009775171065493646,
+              "fpr_ci": [
+                0.0,
+                0.009813542688910697
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9985446077717945,
+              "recall": 0.26747495224357726,
+              "recall_ci": [
+                0.26747495224357726,
+                0.26747495224357726
+              ],
+              "threshold": 0.99,
+              "tn": 1013,
+              "tp": 6861,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.99
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.413,
+          "validation_average_precision": 0.9961843866874704
+        },
+        {
+          "error": null,
+          "name": "drop:udp_share",
+          "policy": {
+            "candidates": 179,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9539852932189925,
+              "fn": 2234,
+              "fp": 25,
+              "fpr": 0.00255780642520974,
+              "fpr_ci": [
+                0.0,
+                0.00255885363357216
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9989335380940193,
+              "recall": 0.9129078788351331,
+              "recall_ci": [
+                0.9129078788351331,
+                0.9129078788351331
+              ],
+              "threshold": 0.34,
+              "tn": 9749,
+              "tp": 23417,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.34
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.416,
+          "validation_average_precision": 0.9964485292179756
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4655.5,
+          "ns_per_window_min": 4621.7,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4325.0,
+          "us_p95": 4585.1
+        },
+        "model": {
+          "joblib_bytes": 1871434,
+          "tree_nodes": 22414
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:icmp_share",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:icmp_share",
+          "policy": {
+            "candidates": 149,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.5029692744642396,
+              "fn": 5764,
+              "fp": 11,
+              "fpr": 0.00535279805352798,
+              "fpr_ci": [
+                0.0,
+                0.010794896957801767
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9962495738152063,
+              "recall": 0.3364034077826387,
+              "recall_ci": [
+                0.3364034077826387,
+                0.3364034077826387
+              ],
+              "threshold": 0.985,
+              "tn": 2044,
+              "tp": 2922,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.985
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.417,
+          "validation_average_precision": 0.9961572880511517
+        },
+        {
+          "error": null,
+          "name": "drop:icmp_share",
+          "policy": {
+            "candidates": 143,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4192465268151434,
+              "fn": 18846,
+              "fp": 7,
+              "fpr": 0.006842619745845552,
+              "fpr_ci": [
+                0.0,
+                0.0068694798822374874
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9989724016441573,
+              "recall": 0.2652918014892207,
+              "recall_ci": [
+                0.2652918014892207,
+                0.2652918014892207
+              ],
+              "threshold": 0.99,
+              "tn": 1016,
+              "tp": 6805,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.99
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.421,
+          "validation_average_precision": 0.9950447041710557
+        },
+        {
+          "error": null,
+          "name": "drop:icmp_share",
+          "policy": {
+            "candidates": 176,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9457322957518017,
+              "fn": 2621,
+              "fp": 22,
+              "fpr": 0.0022508696541845715,
+              "fpr_ci": [
+                0.0,
+                0.0022517911975435006
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9990456359534965,
+              "recall": 0.8978207477291333,
+              "recall_ci": [
+                0.8978207477291333,
+                0.8978207477291333
+              ],
+              "threshold": 0.35,
+              "tn": 9752,
+              "tp": 23030,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.35
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.427,
+          "validation_average_precision": 0.9964086906319434
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4736.0,
+          "ns_per_window_min": 4626.2,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4335.7,
+          "us_p95": 4581.7
+        },
+        "model": {
+          "joblib_bytes": 1877354,
+          "tree_nodes": 22488
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "rst_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:syn_only_share",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:syn_only_share",
+          "policy": {
+            "candidates": 148,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4911001128766172,
+              "fn": 5858,
+              "fp": 3,
+              "fpr": 0.00145985401459854,
+              "fpr_ci": [
+                0.0,
+                0.002944062806673209
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9989403037795832,
+              "recall": 0.32558139534883723,
+              "recall_ci": [
+                0.32558139534883723,
+                0.32558139534883723
+              ],
+              "threshold": 1.0,
+              "tn": 2052,
+              "tp": 2828,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 1.0
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.43,
+          "validation_average_precision": 0.990845163053646
+        },
+        {
+          "error": null,
+          "name": "drop:syn_only_share",
+          "policy": {
+            "candidates": 155,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.40400584704382175,
+              "fn": 19156,
+              "fp": 7,
+              "fpr": 0.006842619745845552,
+              "fpr_ci": [
+                0.0,
+                0.0068694798822374874
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9989234081820978,
+              "recall": 0.2532065026704612,
+              "recall_ci": [
+                0.2532065026704612,
+                0.2532065026704612
+              ],
+              "threshold": 0.995,
+              "tn": 1016,
+              "tp": 6495,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.45,
+          "validation_average_precision": 0.9782172106378483
+        },
+        {
+          "error": null,
+          "name": "drop:syn_only_share",
+          "policy": {
+            "candidates": 168,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9226800880780119,
+              "fn": 3652,
+              "fp": 35,
+              "fpr": 0.0035809289952936363,
+              "fpr_ci": [
+                0.0,
+                0.0035823950870010235
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9984115457928656,
+              "recall": 0.8576273829480332,
+              "recall_ci": [
+                0.8576273829480332,
+                0.8576273829480332
+              ],
+              "threshold": 0.35,
+              "tn": 9739,
+              "tp": 21999,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.35
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.45,
+          "validation_average_precision": 0.9860110301907793
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4733.3,
+          "ns_per_window_min": 4692.1,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4374.0,
+          "us_p95": 4615.3
+        },
+        "model": {
+          "joblib_bytes": 1845994,
+          "tree_nodes": 22096
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "portless_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:rst_share",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:rst_share",
+          "policy": {
+            "candidates": 138,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9715805022156573,
+              "fn": 464,
+              "fp": 17,
+              "fpr": 0.00827250608272506,
+              "fpr_ci": [
+                0.0,
+                0.016683022571148183
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9979366427964559,
+              "recall": 0.9465807045820861,
+              "recall_ci": [
+                0.9465807045820861,
+                0.9465807045820861
+              ],
+              "threshold": 0.9798815486831997,
+              "tn": 2038,
+              "tp": 8222,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.9798815486831997
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.416,
+          "validation_average_precision": 0.9966703566899409
+        },
+        {
+          "error": null,
+          "name": "drop:rst_share",
+          "policy": {
+            "candidates": 149,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4190875204091063,
+              "fn": 18849,
+              "fp": 8,
+              "fpr": 0.007820136852394917,
+              "fpr_ci": [
+                0.0,
+                0.007850834151128557
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9988252569750367,
+              "recall": 0.26517484698452304,
+              "recall_ci": [
+                0.26517484698452304,
+                0.26517484698452304
+              ],
+              "threshold": 0.995,
+              "tn": 1015,
+              "tp": 6802,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.413,
+          "validation_average_precision": 0.9946449825835059
+        },
+        {
+          "error": null,
+          "name": "drop:rst_share",
+          "policy": {
+            "candidates": 187,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9455446558397673,
+              "fn": 2566,
+              "fp": 93,
+              "fpr": 0.009515039901780233,
+              "fpr_ci": [
+                0.0,
+                0.009518935516888434
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9959875744240227,
+              "recall": 0.8999649136485907,
+              "recall_ci": [
+                0.8999649136485907,
+                0.8999649136485907
+              ],
+              "threshold": 0.33,
+              "tn": 9681,
+              "tp": 23085,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.33
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.435,
+          "validation_average_precision": 0.9966864239494727
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4779.4,
+          "ns_per_window_min": 4595.1,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4333.1,
+          "us_p95": 4658.2
+        },
+        "model": {
+          "joblib_bytes": 1855754,
+          "tree_nodes": 22218
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "active_span_s"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:portless_share",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": null,
+          "name": "drop:portless_share",
+          "policy": {
+            "candidates": 141,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9726666273097585,
+              "fn": 448,
+              "fp": 15,
+              "fpr": 0.0072992700729927005,
+              "fpr_ci": [
+                0.0,
+                0.014720314033366046
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9981824790985097,
+              "recall": 0.9484227492516694,
+              "recall_ci": [
+                0.9484227492516694,
+                0.9484227492516694
+              ],
+              "threshold": 0.97,
+              "tn": 2040,
+              "tp": 8238,
+              "windows": 10741
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.97
+          },
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.417,
+          "validation_average_precision": 0.9971052973768435
+        },
+        {
+          "error": null,
+          "name": "drop:portless_share",
+          "policy": {
+            "candidates": 150,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.4191720059142435,
+              "fn": 18847,
+              "fp": 9,
+              "fpr": 0.008797653958944282,
+              "fpr_ci": [
+                0.0,
+                0.008832188420019628
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9986789960369881,
+              "recall": 0.2652528166543215,
+              "recall_ci": [
+                0.2652528166543215,
+                0.2652528166543215
+              ],
+              "threshold": 0.995,
+              "tn": 1014,
+              "tp": 6804,
+              "windows": 26674
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.995
+          },
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.461,
+          "validation_average_precision": 0.9947050676443507
+        },
+        {
+          "error": null,
+          "name": "drop:portless_share",
+          "policy": {
+            "candidates": 185,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9554540842212075,
+              "fn": 2111,
+              "fp": 84,
+              "fpr": 0.008594229588704727,
+              "fpr_ci": [
+                0.0,
+                0.008597748208802457
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9964442939383678,
+              "recall": 0.9177030135277378,
+              "recall_ci": [
+                0.9177030135277378,
+                0.9177030135277378
+              ],
+              "threshold": 0.32,
+              "tn": 9690,
+              "tp": 23540,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.32
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.432,
+          "validation_average_precision": 0.9972443710624528
+        }
+      ]
+    },
+    {
+      "cost": {
+        "extraction": {
+          "groups": [
+            "volume",
+            "destinations",
+            "protocol",
+            "connection"
+          ],
+          "measures": "group arithmetic only; excludes the extractor's validation and packet loop",
+          "ns_per_window_median": 4775.8,
+          "ns_per_window_min": 4685.3,
+          "repeats": 5,
+          "windows": 4000
+        },
+        "inference": {
+          "rows": 300,
+          "us_median": 4332.5,
+          "us_p95": 4575.1
+        },
+        "model": {
+          "joblib_bytes": 1401514,
+          "tree_nodes": 16540
+        }
+      },
+      "features": [
+        "pkt_count",
+        "l3_bytes_sum",
+        "l3_bytes_mean",
+        "l3_bytes_std",
+        "uniq_dst_ip",
+        "uniq_dst_port",
+        "max_dst_ip_share",
+        "tcp_share",
+        "udp_share",
+        "icmp_share",
+        "syn_only_share",
+        "rst_share",
+        "portless_share"
+      ],
+      "groups": [
+        "volume",
+        "destinations",
+        "protocol",
+        "connection"
+      ],
+      "name": "drop:active_span_s",
+      "role": "diagnostic",
+      "runs": [
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "drop:active_span_s",
+          "policy": null,
+          "seed": 1,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.313,
+          "validation_average_precision": 0.9879246032786514
+        },
+        {
+          "error": "no candidate threshold keeps window FPR at or below 0.01; report this instead of relaxing the budget silently",
+          "name": "drop:active_span_s",
+          "policy": null,
+          "seed": 2,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "no_threshold",
+          "train_seconds": 0.312,
+          "validation_average_precision": 0.992073415201771
+        },
+        {
+          "error": null,
+          "name": "drop:active_span_s",
+          "policy": {
+            "candidates": 291,
+            "max_window_fpr": 0.01,
+            "metrics": {
+              "benign_groups": 1,
+              "f1": 0.9357132491655783,
+              "fn": 3083,
+              "fp": 18,
+              "fpr": 0.001841620626151013,
+              "fpr_ci": [
+                0.0,
+                0.001842374616171955
+              ],
+              "malicious_groups": 1,
+              "precision": 0.9992030461347737,
+              "recall": 0.8798097540056918,
+              "recall_ci": [
+                0.8798097540056918,
+                0.8798097540056918
+              ],
+              "threshold": 0.345,
+              "tn": 9756,
+              "tp": 22568,
+              "windows": 35425
+            },
+            "objective": "max_recall_at_fpr",
+            "selected_on": "validation",
+            "threshold": 0.345
+          },
+          "seed": 3,
+          "split": {
+            "test": [
+              "CTU-Honeypot-Capture-4-1",
+              "CTU-IoT-Malware-Capture-8-1"
+            ],
+            "train": [
+              "CTU-Honeypot-Capture-5-1",
+              "CTU-IoT-Malware-Capture-34-1"
+            ],
+            "validation": [
+              "CTU-Honeypot-Capture-7-1",
+              "CTU-IoT-Malware-Capture-3-1"
+            ]
+          },
+          "status": "calibrated",
+          "train_seconds": 0.32,
+          "validation_average_precision": 0.9969690407265517
+        }
+      ]
+    }
+  ],
+  "spec": {
+    "bootstrap": 300,
+    "card": "KAN-20",
+    "compact_rule": {
+      "rule": "A compact candidate qualifies if it calibrates under the budget on every seed and its validation recall at the budget is at least the full set's recall minus the tolerance on each seed. Fewest features wins; ties go to the higher mean recall, then the name. Timings never choose. If the full set fails on any seed, no finalist is named.",
+      "status": "R1 proposal; the tolerance needs Lead review before a finalist goes to KAN-51.",
+      "tolerance": 0.02
+    },
+    "cost": {
+      "extraction_repeats": 5,
+      "inference_rows": 300,
+      "note": "Timing reads packets only, from the seed-1 train captures. It uses no labels or scores and is a development-machine ranking, not a gateway measurement (KAN-42). Per-set timings measure the feature-group arithmetic, excluding the extractor validation and packet loop that every set pays alike; full_extractor reports core.features.extract_features itself.",
+      "timing_captures": [
+        "CTU-Honeypot-Capture-4-1",
+        "CTU-IoT-Malware-Capture-34-1"
+      ],
+      "windows_per_capture": 2000
+    },
+    "cost_seed": 1,
+    "development_pack_windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+    "feature_schema_version": "features-1",
+    "kan19_reference_threshold": 0.9798815486832,
+    "max_window_fpr": 0.01,
+    "n_estimators": 200,
+    "never_read": [
+      "the development pack's test split (no set is scored on it)",
+      "the ADR-0004 holdout captures (data/holdout/selection.json)",
+      "KAN-21 fold results"
+    ],
+    "objective": "max_recall_at_fpr",
+    "path": "~/Projects/OmniGuard-eAI-kan20/model/ablation_spec.json",
+    "purpose": "Feature ablation and per-window cost on the development pack, fixed before the run.",
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "selected_on": "validation",
+    "sha256": "db85c38dc28d38eeef0c802fab1c1bbd660dd864c97cd22a0b2613121ad11e8d"
+  },
+  "status": "selected",
+  "timing_sample": {
+    "per_capture": {
+      "CTU-Honeypot-Capture-4-1": 2000,
+      "CTU-IoT-Malware-Capture-34-1": 2000
+    },
+    "status": "measured"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "card": "KAN-20",
+  "purpose": "Feature ablation and per-window cost on the development pack, fixed before the run.",
+  "feature_schema_version": "features-1",
+  "development_pack_windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+  "max_window_fpr": 0.01,
+  "objective": "max_recall_at_fpr",
+  "selected_on": "validation",
+  "n_estimators": 200,
+  "bootstrap": 300,
+  "seeds": [1, 2, 3],
+  "cost_seed": 1,
+  "kan19_reference_threshold": 0.9798815486832,
+  "compact_rule": {
+    "tolerance": 0.02,
+    "rule": "A compact candidate qualifies if it calibrates under the budget on every seed and its validation recall at the budget is at least the full set's recall minus the tolerance on each seed. Fewest features wins; ties go to the higher mean recall, then the name. Timings never choose. If the full set fails on any seed, no finalist is named.",
+    "status": "R1 proposal; the tolerance needs Lead review before a finalist goes to KAN-51."
+  },
+  "cost": {
+    "timing_captures": ["CTU-Honeypot-Capture-4-1", "CTU-IoT-Malware-Capture-34-1"],
+    "windows_per_capture": 2000,
+    "extraction_repeats": 5,
+    "inference_rows": 300,
+    "note": "Timing reads packets only, from the seed-1 train captures. It uses no labels or scores and is a development-machine ranking, not a gateway measurement (KAN-42). Per-set timings measure the feature-group arithmetic, excluding the extractor validation and packet loop that every set pays alike; full_extractor reports core.features.extract_features itself."
+  },
+  "never_read": [
+    "the development pack's test split (no set is scored on it)",
+    "the ADR-0004 holdout captures (data/holdout/selection.json)",
+    "KAN-21 fold results"
+  ]
+}
