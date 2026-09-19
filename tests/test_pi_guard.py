@@ -1,6 +1,7 @@
 """KAN-46 guard must invalidate missing and contaminated Pi observations."""
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -61,14 +62,34 @@ class PiGuardTests(unittest.TestCase):
         ):
             directory = Path(root) / "run"
             result = main(
-                ["--out", str(directory), "--max-load-per-core", "0.5", "--", "sh", "-c", "exit 7"]
+                [
+                    "--out",
+                    str(directory),
+                    "--max-load-per-core",
+                    "0.5",
+                    "--",
+                    sys.executable,
+                    "-c",
+                    "import sys; sys.exit(7)",
+                ]
             )
             self.assertEqual(result, 1)
             self.assertEqual(
                 json.loads((directory / "verdict.json").read_text())["reasons"], ["command_failed"]
             )
             with self.assertRaises(FileExistsError):
-                main(["--out", str(directory), "--max-load-per-core", "0.5", "--", "true"])
+                main(
+                    [
+                        "--out",
+                        str(directory),
+                        "--max-load-per-core",
+                        "0.5",
+                        "--",
+                        sys.executable,
+                        "-c",
+                        "pass",
+                    ]
+                )
 
 
 if __name__ == "__main__":
