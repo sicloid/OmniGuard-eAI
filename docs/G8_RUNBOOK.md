@@ -1,9 +1,62 @@
 # KAN-49 — real core gate runbook
 
 The gate is **not passed** by unit tests, the stub enforcer probe, or the
-synthetic RF wiring smoke. It needs the independently pinned KAN-19 IoT-23
-`model.joblib`, an audited/prepared traffic capture, and independent sink
-stop/restore evidence. Neither file is committed to Git.
+synthetic RF wiring smoke. The exact KAN-19 `model.joblib` was supplied in
+`omniguard-kan19-model.zip` outside Git and independently verified against the
+frozen model/metadata SHA-256 pins. The audited IoT-23 8-1 parent capture is
+also outside Git. The real-model integration and process-kill runs below cover
+the remaining local kernel/sink requirements; independent team review remains
+the Jira closing condition. These are integration tests on a **development
+validation capture**, not unseen-data efficacy or deployment FPR evidence.
+
+## Real-model IoT-23 Linux runs (19 September)
+
+Keep the original model and PCAP outside Git. First check all model files against
+the archive's `SHA256SUMS` and the project pins. Prepare the original audited 8-1
+PCAP using the fixed selector; the script checks parent SHA-256
+`80dcc260...` before writing anything. The resulting provenance lists the exact
+parent packet indices, exclusions, 2018 capture timestamps, address rewrites
+and prepared PCAP hash. The three selected packets are TCP SYNs without payload.
+Both runners independently require prepared-PCAP SHA-256
+`fc4aa4b9bbdc89a7845fa0fb8b0fd19ce13f71c82a25346e390ad7863ac917ee`
+and provenance SHA-256
+`f3336d1ade84a869db71c37573d5bc6b30898388e8a763997d530de2f8fbde12`.
+No packet is sent to a public route: replay runs only in network-none Docker's
+owned A→B→C namespaces.
+
+```sh
+python -m lab.prepare_iot23_g8 \
+  --parent ~/omniguard-data/iot23/CTU-IoT-Malware-Capture-8-1/2018-07-31-15-15-09-192.168.100.113.pcap \
+  --out ~/omniguard-data/g8-prepared-8-1
+bash lab/run_g8_iot23_docker.sh \
+  ~/omniguard-data/omniguard-kan19-model ~/omniguard-data/g8-prepared-8-1
+bash lab/run_g8_iot23_kill_docker.sh \
+  ~/omniguard-data/omniguard-kan19-model ~/omniguard-data/g8-prepared-8-1
+```
+
+The orderly run loaded the **exact** frozen model, captured the replayed real
+packets through AF_PACKET, extracted `features-1`, recorded an anomalous RF
+decision and nftables `APPLIED`/release receipts, and observed independent
+established TCP and UDP probe sinks. In the latest run both sinks had 20
+pre-block deliveries, **zero** in the validated block interval, then 292 TCP /
+294 UDP deliveries after release. The og-a local loopback service answered 112
+times during the gateway block; capture reported zero kernel drops. The separate
+SIGKILL run killed the Python controller after `APPLIED`: readback stayed active
+after death, was active two seconds later, then cleared by the kernel timeout.
+Both sinks had zero deliveries in the validated block interval and 14 each
+after expiry; the local service answered 35 times while blocked. Both runners
+compared parent rules/routes before and after namespace teardown. Ignored raw
+evidence is under `artifacts/g8-iot23.*` and `artifacts/g8-iot23-kill.*`.
+
+The selected 8-1 capture belongs to the model's **validation**, so none of
+these observations is a new accuracy estimate. The selector rewrites every
+selected destination to the isolated sink, changing destination-diversity
+features. It records that transformation rather than claiming feature parity
+with the original pack. The independent TCP/UDP sink and local-control traffic
+are generated lab probes, separate from the three replayed IoT-23 SYNs. `t0`
+means first replay submission, not an externally audited attack start. The
+G8 integration result is therefore bounded to this declared 0.1.0 lab profile;
+KAN-52 and any external-validity claims still need separate evidence.
 
 ## Repeatable wiring smoke available now
 
@@ -58,13 +111,12 @@ but produced `model.joblib` SHA-256
 instead of the frozen `d30725a9...` pin. The regenerated threshold policy also
 counts 146 rather than 143 candidates. Equal headline metrics do not make these
 artifacts byte-identical; the regenerated model is **not** the frozen G8 model.
-Keep the original pin until its original binary is supplied and verified, or a
-separate reviewed policy/artifact re-freeze explicitly replaces it.
+The original binary was subsequently supplied in `omniguard-kan19-model.zip`
+and independently passed the frozen pin. Keep using those exact original bytes.
 
 The independently downloaded original IoT-23 4-1 and 8-1 PCAPs matched the
-parent hashes in `data/DATASET_AUDIT.md`. They are unprepared originals, not
-inputs accepted by this fixed-lab replay path. Preparation, transformations and
-label mapping still need an audited record before replay.
+parent hashes in `data/DATASET_AUDIT.md`. The 8-1 original was then prepared by
+the explicit fixed selector above; neither the raw PCAP nor prepared PCAP is in Git.
 
 For a manual isolated run, build `lab/Dockerfile.g8` and create a network-none
 container with `NET_ADMIN`, `NET_RAW`, `SYS_ADMIN`, the same two security options
@@ -80,7 +132,7 @@ ip netns exec og-b python -m lab.g8_core \
   --artifact-dir /opt/g8-model \
   --model-sha256 d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b \
   --metadata-sha256 917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad \
-  --n 2 --lease-seconds 10 --seconds 40
+  --n 1 --lease-seconds 6 --seconds 24
 ```
 
 The core emits JSON lines with `mono_ns`, detection, StateEvent and kernel
@@ -107,3 +159,6 @@ loss, and local service behavior recorded. Repeat a process-kill run and prove
 kernel TTL restores traffic without the controller. Report a non-detection or
 false quarantine as a result, not as a passed gate. Keep KAN-35/KAN-60 and the
 final release blocked until this evidence exists and another owner reviews it.
+The two real-model Docker runs above provide the technical evidence for this
+specific profile. KAN-49 remains **İncelemede** until that independent review
+checks the code, provenance, run summaries and scoped claim.
