@@ -14,8 +14,8 @@ credentials and model binaries outside Git and slides.
    measurements in a separately labelled result set.
 2. **Laptop fallback:** use the dedicated CachyOS/amd64 Docker lab and label the
    environment Linux x86_64. It avoids any Pi/Tailscale dependency, but a full
-   core demo still requires the real G8 gate. The current synthetic RF smoke is
-   a wiring illustration only.
+   core demo still requires the reviewed real G8 gate. The synthetic RF smoke
+   remains a wiring illustration only.
 3. **Partial prototype:** when G8 or G10 is missing, show the independently
    validated pieces with an explicit `not passed` status. Do not present stub,
    synthetic, Compose-health or CI results as the missing end-to-end gate.
@@ -56,8 +56,10 @@ the run is valid; never silently omit a throttled result.
 3. If PR #41 is merged, run `bash lab/run_g8_synthetic_docker.sh` as a clearly
    labelled wiring smoke. Show the synthetic model ID and TCP/UDP sink counts;
    state that it is **not** the real RF/IoT-23 gate.
-4. Only when the real pinned model and audited traffic are available, execute
-   the G8 run under its reviewed runbook. Show raw detection, StateEvent,
+4. The original pinned KAN-19 model and audited IoT-23 8-1 parent capture are
+   now available outside Git. After PR #41 has independent review, execute its
+   prepared-PCAP orderly and SIGKILL runs using the exact commands in
+   [the G8 runbook](G8_RUNBOOK.md). Show raw detection, StateEvent,
    nftables readback, independent TCP/UDP sink stop, release restoration,
    process-kill/kernel-TTL and local service observations. A StateEvent alone
    is not enforcement proof.

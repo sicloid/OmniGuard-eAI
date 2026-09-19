@@ -117,12 +117,16 @@ acceptance remains separate.
 ## 6. G8 core gate
 
 The real-core candidate is [PR #41](https://github.com/sicloid/OmniGuard-eAI/pull/41).
-Its `bash lab/run_g8_synthetic_docker.sh` uses a clearly labelled **synthetic**
-Random Forest and proves TCP/UDP wiring, not G8. The real gate requires the exact
-frozen `model.joblib`, an audited/prepared capture, replay/t0, independent sink
-stop and release restore for TCP/UDP, local service control, and a process-kill/
-kernel-TTL run with telemetry off. Until those artifacts and peer review exist,
-report `G8: not passed`. KAN-35 laptop demo depends on this gate.
+Its synthetic RF smoke is wiring evidence only. The PR now also contains Linux
+Docker runners for the **exact** frozen KAN-19 binary and a hash-pinned,
+transformed IoT-23 8-1 development PCAP slice. Local runs recorded independent
+TCP/UDP sink stop and restore, local service continuity, and kernel-TTL recovery
+after controller `SIGKILL`. The raw evidence and exact preparation commands are
+in [its G8 runbook](G8_RUNBOOK.md). The 8-1 capture belongs to development
+validation and the transformation changes destination-diversity features; this
+is an integration observation, not a new FPR or unseen-data result. PR #41 is
+in independent team review. Until its code/provenance/evidence are accepted,
+report `G8: in review`, and keep KAN-35 dependent on that gate.
 
 ## 7. G10 and results freeze
 
