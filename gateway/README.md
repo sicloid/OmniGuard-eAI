@@ -124,3 +124,30 @@ after release while conntrack state remains present. It also installs a one-seco
 kernel lease, lets the userspace command return, and verifies that nftables expires the
 element without a controller timer. These are runnable acceptance fixtures; hosted CI
 does not execute the privileged netns path and therefore is not G8 evidence.
+
+## KAN-48: deterministic stub state/enforcement E2E
+
+`gateway.controller.StateEnforcementController` composes the already reviewed
+boundaries without adding a wire contract: `CheckedDetector` returns a 0.1.0
+`DetectionResult`, `DevicePolicy` returns 0.1.0 `StateEvent` values, and the
+KAN-31 `NftEnforcer` returns internal kernel receipts.
+
+Detector failure is treated as observation loss and calls `DevicePolicy.invalidate`;
+it is never converted to a NORMAL result. QUARANTINED events require a bounded expiry
+before the controller calls the enforcer. A QUARANTINED→NORMAL transition performs
+an idempotent kernel release. An enforcement error faults the controller because the
+policy transition may already have happened while the kernel mutation did not; normal
+processing is refused until `reconcile()` restores a known policy/kernel relation.
+Reconcile also releases a lingering kernel element discovered after a fresh process
+starts. `rearm()` refuses while faulted or while the owned nft set still contains
+the device, so a new policy episode cannot silently coexist with a lingering block.
+
+The deterministic unit suite covers N=1/2/3, invalid observations, window gaps, stale
+results, detector exhaustion, explicit release, lease expiry, re-arm boundaries,
+enforcement-fault latching/recovery and previous-process kernel reconciliation. `lab/stub_state_enforcement_e2e.py` is additionally
+executed by the dedicated Linux lab and uses the real `NftEnforcer` against the
+owned `og-b` nft set: first anomaly remains SUSPICIOUS, the Nth anomaly installs the
+element, and explicit release removes it with kernel readback.
+
+This is a software/state-enforcement integration proof only. It uses
+`STUB-NOT-TRAINED` scores and therefore is **not** a G8 or trained-RF result.

@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     coreutils gawk grep && rm -rf /var/lib/apt/lists/*
 COPY core /opt/omniguard/core
 COPY gateway /opt/omniguard/gateway
+COPY stubs /opt/omniguard/stubs
 COPY lab /opt/omniguard/lab
 WORKDIR /opt/omniguard
 ENV PYTHONPATH=/opt/omniguard
