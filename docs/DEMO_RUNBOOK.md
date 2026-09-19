@@ -62,7 +62,9 @@ the run is valid; never silently omit a throttled result.
    process-kill/kernel-TTL and local service observations. A StateEvent alone
    is not enforcement proof.
 5. Start the self-hosted Compose stack with the sequence in
-   [REPRODUCE.md](REPRODUCE.md). If KAN-50 has passed, follow its accepted
+   [REPRODUCE.md](REPRODUCE.md), including migration and role provisioning.
+   The KAN-41 dashboard may show labelled `seed_demo` events only as a UI and
+   storage demonstration. If KAN-50 has passed, follow its accepted
    runbook to trace one real gateway event through UDS→MQTT→PostgreSQL→Grafana,
    including duplicate/outage/recovery. Otherwise show only the platform smoke
    and label G10 pending.
