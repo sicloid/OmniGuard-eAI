@@ -181,6 +181,106 @@ resource_metrics) follow their own cards and ADR decisions. G5/G8/G10 are
 pending: events now reach the database, but the chain that matters for G10 runs
 from a real detection, not from a probe.
 
+## Role passwords and the Grafana dashboard — KAN-41
+
+```sh
+python3 platform/init_secrets.py            # adds consumer_password, readonly_password
+python3 platform/provision_roles.py         # gives the two roles those passwords
+```
+
+`001` creates `omniguard_consumer` and `omniguard_readonly` with LOGIN and no
+password, so until now everything connected as the owner. Grafana cannot: it
+reaches PostgreSQL over the internal network and has to authenticate.
+
+This is **not** a numbered migration, deliberately. `migrate.py` records each
+file's checksum and applies it exactly once, which is right for schema and wrong
+for a credential. A literal password in a migration would be committed to Git; a
+placeholder substituted at apply time would be recorded under a checksum
+describing the template rather than the password, and a regenerated
+`platform/.secrets/` would then be skipped as "already applied", leaving the
+roles with no password while `schema_migrations` claimed otherwise. Passwords are
+environment state, so they are applied every run instead of once.
+
+`provision_roles.py` refuses any secret that is not the 64 hex characters
+`init_secrets.py` generates, rather than escaping an arbitrary string into an SQL
+literal — a password that cannot contain a quote cannot break out of one. After
+each `ALTER ROLE` it opens a TCP connection **as that role** and runs `SELECT 1`:
+a successful ALTER says the statement ran, not that the role can authenticate,
+and a Unix-socket connection inside the container is trusted by `pg_hba` and
+would pass without checking the password at all. No credential is placed on a
+command line or in `docker compose exec -e`; SQL and passwords travel on stdin.
+
+### Dashboard
+
+Provisioned read-only from Git, so a clean checkout plus `up -d` produces the
+dashboard with no manual steps:
+
+```
+platform/grafana/provisioning/datasources/omniguard.yaml   datasource
+platform/grafana/provisioning/dashboards/omniguard.yaml    file provider
+platform/grafana/dashboards/omniguard-state.json           the dashboard
+```
+
+No password is stored in any of them. The datasource reads it at load time from
+the mounted Docker secret with Grafana's `$__file{}` provider; measured, Grafana
+strips the trailing newline `init_secrets.py` writes. The datasource user is
+`omniguard_readonly`, never the owner — a dashboard is a reader.
+
+The dashboard keeps **decision**, **applied state**, **observation health** and
+**score** apart, as the 10 September architecture review requires. Only the first
+and third have data. Applied state is not in the 0.1.0 record — a `StateEvent`
+carries six fields and none of them is an enforcement receipt — and the detector
+score is not a `StateEvent` field and has no column. Both are text panels saying
+so, not empty graphs: an empty panel and a working panel reading zero look
+identical, and only one of them is honest. Both wait on KAN-63. The V2 acceptance
+line asks for "state/score/time"; state and time are shown from real columns,
+score is not, and that is the narrowing the 10 and 12 September reviews made.
+
+Observation health shows consumer-side ingest lag (`ingested_at - event_time`)
+and the boot-ordering verdicts. That lag is **not** the G10 latency figure, which
+KAN-42/43 measure under declared conditions with stated clock alignment.
+
+### Demonstration data
+
+```sh
+python3 platform/consume.py --password-file platform/.secrets/mqtt_password \
+    --messages 48 --timeout 90 &
+python3 platform/seed_demo.py
+```
+
+`seed_demo.py` publishes **fabricated** StateEvents through the real
+`TelemetryPublisher` — real canonical encoding, real envelope, real topic, real
+QoS 1 — so they reach the database only if `consume.py` accepts them. It does not
+insert rows: a seeder that wrote directly could produce a dashboard that looks
+right while the pipeline under it is broken. Every seeded row carries
+`reason = 'seed_demo'` and a `run_id` beginning `seed-demo-`. These events are
+invented and are not evidence of detection, enforcement or timing.
+
+Run only one consumer at a time. Two processes sharing the persistent client id
+`omniguard-consumer` will take the session from each other and the broker will
+redeliver.
+
+### KAN-41 evidence, 19 September 2026
+
+Measured against the running stack on this Windows host with the Linux Docker
+engine, not asserted:
+
+- `provision_roles.py` → both roles authenticate over TCP.
+- Grafana datasource health → `Database Connection OK`, user `omniguard_readonly`,
+  `readOnly: true`.
+- All five panel queries returned rows through Grafana's own datasource proxy:
+  latest decision per device (5), decisions over time (48 points, all three
+  states), ingest lag, boot verdicts (2), unordered runs.
+- `omniguard_readonly` refused `INSERT` and `DELETE` on `events`
+  (`permission denied for table events`) and `SELECT` on `schema_migrations`.
+- Clean-provisioning check: `grafana_data` volume deleted and the service
+  recreated; datasource and dashboard came back with no manual step.
+- 48/48 seeded events published and stored, spread over five hours, four devices.
+
+Not covered: no Raspberry Pi, no hosted CI run of the Grafana path, and the
+dashboard has not been reviewed against a real detection run — there has not been
+one. `python -m stubs` still reports `g8_passed: false`, `g10_passed: false`.
+
 References: [Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/),
 [healthchecks](https://docs.docker.com/reference/compose-file/services/),
 [Mosquitto authentication](https://mosquitto.org/documentation/authentication-methods/).

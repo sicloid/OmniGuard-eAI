@@ -1,0 +1,33 @@
+# KAN-41. Provisioned read-only from Git; no password is stored here.
+#
+# The password is read at load time from the mounted Docker secret with Grafana's
+# file provider, so the credential stays in ignored platform/.secrets and never
+# reaches the repository. platform/provision_roles.py is what gives the role that
+# password in the first place.
+apiVersion: 1
+
+datasources:
+  - name: OmniGuard
+    uid: omniguard-postgres
+    type: grafana-postgresql-datasource
+    access: proxy
+    # Internal Compose service on the private `telemetry` network. PostgreSQL has no
+    # published host port and is not reachable from outside Compose.
+    url: postgres:5432
+    database: omniguard
+    # SELECT-only role from 001_initial_schema.sql. Grafana must never hold the owner
+    # identity: a dashboard is a reader.
+    user: omniguard_readonly
+    isDefault: true
+    editable: false
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1700
+      timescaledb: false
+      # Grafana would otherwise keep connections open against a database that is
+      # stopped between development sessions.
+      maxOpenConns: 4
+      maxIdleConns: 1
+      connMaxLifetime: 14400
+    secureJsonData:
+      password: $__file{/run/secrets/readonly_password}

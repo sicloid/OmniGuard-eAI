@@ -36,7 +36,16 @@ def main():
         raise SystemExit("Refusing symlink secret directory")
     directory.mkdir(mode=0o700, exist_ok=True)
     directory.chmod(0o700)
-    for name in ("mqtt_password", "postgres_password", "grafana_password"):
+    for name in (
+        "mqtt_password",
+        "postgres_password",
+        "grafana_password",
+        # KAN-41: the two login roles 001 creates have no password of their own, so
+        # everything has been connecting as the owner. Grafana must reach PostgreSQL
+        # over the internal network as omniguard_readonly, which needs one.
+        "consumer_password",
+        "readonly_password",
+    ):
         write_secret(directory / name, (secrets.token_hex(32) + "\n").encode())
     password_file = directory / "mqtt_password_file"
     if password_file.is_symlink():

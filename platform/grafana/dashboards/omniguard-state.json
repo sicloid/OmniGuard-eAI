@@ -1,0 +1,206 @@
+{
+  "uid": "omniguard-state",
+  "title": "OmniGuard — decisions and observation health",
+  "description": "KAN-41. Reads only columns that exist in the 0.1.0 record. Decision, applied state, observation health and score are kept apart on purpose; the two that are not produced yet say so instead of showing zero.",
+  "tags": ["omniguard", "kan-41"],
+  "timezone": "browser",
+  "editable": false,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "type": "text",
+      "title": "What this dashboard is claiming",
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "options": {
+        "mode": "markdown",
+        "content": "Every row below is a **decision the state machine recorded**, not evidence that traffic stopped. A `QUARANTINED` StateEvent means the policy decided to quarantine; whether the firewall actually applied it is a separate fact that the 0.1.0 record does not carry. Do not read this dashboard as enforcement proof.\n\nThe four concerns are deliberately not mixed: **decision** below, then **applied state**, then **observation health**, then **score**. Two of them have no data yet and say so rather than drawing an empty graph — an empty panel and a working panel reading zero look identical, and only one of them is honest.\n\nSource: `events` and `boots`, written by `platform/consume.py`. Datasource role is `omniguard_readonly` (SELECT only)."
+      }
+    },
+    {
+      "type": "row",
+      "title": "1 — Decision (what the state machine decided)",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "panels": []
+    },
+    {
+      "type": "table",
+      "title": "Latest decision per device",
+      "description": "Most recent StateEvent for each device. This is the last decision on record, not the device's confirmed condition.",
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "omniguard-postgres" },
+      "gridPos": { "h": 8, "w": 10, "x": 0, "y": 6 },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT DISTINCT ON (device_id)\n    device_id,\n    new_state   AS decided_state,\n    event_time  AS decided_at,\n    reason,\n    to_timestamp(expires_at) AS expires_at\nFROM events\nORDER BY device_id, event_time DESC, event_id DESC;"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto" } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "decided_state" },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "NORMAL": { "color": "green", "index": 0 },
+                      "SUSPICIOUS": { "color": "orange", "index": 1 },
+                      "QUARANTINED": { "color": "red", "index": 2 }
+                    }
+                  }
+                ]
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
+            ]
+          }
+        ]
+      },
+      "options": { "showHeader": true }
+    },
+    {
+      "type": "timeseries",
+      "title": "Decisions over time, by state entered",
+      "description": "Count of StateEvents per interval, grouped by the state the event moved into.",
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "omniguard-postgres" },
+      "gridPos": { "h": 8, "w": 14, "x": 10, "y": 6 },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n    $__timeGroupAlias(event_time, $__interval),\n    new_state AS metric,\n    count(*)  AS value\nFROM events\nWHERE $__timeFilter(event_time)\nGROUP BY 1, new_state\nORDER BY 1;"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "bars", "stacking": { "mode": "normal" }, "fillOpacity": 70, "lineWidth": 0 },
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "NORMAL" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }] },
+          { "matcher": { "id": "byName", "options": "SUSPICIOUS" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }] },
+          { "matcher": { "id": "byName", "options": "QUARANTINED" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }] }
+        ]
+      }
+    },
+    {
+      "type": "table",
+      "title": "Decision events",
+      "description": "Raw StateEvents in the selected range. event_timestamp is kept as the producer sent it; event_time is the derived instant.",
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "omniguard-postgres" },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 14 },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n    event_time,\n    device_id,\n    previous_state,\n    new_state,\n    reason,\n    to_timestamp(expires_at) AS expires_at,\n    run_id,\n    producer_id,\n    boot_id,\n    sequence\nFROM events\nWHERE $__timeFilter(event_time)\nORDER BY event_time DESC, event_id DESC\nLIMIT 200;"
+        }
+      ],
+      "options": { "showHeader": true }
+    },
+    {
+      "type": "row",
+      "title": "2 — Applied state (enforcement)",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "panels": []
+    },
+    {
+      "type": "text",
+      "title": "Not recorded in 0.1.0",
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 24 },
+      "options": {
+        "mode": "markdown",
+        "content": "**Whether a decision was actually applied is not in this database.** `StateEvent` carries six fields — `device_id`, `previous_state`, `new_state`, `reason`, `timestamp`, `expires_at` — and none of them is an enforcement receipt. The `events` table stores exactly those, so there is nothing here to plot.\n\nThis panel stays as text on purpose. A panel querying a column that does not exist would either error or, worse, be written to return `0` and be read as \"nothing was applied\" — a measurement that was never taken, presented as a result.\n\nBlocked on the versioned-record decision in **KAN-63**. Until that lands, enforcement evidence comes from KAN-31/KAN-33 lab runs, not from here."
+      }
+    },
+    {
+      "type": "row",
+      "title": "3 — Observation health (consumer side)",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Ingest lag: consumer arrival minus producer timestamp",
+      "description": "ingested_at - event_time. This is pipeline lag on the consumer side. It is not device health, and it is not the G10 latency figure, which KAN-42/43 measure under declared conditions.",
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "omniguard-postgres" },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 30 },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\n    $__timeGroupAlias(ingested_at, $__interval),\n    max(extract(epoch FROM ingested_at - event_time)) AS \"max lag\",\n    avg(extract(epoch FROM ingested_at - event_time)) AS \"mean lag\"\nFROM events\nWHERE $__timeFilter(ingested_at)\nGROUP BY 1\nORDER BY 1;"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 10 } }, "overrides": [] }
+    },
+    {
+      "type": "table",
+      "title": "Boot ordering verdicts",
+      "description": "From boots.verdict. UNORDERED means two boots of one producer could not be ordered against each other, so anything ordering-dependent must exclude those runs.",
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "omniguard-postgres" },
+      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 30 },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT verdict, count(*) AS boots\nFROM boots\nGROUP BY verdict\nORDER BY verdict;"
+        }
+      ],
+      "options": { "showHeader": true }
+    },
+    {
+      "type": "stat",
+      "title": "Runs that must be excluded",
+      "description": "Runs touching an UNORDERED boot, from the unordered_runs view. 002 names this set so every reader excludes the same runs. Zero here is a real measured zero: the view is over rows that exist.",
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "omniguard-postgres" },
+      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 30 },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*) AS \"unordered runs\" FROM unordered_runs;"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }] }
+        },
+        "overrides": []
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "value", "graphMode": "none" }
+    },
+    {
+      "type": "row",
+      "title": "4 — Score",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 37 },
+      "panels": []
+    },
+    {
+      "type": "text",
+      "title": "Not persisted in 0.1.0",
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 38 },
+      "options": {
+        "mode": "markdown",
+        "content": "**The detector score is not stored.** It is not a `StateEvent` field and the `events` table has no column for it, so no query here can show it. `python -m stubs` prints per-run scores, but a stub's output is not a measurement and does not reach this database.\n\nThe V2 acceptance line for KAN-41 reads \"state/score/time visible from fake data\". The 10 and 12 September architecture reviews narrow that: fields absent from 0.1.0 are not to be queried as if present, and are not to be shown as success or zero. State and time are shown above from real columns; score waits for **KAN-63**.\n\nIf KAN-63 adds a score column, this panel is what gets replaced — not a zero that was quietly sitting here."
+      }
+    }
+  ]
+}

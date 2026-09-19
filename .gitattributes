@@ -2,6 +2,13 @@
 *.sh text eol=lf
 *.py text eol=lf
 *.yml text eol=lf
+# KAN-41: *.yml was pinned but *.yaml was not, so platform/compose.yaml and the
+# Grafana provisioning files were checked out with CRLF on Windows and shipped that
+# way into Linux containers. Same gap as the *.nft one KAN-33 closed.
+*.yaml text eol=lf
+# Only this directory, not *.json: R1's frozen artefacts under data/ and model/ are
+# byte-pinned against recorded hashes and are not ours to renormalise.
+platform/grafana/dashboards/*.json text eol=lf
 *.nft text eol=lf
 Dockerfile* text eol=lf
 
