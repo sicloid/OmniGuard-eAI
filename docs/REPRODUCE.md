@@ -98,15 +98,21 @@ On Linux with Docker Compose, from the repository root:
 python3 platform/init_secrets.py
 docker compose -f platform/compose.yaml up -d --wait --wait-timeout 180
 python3 platform/migrate.py
+python3 platform/provision_roles.py
 python3 platform/smoke.py
 docker compose -f platform/compose.yaml ps
 ```
 
 The initializer writes ignored credentials; never put them in Git or logs. The
 consumer command and database semantics are in [the platform runbook](../platform/README.md).
-Service health and MQTT pub/sub do not prove that a real gateway StateEvent
-reached UDS→MQTT→PostgreSQL→Grafana. KAN-41 dashboard provisioning and KAN-50
-G10 acceptance remain separate.
+KAN-41's provisioned Grafana dashboard is merged. `provision_roles.py` sets and
+verifies separate consumer and read-only credentials after migration; without it
+the datasource cannot authenticate. To populate the dashboard with clearly
+labelled fabricated records, run one `platform/consume.py` process and then
+`platform/seed_demo.py` as shown in [the platform runbook](../platform/README.md).
+Service health, MQTT pub/sub and those fabricated records do not prove that a
+real gateway StateEvent reached UDS→MQTT→PostgreSQL→Grafana. KAN-50 G10
+acceptance remains separate.
 
 ## 6. G8 core gate
 
