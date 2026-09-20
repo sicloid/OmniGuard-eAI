@@ -4,6 +4,12 @@ Linux devamı: aşağıdaki ilk durum özeti Windows bootstrap anına aittir. G�
 çalışma ve kanıtlar: [STATUS.md](STATUS.md), [LINUX_VALIDATION.md](LINUX_VALIDATION.md).
 Onur artık GitHub @pondilungs ile ekipte; PR #1 birleştirildi.
 
+**20 Eylül sahiplik düzeltmesi:** aşağıdaki kart tablosu 10 Eylül ilk atamalarının
+tarihsel kaydıdır. Güncel Jira'da fiziksel Pi 5 ve KAN-44/46/53 Şükrü'dedir;
+Gabriel'in Pi'ye doğrudan erişimi yoktur. Gabriel'in KAN-42 harness'ı ve KAN-45
+kontrollü bütçe benchmark'ı ayrı R3 işleridir. Pi kurulumu/erişimi 21 Eylül'den
+önce hazır değildir; bu tarihten önceki x86_64 sonuçları Pi kanıtı sayılmaz.
+
 Güncel durum Jira'dan tekrar okunarak doğrulandı:
 
 - Tamamlandı: KAN-7, KAN-8, KAN-11, KAN-24, KAN-25, KAN-26.
@@ -83,4 +89,3 @@ Devam ediyor: KAN-8 sözleşme inceleme/freeze; ekip onayı eksik. Diğer 58 kar
 | KAN-58 | Demo runbook ve temizleme adımları | Şükrü | 2026-09-29 |
 | KAN-59 | Ekip içi bilgi aktarımı ve Q&A provası | Şükrü | 2026-09-30 |
 | KAN-60 | G15 — Son sürüm ve demo yayını | Şükrü | 2026-09-30 |
-

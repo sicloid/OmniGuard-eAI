@@ -4,7 +4,8 @@ Payload-independent IoT malware detection and reversible outbound containment
 research prototype. Local Random Forest inference, isolated Linux namespaces,
 nftables/conntrack, and self-hosted Mosquitto → PostgreSQL → Grafana telemetry.
 No managed cloud service is required. Raspberry Pi 5 is a later shared integration
-and ARM64 validation target; laptop development remains possible.
+and ARM64 validation target; laptop development remains possible. The physical
+Pi 5 and its ARM64 runs are owned by Şükrü; Gabriel has no direct Pi access.
 
 ## Architecture and contributor context
 
