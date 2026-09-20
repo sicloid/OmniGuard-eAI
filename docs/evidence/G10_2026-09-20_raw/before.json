@@ -1,0 +1,44 @@
+{
+  "run_id": "g10-outage-84739b9f83f5429e8e945447685de614",
+  "runner_exit": 0,
+  "adapter": {
+    "connections": 2,
+    "rejected_peers": 0,
+    "frames": 2,
+    "accepted": 2,
+    "refused_by_sink": 0,
+    "oversized_frames": 0,
+    "incomplete_frames": 0,
+    "malformed_frames": 0,
+    "undecodable_bodies": 0,
+    "invalid_events": 0,
+    "read_timeouts": 144,
+    "peer_verification": "VERIFIED"
+  },
+  "handoff": {
+    "accepted": 2,
+    "overflowed": 0,
+    "refused": 0,
+    "processed": 2,
+    "worker_failures": 0,
+    "last_failure": null
+  },
+  "publisher": {
+    "published": 0,
+    "spooled": 2,
+    "drained": 0,
+    "rejected_device_id": 0,
+    "queued_unacked": 0,
+    "dropped_unspoolable": 0
+  },
+  "spool_entries": [
+    {
+      "event_id": "d4ae9c78-bcb4-5ac9-9a5b-bfeedb8d15b2",
+      "sha256": "e8d70ab043e4b26a8bb71cba1bfbdf8fbbe26e3d21c5ae3b15aa6cb7c029cd08"
+    },
+    {
+      "event_id": "f9db105b-4ac7-5700-9064-f56036c09e86",
+      "sha256": "8fd93cce748f784f5b1e94c35d5800f6fc1a7a3f433c0cf107ff30c7e6d0d1fe"
+    }
+  ]
+}
