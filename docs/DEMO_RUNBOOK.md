@@ -14,9 +14,9 @@ credentials and model binaries outside Git and slides.
    measurements in a separately labelled result set.
 2. **Laptop fallback:** use the dedicated CachyOS/amd64 Docker lab and label the
    environment Linux x86_64. It avoids any Pi/Tailscale dependency. Real-model
-   G8 local sink/kernel runs exist; a full accepted core demo still requires
-   independent review of PR #41. The synthetic RF smoke remains a wiring
-   illustration only.
+   G8 local sink/kernel runs received independent review, PR #41 merged, and
+   KAN-35's Pi-free core demo is accepted at that bounded scope. The synthetic
+   RF smoke remains a wiring illustration only.
 3. **Partial prototype:** when G8 or G10 is missing, show the independently
    validated pieces with an explicit `not passed` status. Do not present stub,
    synthetic, Compose-health or CI results as the missing end-to-end gate.

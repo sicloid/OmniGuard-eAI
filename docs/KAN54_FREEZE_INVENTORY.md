@@ -33,9 +33,11 @@ transformed 8-1 capture, not an accuracy or FPR estimate.
 2. **KAN-51 and KAN-42/43/45 as applicable:** policy N/lease, real-run manifests,
    stage costs and telemetry volume with complete provenance. A blank field is
    missing, not zero. Freeze only figures whose accepted runs exist.
-3. **KAN-49 and KAN-50:** independent owner review of real G8 and real
-   StateEvent→UDS→MQTT→PostgreSQL→Grafana G10. CI, Compose health and seeded
-   dashboards have narrower scope.
+3. **KAN-50:** independent owner review of real
+   StateEvent→UDS→MQTT→PostgreSQL→Grafana G10, including correlation and
+   completeness. KAN-49/G8 received independent exact-head approval and
+   merged as PR #41; that local acceptance does not establish G10. CI,
+   Compose health and seeded dashboards have narrower scope.
 4. **KAN-53:** a separate Pi 5/ARM64 run only if actual hardware and KAN-46
    load/throttle evidence exist; never copy a laptop number into that column.
 5. **Final inventory:** exact Git commit, hashes of every input/output and plot,
