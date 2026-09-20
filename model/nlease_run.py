@@ -185,12 +185,24 @@ def _capture_rows(windows, model, threshold: float, meta) -> dict:
 
 
 def _observed(rows) -> dict:
+    """Two different denominators, kept apart on purpose.
+
+    `observed_*` counts only the seconds the device was actually seen sending, which
+    is the honest denominator for a per-window rate. `span_*` is wall-clock from the
+    first window to the last, which is the denominator a quarantine lives in: a lease
+    keeps running through a silent gap. Dividing blocked wall-clock seconds by
+    observed seconds would report more than 3600 blocked seconds per hour.
+    """
     windows = len(rows)
     seconds = windows * WINDOW_SECONDS
+    span = rows[-1][0] + WINDOW_SECONDS - rows[0][0]
     return {
         "windows": windows,
         "observed_seconds": seconds,
         "observed_hours": round(seconds / SECONDS_PER_HOUR, 4),
+        "span_seconds": span,
+        "span_hours": round(span / SECONDS_PER_HOUR, 4),
+        "observed_fraction_of_span": round(seconds / span, 4) if span else None,
         "malicious_windows": sum(1 for _, _, malicious in rows if malicious),
         "anomalous_windows": sum(
             1 for _, result, _ in rows if result.classification == Classification.ANOMALOUS
@@ -290,17 +302,27 @@ def run(
                     spec=spec,
                 )
                 hours = observed[group]["observed_hours"]
+                span_hours = observed[group]["span_hours"]
+                span_seconds = observed[group]["span_seconds"]
                 malicious_seconds = observed[group]["malicious_windows"] * WINDOW_SECONDS
                 first_malicious = next((start for start, _, m in entries if m), None)
                 detected_at = outcome["episodes"][0]["start"] if outcome["episodes"] else None
                 captures[group] = {
                     "infected": group in infected,
                     **outcome,
-                    "quarantines_per_hour": round(outcome["quarantines"] / hours, 3)
+                    "quarantines_per_observed_hour": round(outcome["quarantines"] / hours, 3)
                     if hours
                     else None,
-                    "blocked_seconds_per_hour": round(outcome["blocked_seconds"] / hours, 1)
-                    if hours
+                    "quarantines_per_span_hour": round(outcome["quarantines"] / span_hours, 3)
+                    if span_hours
+                    else None,
+                    "blocked_seconds_per_span_hour": round(
+                        outcome["blocked_seconds"] / span_hours, 1
+                    )
+                    if span_hours
+                    else None,
+                    "blocked_fraction_of_span": round(outcome["blocked_seconds"] / span_seconds, 4)
+                    if span_seconds
                     else None,
                     "detected": detected_at is not None,
                     "detection_delay_seconds": round(detected_at - first_malicious, 3)
