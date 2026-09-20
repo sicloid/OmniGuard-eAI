@@ -13,9 +13,10 @@ credentials and model binaries outside Git and slides.
    only and advertises no `10.203.1.0/24` or `10.203.2.0/24` lab route. Keep Pi
    measurements in a separately labelled result set.
 2. **Laptop fallback:** use the dedicated CachyOS/amd64 Docker lab and label the
-   environment Linux x86_64. It avoids any Pi/Tailscale dependency, but a full
-   core demo still requires the reviewed real G8 gate. The synthetic RF smoke
-   remains a wiring illustration only.
+   environment Linux x86_64. It avoids any Pi/Tailscale dependency. Real-model
+   G8 local sink/kernel runs exist; a full accepted core demo still requires
+   independent review of PR #41. The synthetic RF smoke remains a wiring
+   illustration only.
 3. **Partial prototype:** when G8 or G10 is missing, show the independently
    validated pieces with an explicit `not passed` status. Do not present stub,
    synthetic, Compose-health or CI results as the missing end-to-end gate.
@@ -66,10 +67,12 @@ the run is valid; never silently omit a throttled result.
 5. Start the self-hosted Compose stack with the sequence in
    [REPRODUCE.md](REPRODUCE.md), including migration and role provisioning.
    The KAN-41 dashboard may show labelled `seed_demo` events only as a UI and
-   storage demonstration. If KAN-50 has passed, follow its accepted
-   runbook to trace one real gateway event through UDS→MQTT→PostgreSQL→Grafana,
-   including duplicate/outage/recovery. Otherwise show only the platform smoke
-   and label G10 pending.
+   storage demonstration. The 20 September local composite run traced two real
+   gateway events through UDS→MQTT→PostgreSQL→Grafana and exercised duplicate
+   and broker-outage recovery; its raw evidence is outside Git. It does not
+   establish the still-missing correlation/completeness report or owner-reviewed
+   G10 gate. Until KAN-50 passes, show the platform smoke and label G10 pending;
+   present the local integration run separately with its exact commit and scope.
 6. Present KAN-54 frozen results only when the exact run set and all failed or
    censored attempts are included. Separate laptop and Pi observations. Discuss
    per-capture benign false positives, observation loss, finite quarantine and
