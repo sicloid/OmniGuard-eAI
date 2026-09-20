@@ -134,9 +134,11 @@ KAN-50 requires one **real** gateway StateEvent through UDS, MQTT, PostgreSQL an
 Grafana, including duplicate/outage/recovery and completeness evidence. Compose
 smoke or a stub event is insufficient. KAN-54 freezes the exact commit, artifact,
 environment, feature/threshold/N/lease policy, split and run hashes, plus failed
-runs and clock/hardware mapping. KAN-52's measured FPR/containment plot is still
-a prerequisite. Until the corresponding Jira acceptance evidence exists, report
-`G10/G13: not passed/frozen`.
+runs and clock/hardware mapping. The [KAN-54 freeze inventory](KAN54_FREEZE_INVENTORY.md)
+names the byte-pinned inputs already available and the experiments still missing;
+it is preparation, not a frozen result set. KAN-52's measured FPR/containment
+plot is still a prerequisite. Until the corresponding Jira acceptance evidence
+exists, report `G10/G13: not passed/frozen`.
 
 ## 8. Pi path and laptop fallback
 
