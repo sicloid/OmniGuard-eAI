@@ -328,12 +328,20 @@ class ExperimentManifest:
             if r2_observed.run_id != self.run_id:
                 raise ManifestError("R2 observations belong to a different run_id")
         self._assert_still_ours()
+        closed_at_unix = self.clock.now().seconds
+        if r2_observed is not None and r2_observed.t0_unix is not None:
+            started_at_unix = self._started.seconds
+            if not started_at_unix <= r2_observed.t0_unix <= closed_at_unix:
+                raise ManifestError(
+                    "observed t0_unix must fall within this run's open/close window"
+                )
         self._write(
             self._document(
                 status=status,
                 outcome=outcome,
                 measurements=measurements,
                 r2_observed=r2_observed,
+                closed_at_unix=closed_at_unix,
             )
         )
         self._closed = True
@@ -385,6 +393,7 @@ class ExperimentManifest:
         outcome: dict | None,
         measurements: dict | None,
         r2_observed: ObservedFromR2 | None,
+        closed_at_unix: float | None = None,
     ) -> dict:
         snapshot = self._snapshot or {}
         r1, r2 = snapshot.get("r1", {}), dict(snapshot.get("r2", {}))
@@ -396,13 +405,18 @@ class ExperimentManifest:
             "run_id": self.run_id,
             "status": status,
             "started_at_unix": None if self._started is None else self._started.seconds,
-            "closed_at_unix": self.clock.now().seconds if status != INCOMPLETE else None,
+            "closed_at_unix": closed_at_unix,
             "environment": self.environment(),
             "config": snapshot.get("config"),
             "provenance": {
                 "r1": r1,
                 "r2": r2,
-                "r2_observation_phase": "at-close" if r2_observed is not None else None,
+                "r2_observation_phase": (
+                    "at-close"
+                    if r2_observed is not None
+                    and (r2_observed.t0_unix is not None or r2_observed.sink_evidence is not None)
+                    else None
+                ),
                 # Named so a reader never has to infer that a null was a measurement.
                 "not_supplied": {"r1": _pending(r1), "r2": _pending(r2)},
                 # ADR-0004 7b, named rather than assumed satisfied by a holdout run.
@@ -436,4 +450,10 @@ class ExperimentManifest:
 
 
 def read_manifest(directory: Path) -> dict:
-    return json.loads((Path(directory) / FILENAME).read_text(encoding="utf-8"))
+    document = json.loads((Path(directory) / FILENAME).read_text(encoding="utf-8"))
+    if not isinstance(document, dict) or document.get("manifest_format") != MANIFEST_FORMAT:
+        raise ManifestError(
+            f"unsupported manifest_format: expected {MANIFEST_FORMAT}; "
+            "historical /1 records require an explicit migration"
+        )
+    return document

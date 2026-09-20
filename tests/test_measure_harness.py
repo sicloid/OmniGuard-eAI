@@ -213,22 +213,60 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn("model_sha256", provenance["not_supplied"]["r1"])
 
     def test_actual_t0_and_sink_are_recorded_only_after_the_same_run(self):
-        manifest = self.manifest()
+        clock = ManualClock(unix=1_700_000_000)
+        manifest = self.manifest(clock=clock)
         manifest.freeze()
         before = read_manifest(manifest.directory)["provenance"]
         self.assertIsNone(before["r2"]["t0_unix"])
         self.assertIn("sink_evidence", before["not_supplied"]["r2"])
+        clock.advance(10)
         manifest.close(
             measurements={},
             r2_observed=ObservedFromR2(
-                run_id="run-1", t0_unix=1789852223.283367, sink_evidence="tcp+udp sink log"
+                run_id="run-1", t0_unix=1_700_000_005, sink_evidence="tcp+udp sink log"
             ),
         )
         after = read_manifest(manifest.directory)["provenance"]
-        self.assertEqual(after["r2"]["t0_unix"], 1789852223.283367)
+        self.assertEqual(after["r2"]["t0_unix"], 1_700_000_005)
         self.assertEqual(after["r2"]["sink_evidence"], "tcp+udp sink log")
         self.assertEqual(after["r2_observation_phase"], "at-close")
         self.assertNotIn("t0_unix", after["not_supplied"]["r2"])
+
+    def test_t0_from_another_run_cannot_replace_the_frozen_record(self):
+        clock = ManualClock(unix=1_700_000_000)
+        manifest = self.manifest(clock=clock)
+        manifest.freeze()
+        opening = manifest.path.read_bytes()
+        clock.advance(10)
+        for foreign_t0 in (1_699_999_999, 1_700_000_011):
+            with self.subTest(foreign_t0=foreign_t0), self.assertRaises(ManifestError):
+                manifest.close(
+                    measurements={},
+                    r2_observed=ObservedFromR2(run_id="run-1", t0_unix=foreign_t0),
+                )
+            self.assertEqual(manifest.path.read_bytes(), opening)
+        manifest.close(
+            measurements={},
+            r2_observed=ObservedFromR2(run_id="run-1", t0_unix=1_700_000_005),
+        )
+        self.assertEqual(read_manifest(manifest.directory)["status"], COMPLETED)
+
+    def test_empty_r2_observation_has_no_at_close_phase(self):
+        manifest = self.manifest()
+        manifest.freeze()
+        manifest.close(measurements={}, r2_observed=ObservedFromR2(run_id="run-1"))
+        provenance = read_manifest(manifest.directory)["provenance"]
+        self.assertIsNone(provenance["r2_observation_phase"])
+        self.assertIn("t0_unix", provenance["not_supplied"]["r2"])
+
+    def test_legacy_format_is_rejected_instead_of_reinterpreted_as_at_close(self):
+        manifest = self.manifest()
+        manifest.freeze()
+        legacy = json.loads(manifest.path.read_text(encoding="utf-8"))
+        legacy["manifest_format"] = "omniguard-experiment-manifest/1"
+        manifest.path.write_text(json.dumps(legacy), encoding="utf-8")
+        with self.assertRaisesRegex(ManifestError, "historical /1"):
+            read_manifest(manifest.directory)
 
     def test_foreign_run_observation_cannot_close_or_replace_frozen_run(self):
         manifest = self.manifest()
@@ -339,7 +377,7 @@ class RunOwnershipTests(unittest.TestCase):
         manifest.path.write_text(foreign, encoding="utf-8", newline="\n")
         with self.assertRaises(ManifestError):
             manifest.close(measurements={})
-        self.assertEqual(read_manifest(directory)["run_id"], "run-9")
+        self.assertEqual(json.loads(manifest.path.read_text(encoding="utf-8"))["run_id"], "run-9")
 
 
 class FailingOnce(ExperimentManifest):

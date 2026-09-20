@@ -31,6 +31,12 @@ Windows readings prove the code path only. Raspberry Pi figures come from KAN-46
 `pi_guard.py` wraps a Pi measurement with pre/post host, boot, monotonic-time,
 load, temperature and firmware throttle evidence. It rejects missing or contaminated
 readings; post-run one-minute load is context because it includes the workload.
+The guard keeps Python 3.11-compatible syntax so it can record a reason on a Pi
+before the project interpreter is installed; the full project still requires its
+locked Python 3.14 environment. The default temperature ceiling is 80 °C, and
+the CLI refuses a ceiling above 85 °C. These are conservative experiment
+acceptance limits, not a claim about the hardware's precise throttle point;
+`vcgencmd get_throttled` remains the direct firmware observation.
 
 
 ## KAN-33 — containment leakage

@@ -28,7 +28,7 @@ def _vcgencmd(subcommand: str) -> str | None:
         result = subprocess.run(
             ["vcgencmd", subcommand], capture_output=True, text=True, timeout=5, check=False
         )
-    except OSError, subprocess.TimeoutExpired:
+    except (OSError, subprocess.TimeoutExpired):
         return None
     return result.stdout.strip() if result.returncode == 0 else None
 
@@ -37,7 +37,7 @@ def probe() -> dict:
     """Read the current machine without substituting zero for missing evidence."""
     try:
         model = MODEL_PATH.read_bytes().rstrip(b"\0").decode("utf-8")
-    except OSError, UnicodeError:
+    except (OSError, UnicodeError):
         model = None
     load_reader = getattr(os, "getloadavg", None)
     try:
@@ -46,7 +46,7 @@ def probe() -> dict:
         load_1m = None
     try:
         boot_id = BOOT_ID_PATH.read_text(encoding="ascii").strip() or None
-    except OSError, UnicodeError:
+    except (OSError, UnicodeError):
         boot_id = None
     throttle = _vcgencmd("get_throttled")
     temperature = _vcgencmd("measure_temp")
@@ -78,10 +78,10 @@ def assess(
     reasons = []
     if before.get("machine") != "aarch64" or after.get("machine") != "aarch64":
         reasons.append("not_aarch64")
-    if "Raspberry Pi 5" not in (before.get("model") or "") or before.get("model") != after.get(
-        "model"
-    ):
-        reasons.append("not_verified_pi5")
+    if "Raspberry Pi 5" not in (before.get("model") or ""):
+        reasons.append("not_pi5")
+    if before.get("model") != after.get("model"):
+        reasons.append("model_changed")
     if command_exit != 0:
         reasons.append("command_failed")
     if not before.get("host_id") or before.get("host_id") != after.get("host_id"):

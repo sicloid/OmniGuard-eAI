@@ -31,6 +31,19 @@ class PiGuardTests(unittest.TestCase):
             assess(clean(), clean(), 0, max_load_per_core=0.5, max_temperature_c=80), []
         )
 
+    def test_a_model_change_is_distinct_from_not_running_on_a_pi5(self):
+        before, after = clean(), clean()
+        after["model"] = "Raspberry Pi 4 Model B"
+        self.assertEqual(
+            assess(before, after, 0, max_load_per_core=0.5, max_temperature_c=80),
+            ["model_changed"],
+        )
+        before["model"] = "generic aarch64 board"
+        self.assertEqual(
+            assess(before, after, 0, max_load_per_core=0.5, max_temperature_c=80),
+            ["not_pi5", "model_changed"],
+        )
+
     def test_sticky_prior_throttle_and_current_throttle_are_distinct(self):
         before, after = clean(), clean()
         before["throttled_bits"] = 0x40000

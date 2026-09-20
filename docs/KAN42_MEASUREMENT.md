@@ -103,7 +103,11 @@ Fill the machine/clock fields of `ProvenanceFromR2` before `freeze()`. The actua
 pass them as `ObservedFromR2(run_id=the_same_run_id, ...)` to `close()`. Format
 `omniguard-experiment-manifest/2` records this phase explicitly. Historical
 `/1` manifests must not be reinterpreted as though their R2 fields were observed
-after the run. Unfilled fields remain under `provenance.not_supplied.r2`.
+after the run: `read_manifest()` rejects `/1` and requires an explicit migration.
+`close()` also rejects a `t0_unix` outside this run's recorded start/close window;
+the caller remains responsible for proving that the sink evidence belongs to the
+same run. Empty observations leave `r2_observation_phase` unset. Unfilled fields
+remain under `provenance.not_supplied.r2`.
 
 | Field | What it should be |
 |---|---|
