@@ -108,3 +108,5 @@ statuses, unresolved limitations and the names of reviewers who witnessed it.
 KAN-58 closes only after both the Pi path or documented unavailable-Pi fallback
 and this cleanup sequence are exercised from a clean checkout. KAN-59 still
 requires an actual team Q&A rehearsal; a written runbook does not replace it.
+Use [the KAN-59 rehearsal script](TEAM_QA_REHEARSAL.md) to test each speaker's
+understanding and record gaps, then put the actual meeting evidence in Jira.
