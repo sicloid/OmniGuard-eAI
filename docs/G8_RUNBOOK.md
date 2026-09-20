@@ -27,6 +27,18 @@ and provenance SHA-256
 No packet is sent to a public route: replay runs only in network-none Docker's
 owned A→B→C namespaces.
 
+The G8 commands below intentionally omit telemetry. For the separate G10
+integration, `run_g8_iot23_docker.sh` accepts an optional third argument: an
+already-listening host Unix socket in a dedicated private directory. It bind
+mounts that directory read-only, and the gateway core uses its bounded
+`GatewayEventBridge` worker to submit the actual policy StateEvents. The
+enforcement thread only queues events; it never performs socket I/O. The core
+log records each enqueue outcome and a final delivered/failure/overflow
+summary. The default two-argument G8 gate remains telemetry-off. This UDS
+source tap alone is not MQTT, PostgreSQL or Grafana delivery evidence. The host
+adapter must explicitly admit the container's peer UID after `SO_PEERCRED`
+verification; do not disable peer verification merely to make the demo pass.
+
 ```sh
 .venv/bin/python -m lab.prepare_iot23_g8 \
   --parent ~/omniguard-data/iot23/CTU-IoT-Malware-Capture-8-1/2018-07-31-15-15-09-192.168.100.113.pcap \

@@ -15,6 +15,7 @@ from pathlib import Path
 from core.schema import DeviceState
 from gateway.controller import StateEnforcementController
 from gateway.enforcer import DeviceBinding, NamespaceOwnershipVerifier, NftEnforcer
+from gateway.event_bridge import GatewayEventBridge, UnixSocketTransport
 from gateway.pipeline import WindowFeaturePipeline
 from gateway.policy import DevicePolicy
 from gateway.real_detector import load_pinned_rf_detector
@@ -47,13 +48,17 @@ def _record(kind: str, **fields) -> None:
     )
 
 
-def _record_step(step) -> None:
+def _record_step(step, bridge: GatewayEventBridge | None = None) -> None:
     if step.detection is not None:
         _record("detection", **asdict(step.detection))
     if step.detector_error is not None:
         _record("observation_loss", error=step.detector_error)
     for event in step.events:
         _record("state_event", **asdict(event))
+        if bridge is not None:
+            # submit() only enqueues. The worker owns socket I/O; a failed handoff
+            # must never delay or change the policy/kernel transition.
+            _record("event_handoff", outcome=bridge.submit(event).value)
     for receipt in step.receipts:
         _record("kernel_receipt", **asdict(receipt))
 
@@ -65,6 +70,20 @@ def run(args) -> int:
         raise ValueError("n must be in [1, 5]")
     if not 1 <= args.lease_seconds <= 60:
         raise ValueError("lease must be in [1, 60] seconds")
+    event_socket = getattr(args, "event_socket", None)
+    bridge = None
+    if event_socket is not None:
+        bridge = GatewayEventBridge(UnixSocketTransport(event_socket))
+        bridge.start()
+    try:
+        return _run_core(args, bridge)
+    finally:
+        if bridge is not None:
+            drained = bridge.stop()
+            _record("event_bridge_summary", drained=drained, **asdict(bridge.counters))
+
+
+def _run_core(args, bridge: GatewayEventBridge | None) -> int:
     _in_owned_gateway_namespace()
     detector = load_pinned_rf_detector(
         args.artifact_dir,
@@ -80,11 +99,13 @@ def run(args) -> int:
         max_lease=60,
     )
     controller = StateEnforcementController(detector, policy, enforcer, binding)
-    _record_step(controller.reconcile(now=time.time(), mono=time.monotonic()))
+    _record_step(controller.reconcile(now=time.time(), mono=time.monotonic()), bridge)
     controller.rearm()
     start = math.floor(time.time() / 5) * 5
     pipeline = WindowFeaturePipeline(start)
-    runtime = GatewayCore(pipeline, controller, on_control_step=_record_step)
+    runtime = GatewayCore(
+        pipeline, controller, on_control_step=lambda step: _record_step(step, bridge)
+    )
     normalizer = PacketNormalizer(["10.203.1.0/24"], {LAB_IPV4: LAB_DEVICE})
     windows = 0
     quarantines = 0
@@ -105,12 +126,12 @@ def run(args) -> int:
             while time.monotonic() < deadline:
                 cycle = runtime.poll(capture)
                 for step in cycle.windows:
-                    _record_step(step)
+                    _record_step(step, bridge)
                     windows += step.detection is not None
                     quarantines += any(e.new_state == DeviceState.QUARANTINED for e in step.events)
         finally:
             if policy.state != DeviceState.NORMAL and not controller.faulted:
-                _record_step(controller.release(now=time.time(), mono=time.monotonic()))
+                _record_step(controller.release(now=time.time(), mono=time.monotonic()), bridge)
             _record(
                 "summary",
                 windows=windows,
@@ -132,6 +153,11 @@ def main() -> int:
     parser.add_argument("--seconds", type=float, default=30)
     parser.add_argument("--n", type=int, default=2)
     parser.add_argument("--lease-seconds", type=float, default=10)
+    parser.add_argument(
+        "--event-socket",
+        type=Path,
+        help="optional host UDS; omit for the telemetry-off G8 gate",
+    )
     return run(parser.parse_args())
 
 

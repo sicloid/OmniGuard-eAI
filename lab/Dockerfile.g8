@@ -10,6 +10,7 @@ COPY core /opt/omniguard/core
 COPY gateway /opt/omniguard/gateway
 COPY model /opt/omniguard/model
 COPY sources /opt/omniguard/sources
+COPY telemetry /opt/omniguard/telemetry
 COPY lab /opt/omniguard/lab
 ENV PYTHONPATH=/opt/omniguard
 WORKDIR /opt/omniguard
