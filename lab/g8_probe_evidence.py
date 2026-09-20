@@ -24,6 +24,8 @@ def assess_protocol(
     before = sum(value < applied_ns for value in deliveries)
     attempted = sum(blocked_begin_ns < value < blocked_end_ns for value in attempts)
     blocked = sum(blocked_begin_ns < value < blocked_end_ns for value in deliveries)
+    first_after_block = next((value for value in deliveries if value >= blocked_end_ns), None)
+    first_after_release = next((value for value in deliveries if value > release_ns), None)
     after_times = [value for value in deliveries if value > release_ns + 300_000_000]
     if before < 3 or attempted < 3 or blocked or len(after_times) < 3:
         raise ValueError(
@@ -35,5 +37,10 @@ def assess_protocol(
         "attempts_during_block": attempted,
         "blocked": blocked,
         "after": len(after_times),
-        "first_post_release_delivery_seconds": round((after_times[0] - release_ns) / 1e9, 6),
+        "first_delivery_after_block_vs_release_seconds": (
+            round((first_after_block - release_ns) / 1e9, 6)
+            if first_after_block is not None
+            else None
+        ),
+        "first_post_release_delivery_seconds": round((first_after_release - release_ns) / 1e9, 6),
     }

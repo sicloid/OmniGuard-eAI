@@ -150,21 +150,28 @@ manifest/t0, frozen model hashes, chosen N/lease, core log and independent
 TCP/UDP sink logs in one run directory. Correlate by same-container monotonic
 clock. The source-attempt logs must show packets attempted *during* the blocked
 interval, while independent sink logs show zero delivery there; a silent sink
-without source attempts proves nothing. Report the first post-release TCP and
-UDP sink delivery delay and the reorder wrapper's inversion/heap counters.
+without source attempts proves nothing. Report both the first delivery after
+the verified blocked interval (signed relative to release/readback, because
+kernel TTL may restore traffic before controller readback) and the first delivery
+strictly after release. Count stable post-release deliveries only after a 300 ms
+margin, but do not apply that margin to the first-delivery latency. Also report
+the reorder wrapper's inversion/heap counters.
 These are integration observations, not model accuracy or external FPR.
 
 On 20 September, the pinned KAN-19 model and hash-pinned prepared 8-1 SYN slice
 were exercised in the disposable Docker topology after these checks were added.
 In the orderly run, TCP and UDP each attempted 33 sends while blocked; both
 sinks recorded zero deliveries, then 293 TCP and 307 UDP deliveries after
-release. The first counted post-release delivery was 1.444315 s (TCP) and
-0.344552 s (UDP). Kernel drops were 0, local service succeeded 111 times,
+release. The first actual post-release delivery was 1.444315 s (TCP) and
+0.041127 s (UDP); UDP had already resumed 0.009651 s before the controller's
+release readback. Kernel drops were 0, local service succeeded 111 times,
 and the reorder wrapper reported 0 inversions with a high-water mark of 3.
 In the SIGKILL run, each source attempted 12 sends while the kernel element
 remained active after process death; both sinks recorded zero deliveries and
-then 73 each after kernel TTL expiry. The first counted deliveries were
-0.342523 s (TCP) and 0.350128 s (UDP) after the inactive readback. These
+then 73 each after kernel TTL expiry. The first deliveries strictly after the
+inactive readback were 0.039447 s (TCP) and 0.046616 s (UDP); both protocols
+also delivered traffic before that later readback, once the kernel TTL had
+expired. These
 numbers describe one N=1, six-second-lease development validation run, not a
 distribution or Raspberry Pi measurement. The synthetic wiring smoke separately
 exercised 5 timestamp inversions (maximum 8.82 microseconds) and passed.
