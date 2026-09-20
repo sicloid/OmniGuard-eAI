@@ -116,7 +116,7 @@ acceptance remains separate.
 
 ## 6. G8 core gate
 
-The real-core candidate is [PR #41](https://github.com/sicloid/OmniGuard-eAI/pull/41).
+The real-core implementation merged through [PR #41](https://github.com/sicloid/OmniGuard-eAI/pull/41).
 Its synthetic RF smoke is wiring evidence only. The PR now also contains Linux
 Docker runners for the **exact** frozen KAN-19 binary and a hash-pinned,
 transformed IoT-23 8-1 development PCAP slice. Local runs recorded independent
@@ -124,9 +124,9 @@ TCP/UDP sink stop and restore, local service continuity, and kernel-TTL recovery
 after controller `SIGKILL`. The raw evidence and exact preparation commands are
 in [its G8 runbook](G8_RUNBOOK.md). The 8-1 capture belongs to development
 validation and the transformation changes destination-diversity features; this
-is an integration observation, not a new FPR or unseen-data result. PR #41 is
-in independent team review. Until its code/provenance/evidence are accepted,
-report `G8: in review`, and keep KAN-35 dependent on that gate.
+is an integration observation, not a new FPR or unseen-data result. Gabriel
+independently approved the exact head, hosted CI passed, and PR #41 merged;
+KAN-49 and the laptop-only KAN-35 demo are complete within this stated scope.
 
 ## 7. G10 and results freeze
 
