@@ -13,7 +13,7 @@ environment. On CachyOS, `uv python install 3.14.7` and
 ```sh
 git rev-parse HEAD
 .venv/bin/python --version
-.venv/bin/python -m pip install --require-hashes -r requirements-ml.lock
+uv pip install --python .venv/bin/python --require-hashes -r requirements-ml.lock
 .venv/bin/python -m pip install -e . --no-deps --no-build-isolation
 .venv/bin/python -m pip check
 .venv/bin/python -m unittest discover -s tests -v
@@ -23,6 +23,8 @@ git rev-parse HEAD
 
 The core-only install may use `requirements.lock`; model training and the real RF
 path require `requirements-ml.lock`. See [the environment contract](ENVIRONMENT.md).
+The `uv pip` command enforces the same lock hashes; if uv is unavailable, use
+`.venv/bin/python -m pip install --require-hashes -r requirements-ml.lock`.
 Test counts vary by commit and platform; skipped Linux-only tests on Windows do
 not prove the Linux socket path.
 
