@@ -1,0 +1,89 @@
+{
+  "run_id": "510100a6-77d3-4f13-b6ce-c054c0c1c9fe",
+  "status": "complete",
+  "provenance": {
+    "counts": {
+      "after_selected_span": 12331,
+      "not_device_ipv4": 9108,
+      "not_plain_tcp": 2179,
+      "not_selected_syn": 2,
+      "records_read": 23623,
+      "selected": 3
+    },
+    "first_capture_ts": 1533047044.299948,
+    "label_limit": "scenario is malware capture; no per-record attack-start claim",
+    "last_capture_ts": 1533047047.451406,
+    "max_span_seconds": 6.0,
+    "parent_pcap_sha256": "80dcc2602519479ddcde889fa902fee19a76696630811452f8df38888af894f2",
+    "prepared_pcap_sha256": "fc4aa4b9bbdc89a7845fa0fb8b0fd19ce13f71c82a25346e390ad7863ac917ee",
+    "selected_records": [
+      {
+        "capture_ts": 1533047044.299948,
+        "original_dst_ip": "178.128.185.250",
+        "original_dst_port": 50,
+        "parent_record": 488
+      },
+      {
+        "capture_ts": 1533047045.371332,
+        "original_dst_ip": "178.128.185.250",
+        "original_dst_port": 50,
+        "parent_record": 489
+      },
+      {
+        "capture_ts": 1533047047.451406,
+        "original_dst_ip": "178.128.185.250",
+        "original_dst_port": 50,
+        "parent_record": 492
+      }
+    ],
+    "selection": "IPv4 TCP SYN/no payload, captured device 192.168.100.113, dport 50",
+    "source": "IoT-23 CTU-IoT-Malware-Capture-8-1; integration slice, not holdout",
+    "transformations": [
+      "drop all records outside selection, counting exclusions",
+      "map captured source 192.168.100.113 to owned og-a 10.203.1.2",
+      "map selected destination to owned og-c 10.203.2.2",
+      "recompute IPv4 and TCP checksums; replay harness replaces Ethernet MACs"
+    ]
+  },
+  "speed": 1.0,
+  "reference_record": 1,
+  "t0_meaning": "replay reference submission",
+  "python": "3.14.7 (main, Sep  1 2026, 00:08:22) [GCC 12.2.0]",
+  "dpkt": "1.9.8",
+  "kernel": "7.2.5-1-cachyos",
+  "harness_sha256": "6e7cea1699b43fca3528020735c6e8e8eee4b6ee702a8ceb427e07bd0a454323",
+  "limits": {
+    "snapshot_bytes": 268435456,
+    "capture_seconds": 3600
+  },
+  "namespace_ownership": {
+    "og-a": "5:4026533503",
+    "og-b": "5:4026533557",
+    "og-c": "5:4026533610"
+  },
+  "ethernet_rewrite": {
+    "source": "72:ff:32:a2:7a:14",
+    "destination": "36:a6:b8:f8:86:a9"
+  },
+  "prepared_pcap_sha256": "fc4aa4b9bbdc89a7845fa0fb8b0fd19ce13f71c82a25346e390ad7863ac917ee",
+  "prepared_bytes": 294,
+  "packets": 3,
+  "first_capture_ts": "1533047044.299948",
+  "last_capture_ts": "1533047047.451406",
+  "sent_packets": 3,
+  "clock_mapping": {
+    "utc_ns": 1789868830333532413,
+    "monotonic_before_ns": 99189249561096,
+    "monotonic_after_ns": 99189249562008
+  },
+  "reference_t0": {
+    "record": 1,
+    "capture_ts": "1533047044.299948",
+    "scheduled_ns": 99189249562008,
+    "intent_ns": 99189249607131,
+    "l3_bytes": 60,
+    "send_begin_ns": 99189249619061,
+    "send_return_ns": 99189249667840
+  },
+  "max_schedule_lag_ns": 231092
+}

@@ -1,0 +1,121 @@
+{
+  "data_role": "development-validation",
+  "model_metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+  "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+  "parent_pcap_sha256": "80dcc2602519479ddcde889fa902fee19a76696630811452f8df38888af894f2",
+  "prepared_pcap_sha256": "fc4aa4b9bbdc89a7845fa0fb8b0fd19ce13f71c82a25346e390ad7863ac917ee",
+  "prepared_provenance_sha256": "f3336d1ade84a869db71c37573d5bc6b30898388e8a763997d530de2f8fbde12",
+  "run_code_commit": "fda15ee731f3069eb876371faa9115a06dd4582c",
+  "runs": {
+    "orderly": {
+      "bundled_evidence_directory": "docs/evidence/G8_2026-09-20_raw/orderly",
+      "original_clean_checkout_directory": "artifacts/g8-iot23.FNm0h3ck",
+      "sha256": {
+        "core.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "core.jsonl": "3fa0552ed4fd9fa3fb6dd655a7f087ead46651ef9b2137b0bc47174e1735e87d",
+        "local-source.log": "f7c6ed66ec0686553977c68f1b57a5b8a1b86e387ad222662289be01389d8c34",
+        "parent-after.nft": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "parent-after.routes": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "parent-before.nft": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "parent-before.routes": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "replay-runs/<run-id>/manifest.json": "1f9197e6852110352fdcd6052767bc2744f532e956603aed286bf4f0e45f9504",
+        "tcp-sink.log": "0178b342914ee7f097304c9a14ddb2cbd5c4e14511d87c00a4a925773a5d18cc",
+        "tcp-source.log": "b3706d48e652f2a6fd4e0754de02d53ee2f5a441301eba88cef151061529a0df",
+        "udp-sink.log": "8d1ec98e1467c7fac3cac43a13ad7a9ea2f7a069346c16d6e136c8aefebe011c",
+        "udp-source.log": "51476c4ea71ad618e9e0914711b50ed750c5b940bfd01a9f1ece28f05b7cbc16"
+      },
+      "validation": {
+        "apply_ns": 99159428780290,
+        "kernel_drops": 0,
+        "local_successes_during_block": 111,
+        "not_yet_proven": [
+          "process-kill/kernel-TTL run",
+          "independent owner review"
+        ],
+        "prepared_pcap_sha256": "fc4aa4b9bbdc89a7845fa0fb8b0fd19ce13f71c82a25346e390ad7863ac917ee",
+        "release_ns": 99165543847428,
+        "reorder_stats": {
+          "buffer_high_water": 4,
+          "excess_lateness_seconds": 0.0,
+          "max_inversion_seconds": 0.0,
+          "reordered_packets": 0
+        },
+        "replay_t0_send_begin_ns": 99158602357455,
+        "sinks": {
+          "tcp": {
+            "after": 292,
+            "attempts_during_block": 24,
+            "before": 20,
+            "blocked": 0,
+            "first_delivery_after_block_vs_release_seconds": 2.804225,
+            "first_post_release_delivery_seconds": 2.804225
+          },
+          "udp": {
+            "after": 333,
+            "attempts_during_block": 24,
+            "before": 20,
+            "blocked": 0,
+            "first_delivery_after_block_vs_release_seconds": -0.009201,
+            "first_post_release_delivery_seconds": 0.041042
+          }
+        },
+        "status": "partial_real_model_iot23_core",
+        "windows": 5
+      }
+    },
+    "sigkill": {
+      "bundled_evidence_directory": "docs/evidence/G8_2026-09-20_raw/sigkill",
+      "original_clean_checkout_directory": "artifacts/g8-iot23-kill.Awt77Idc",
+      "sha256": {
+        "core.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "core.jsonl": "adddf09b62e71e63dc8f2cf53fc24e69563ceea315ba10f72299824b1de9d8d2",
+        "kernel-after.json": "2c3482d8fed4fa4608b6fe42c19d0cc7d6b6cba5d10bbd807f4525621051c35b",
+        "kernel-before.json": "a34d591f473def86a2a3b47a2946f2b66835c8ff21c3918c5709496840edf253",
+        "kernel-during.json": "5a9e9dfeff90f252b728f40ad26ebe35c59a3db7c4269c53eeea7dada5eead36",
+        "killed.json": "9324809e02549a6085da55b5197a490a0232caab8890eb1663975b29acda7d94",
+        "local-source.log": "511585967215811ceaa126e9a7f3887ccad4eff773ff09da4d6ea4f0322c521b",
+        "parent-after.nft": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "parent-after.routes": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "parent-before.nft": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "parent-before.routes": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "replay-runs/<run-id>/manifest.json": "9ce227d992ad174ec536de03a5e8aa01ecd77802ae967f1e43fb2d6b930a1084",
+        "tcp-sink.log": "28b7096f79af5a9277e9a4f5add771e7bfb3612b46349a679bb645c36030e281",
+        "tcp-source.log": "3574a8ee58fc7a4207f393374e897cdfdf146a3217dd8a8af5afb64c2b63129d",
+        "udp-sink.log": "331a54487a64a59c0cdd1c5f57731d6aba297cbd532dcae4619b1e14852fdb1e",
+        "udp-source.log": "225c92c4d58515cd4b21b08ce428483f7a255cbf32ce4c724174aa875dda873b"
+      },
+      "validation": {
+        "apply_ns": 99194345431412,
+        "controller_pid": 67,
+        "kernel_active_after_kill_ns": 99194460687680,
+        "kernel_active_during_ns": 99196514509934,
+        "kernel_inactive_after_ttl_ns": 99201564761386,
+        "kill_ns": 99194401167050,
+        "local_successes_during_block": 35,
+        "prepared_pcap_sha256": "fc4aa4b9bbdc89a7845fa0fb8b0fd19ce13f71c82a25346e390ad7863ac917ee",
+        "sinks": {
+          "tcp": {
+            "after": 74,
+            "attempts_during_block": 12,
+            "before": 20,
+            "blocked": 0,
+            "first_delivery_after_block_vs_release_seconds": -0.513665,
+            "first_post_release_delivery_seconds": 0.019167
+          },
+          "udp": {
+            "after": 74,
+            "attempts_during_block": 12,
+            "before": 20,
+            "blocked": 0,
+            "first_delivery_after_block_vs_release_seconds": -1.08319,
+            "first_post_release_delivery_seconds": 0.022553
+          }
+        },
+        "status": "kernel_ttl_restored_after_sigkill"
+      }
+    }
+  },
+  "schema": "omniguard-g8-evidence-index/1",
+  "scope": "isolated Linux x86_64 lab; N=1; 6-second lease; transformed 8-1 development-validation slice; no Pi/external FPR claim",
+  "validator_commit": "92dc2147bdbbeef7adccb33d32b94fac75094c92"
+}

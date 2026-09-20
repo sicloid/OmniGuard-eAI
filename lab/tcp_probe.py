@@ -31,12 +31,18 @@ def source() -> None:
         client.settimeout(2.0)
         client.connect((HOST, PORT))
         client.settimeout(0.1)
+        expected = b""
         while True:
             try:
+                print(time.monotonic_ns(), flush=True)
                 client.sendall(PAYLOAD)
+                expected += PAYLOAD
                 data = client.recv(128)
-                if data == PAYLOAD:
-                    print(time.monotonic_ns(), flush=True)
+                if not data:
+                    raise ConnectionError("TCP echo stream closed")
+                if not expected.startswith(data):
+                    raise RuntimeError("TCP echo payload mismatch")
+                expected = expected[len(data) :]
             except TimeoutError:
                 pass
             time.sleep(0.05)

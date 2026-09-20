@@ -1,0 +1,17 @@
+# Disposable amd64 real-core lab.  Artifact bytes enter only through a read-only
+# bind mount at container creation; neither model nor traffic data enters Git/image.
+FROM python:3.14.7-slim-bookworm@sha256:d893452fcd120ea9a7233972c85ea868255bde289a636fe76ff090427fe8fac9
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash iproute2 nftables conntrack iputils-ping util-linux procps \
+    coreutils gawk grep libgomp1 && rm -rf /var/lib/apt/lists/*
+COPY requirements-ml.lock /tmp/requirements-ml.lock
+RUN pip install --no-cache-dir --require-hashes -r /tmp/requirements-ml.lock
+COPY core /opt/omniguard/core
+COPY gateway /opt/omniguard/gateway
+COPY model /opt/omniguard/model
+COPY sources /opt/omniguard/sources
+COPY telemetry /opt/omniguard/telemetry
+COPY lab /opt/omniguard/lab
+ENV PYTHONPATH=/opt/omniguard
+WORKDIR /opt/omniguard
+CMD ["python", "-m", "lab.g8_core", "--help"]

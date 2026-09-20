@@ -18,11 +18,12 @@ Original V2 planning files are retained as historical sources.
 
 G1 contracts are team-approved and frozen as `0.1.0`; PR #1 is merged.
 PCAP/live capture, bounded windows, the checked detector, shared extractor,
-artifact loader, capture-group split, RF/rate-rule training and threshold policy
-code are implemented. PRs #4–#15 are merged; 129 combined tests pass without skips
-on the ML environment. Real data audit/training results, runtime policy/enforcement
-integration and the telemetry event chain remain pending. The isolated UDP lab and
-Compose service smoke pass; **G5/G8/G10 are not passed**.
+artifact loader, capture-group split, RF/rate-rule training, validation threshold,
+bounded policy, nftables enforcer and gateway-to-host UDS bridge are implemented.
+KAN-20 ablation results are merged. The isolated lab and Compose service smokes
+pass; a complete real-artifact core/sink run and the full G10 telemetry gate are
+still required. **G8/G10 are not passed.** The pinned trained `model.joblib` is
+kept outside Git and must be supplied for the real G8 gate.
 See [current status](docs/STATUS.md) and [review evidence](docs/REVIEW_CLOSEOUT_2026-09-12.md).
 
 ## Run locally
@@ -78,8 +79,9 @@ end-to-end detection pipeline. Do not cite its output as research measurements.
 All three collaborators were verified on 2026-09-10. AI work
 supports human module owners; every change still needs owner review.
 
-Next: R1 real data audit/catalogue freeze and model evidence; R2 live health/window/
-policy integration; R3 UDS/framing ADR, database migrations/consumer and dashboards.
+Next: R2's real-artifact G8 gate, R3's G10 telemetry gate, the joint experiment
+freeze, and a repeatable demo/release. Keep the assigned Jira owners and review
+requirements for these gates.
 Full roadmap: [development status](docs/STATUS.md).
 
 Docker lab and platform (from the repository root):
@@ -94,6 +96,8 @@ python3 platform/smoke.py
 Grafana: [localhost:3000](http://127.0.0.1:3000), user `admin`; password in
 `platform/.secrets/grafana_password`. Access/shutdown: [platform runbook](platform/README.md).
 Network-test logs: `artifacts/linux-lab.*`; [Linux evidence](docs/LINUX_VALIDATION.md).
+For the real core gate, use the [G8 runbook](docs/G8_RUNBOOK.md); the synthetic
+TCP/UDP RF wiring smoke is `bash lab/run_g8_synthetic_docker.sh` and is not G8 proof.
 
 ## Engineering rules
 

@@ -1,0 +1,4 @@
+{"kind": "ready", "lease_seconds": 6.0, "model_id": "rf-iot23", "model_version": "0.1.0-seed1-kan19", "mono_ns": 99189061398858, "n": 1, "pid": 67, "start": 1789868830, "threshold": 0.9798815486832}
+{"classification": "ANOMALOUS", "device_id": "camera", "kind": "detection", "model_id": "rf-iot23", "model_version": "0.1.0-seed1-kan19", "mono_ns": 99194345351682, "score": 1.0, "threshold": 0.9798815486832, "window_ts": 1789868830}
+{"device_id": "camera", "expires_at": 1789868841.4058392, "kind": "state_event", "mono_ns": 99194345411991, "new_state": "QUARANTINED", "previous_state": "NORMAL", "reason": "consecutive eligible anomalies", "timestamp": 1789868835.4058392}
+{"action": "APPLIED", "device_id": "camera", "ipv4": "10.203.1.2", "kind": "kernel_receipt", "lease_ms": 6000, "mono_ns": 99194345431412, "namespace": "og-b", "readback_active": true}

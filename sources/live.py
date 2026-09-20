@@ -62,18 +62,27 @@ class LiveCapture:
 
     read() returning None means timeout or a filtered frame, not a healthy idle
     watermark. Capture statistics cover this socket, not NIC/driver/upstream loss.
-    All frames must arrive ordered by kernel UTC time; out-of-order time is fatal.
+    Strict order is the default. With strict_order=False, a bounded ordering
+    adapter must sort original timestamps before any window/policy consumer.
     """
 
     def __init__(
-        self, interface: str, normalizer: PacketNormalizer, *, receive_bytes: int = 1048576
+        self,
+        interface: str,
+        normalizer: PacketNormalizer,
+        *,
+        receive_bytes: int = 1048576,
+        strict_order: bool = True,
     ):
         if sys.platform != "linux":
             raise OSError("live capture requires Linux")
         nonempty(interface, "interface")
         if type(receive_bytes) is not int or not 4096 <= receive_bytes <= 67108864:
             raise ValueError("receive_bytes must be an integer from 4096 to 64 MiB")
+        if type(strict_order) is not bool:
+            raise ValueError("strict_order must be a boolean")
         self.normalizer = normalizer
+        self.strict_order = strict_order
         self.stats = CaptureStats()
         self._last_timestamp = -1.0
         self._failed = False
@@ -137,12 +146,16 @@ class LiveCapture:
                 return None
             try:
                 timestamp = kernel_timestamp(ancillary)
-                if timestamp < self._last_timestamp:
-                    raise CaptureError("kernel timestamps moved backward/out of order")
+                if self.strict_order and timestamp < self._last_timestamp:
+                    raise CaptureError(
+                        "kernel timestamps moved backward/out of order: "
+                        f"previous={self._last_timestamp:.9f} current={timestamp:.9f} "
+                        f"delta={self._last_timestamp - timestamp:.9f}s"
+                    )
             except CaptureError:
                 self.stats.timestamp_errors += 1
                 raise
-            self._last_timestamp = timestamp
+            self._last_timestamp = max(self._last_timestamp, timestamp)
             return self.normalizer.parse(timestamp, frame, 1)
         except CaptureError, PacketError, OSError:
             self._failed = True
@@ -153,8 +166,9 @@ class LiveCapture:
 
         The cutoff precedes recvmsg, so a queued packet is read before advancing.
         A 100 ms clock-offset guard is subtracted from idle progress. Any observed
-        offset drift beyond it fails the session. This retains the adapter's strict
-        ordered-kernel-time assumption; a later packet below the cutoff is fatal.
+        offset drift beyond it fails the session. In strict mode a later packet
+        below the cutoff is fatal; in non-strict mode the ordering wrapper must
+        reject it before the window/policy boundary.
         It does not certify NIC/upstream completeness.
         """
         try:
