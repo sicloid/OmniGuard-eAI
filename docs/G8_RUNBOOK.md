@@ -11,7 +11,10 @@ validation capture**, not unseen-data efficacy or deployment FPR evidence.
 
 ## Real-model IoT-23 Linux runs (19–20 September)
 
-Keep the original model and PCAP outside Git. First check all model files against
+Use the locked ML virtual environment from [REPRODUCE.md](REPRODUCE.md) for the
+preparation step: `lab.prepare_iot23_g8` imports `dpkt`, which is not guaranteed
+to be installed in the system Python. Keep the original model and PCAP outside
+Git. First check all model files against
 the archive's `SHA256SUMS` and the project pins. Prepare the original audited 8-1
 PCAP using the fixed selector; the script checks parent SHA-256
 `80dcc260...` before writing anything. The resulting provenance lists the exact
@@ -25,7 +28,7 @@ No packet is sent to a public route: replay runs only in network-none Docker's
 owned A→B→C namespaces.
 
 ```sh
-python -m lab.prepare_iot23_g8 \
+.venv/bin/python -m lab.prepare_iot23_g8 \
   --parent ~/omniguard-data/iot23/CTU-IoT-Malware-Capture-8-1/2018-07-31-15-15-09-192.168.100.113.pcap \
   --out ~/omniguard-data/g8-prepared-8-1
 bash lab/run_g8_iot23_docker.sh \
