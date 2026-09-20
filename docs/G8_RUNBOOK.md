@@ -189,5 +189,6 @@ The two real-model Docker runs above provide the technical evidence for this
 specific profile. KAN-49 remains **İncelemede** until that independent review
 checks the code, provenance, run summaries and scoped claim.
 The [clean-checkout evidence index](evidence/G8_2026-09-20.json) pins the
-corresponding raw log hashes and validator outputs without committing the model
-or capture bytes.
+corresponding raw log hashes and validator outputs. Its small, payload-free
+[log bundle](evidence/G8_2026-09-20_raw/) lets a reviewer rerun both validators
+without committing the model or capture bytes.

@@ -8,7 +8,8 @@
   "run_code_commit": "fda15ee731f3069eb876371faa9115a06dd4582c",
   "runs": {
     "orderly": {
-      "local_evidence_directory": "artifacts/g8-iot23.FNm0h3ck",
+      "bundled_evidence_directory": "docs/evidence/G8_2026-09-20_raw/orderly",
+      "original_clean_checkout_directory": "artifacts/g8-iot23.FNm0h3ck",
       "sha256": {
         "core.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "core.jsonl": "3fa0552ed4fd9fa3fb6dd655a7f087ead46651ef9b2137b0bc47174e1735e87d",
@@ -63,7 +64,8 @@
       }
     },
     "sigkill": {
-      "local_evidence_directory": "artifacts/g8-iot23-kill.Awt77Idc",
+      "bundled_evidence_directory": "docs/evidence/G8_2026-09-20_raw/sigkill",
+      "original_clean_checkout_directory": "artifacts/g8-iot23-kill.Awt77Idc",
       "sha256": {
         "core.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "core.jsonl": "adddf09b62e71e63dc8f2cf53fc24e69563ceea315ba10f72299824b1de9d8d2",
