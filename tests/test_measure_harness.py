@@ -21,6 +21,7 @@ from measure.manifest import (
     POLICY_CONFIG_VERSION,
     ExperimentManifest,
     ManifestError,
+    ObservedFromR2,
     ProvenanceFromR1,
     read_manifest,
 )
@@ -210,6 +211,44 @@ class ManifestTests(unittest.TestCase):
         provenance = read_manifest(manifest.directory)["provenance"]
         self.assertEqual(provenance["r1"]["model_sha256"], "a" * 64)
         self.assertNotIn("model_sha256", provenance["not_supplied"]["r1"])
+
+    def test_actual_t0_and_sink_are_recorded_only_after_the_same_run(self):
+        manifest = self.manifest()
+        manifest.freeze()
+        before = read_manifest(manifest.directory)["provenance"]
+        self.assertIsNone(before["r2"]["t0_unix"])
+        self.assertIn("sink_evidence", before["not_supplied"]["r2"])
+        manifest.close(
+            measurements={},
+            r2_observed=ObservedFromR2(
+                run_id="run-1", t0_unix=1789852223.283367, sink_evidence="tcp+udp sink log"
+            ),
+        )
+        after = read_manifest(manifest.directory)["provenance"]
+        self.assertEqual(after["r2"]["t0_unix"], 1789852223.283367)
+        self.assertEqual(after["r2"]["sink_evidence"], "tcp+udp sink log")
+        self.assertEqual(after["r2_observation_phase"], "at-close")
+        self.assertNotIn("t0_unix", after["not_supplied"]["r2"])
+
+    def test_foreign_run_observation_cannot_close_or_replace_frozen_run(self):
+        manifest = self.manifest()
+        manifest.freeze()
+        before = manifest.path.read_bytes()
+        with self.assertRaises(ManifestError):
+            manifest.close(
+                measurements={},
+                r2_observed=ObservedFromR2(run_id="run-2", t0_unix=1789852223.0),
+            )
+        self.assertEqual(manifest.path.read_bytes(), before)
+        self.assertEqual(read_manifest(manifest.directory)["status"], INCOMPLETE)
+
+    def test_future_t0_and_sink_cannot_be_supplied_before_freeze(self):
+        from measure.manifest import ProvenanceFromR2
+
+        manifest = self.manifest(r2=ProvenanceFromR2(t0_unix=1789852223.0))
+        with self.assertRaises(ManifestError):
+            manifest.freeze()
+        self.assertFalse(manifest.path.exists())
 
     def test_the_written_file_is_valid_json_and_leaves_no_temporary_behind(self):
         manifest = self.manifest()

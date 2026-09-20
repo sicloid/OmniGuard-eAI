@@ -14,12 +14,15 @@ leaving a reader to guess whether a blank means "zero" or "nobody supplied it":
 Three rules this file enforces rather than documents:
 
 - **The run is sealed before it starts.** `freeze()` takes a deep snapshot of the
-  configuration and both provenance sections, and refuses later changes to either —
+  configuration and pre-run provenance, and refuses later changes to either —
   whether by editing a nested value, replacing the whole attribute, or calling
   `set_config`. What is published is the snapshot, not whatever the caller holds now.
   A configuration or a provenance hash edited while the run is in flight describes a
   run that never happened, and ADR-0004 decision 7b requires those hashes recorded
-  *before* a holdout run rather than alongside its results. 7b's other half — N and
+  *before* a holdout run rather than alongside its results. R2's actual `t0` and
+  sink result are the only post-run observations; `close()` accepts them with the
+  same run ID. Format `/2` distinguishes this timing from historical `/1` records.
+  7b's other half — N and
   the lease — is checked in the sealed config by the same rule, so a `holdout` run
   cannot publish an empty `holdout_preconditions_unmet` while recording no policy.
 - **A run directory belongs to one run.** `freeze()` claims `manifest.json` with an
@@ -44,7 +47,7 @@ from pathlib import Path
 
 from measure.clocks import Clock, UnixInstant
 
-MANIFEST_FORMAT = "omniguard-experiment-manifest/1"
+MANIFEST_FORMAT = "omniguard-experiment-manifest/2"
 FILENAME = "manifest.json"
 
 INCOMPLETE, COMPLETED, FAILED = "incomplete", "completed", "failed"
@@ -145,7 +148,7 @@ POLICY_CONFIG_VERSION = "omniguard-policy-config/1"
 
 @dataclass
 class ProvenanceFromR2:
-    """How the run maps onto the machine and the wire. Supplied by R2."""
+    """R2 machine context sealed before the run; observations arrive at close."""
 
     host_id: str | None = None
     boot_id: str | None = None
@@ -156,6 +159,23 @@ class ProvenanceFromR2:
 
     def __post_init__(self) -> None:
         _hashes(self)
+
+
+@dataclass(frozen=True)
+class ObservedFromR2:
+    """Actual replay/sink observations, recorded after the same run has executed."""
+
+    run_id: str
+    t0_unix: float | None = None
+    sink_evidence: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.t0_unix is not None and not _positive(self.t0_unix):
+            raise ManifestError("observed t0_unix must be a positive finite Unix timestamp")
+        if self.sink_evidence is not None and (
+            not isinstance(self.sink_evidence, str) or not self.sink_evidence.strip()
+        ):
+            raise ManifestError("observed sink_evidence must be nonempty text")
 
 
 def _pending(section: dict) -> list[str]:
@@ -261,6 +281,11 @@ class ExperimentManifest:
         if self._frozen:
             raise ManifestError("this run is already frozen")
         if not self._sealed:
+            if self.r2.t0_unix is not None or self.r2.sink_evidence is not None:
+                raise ManifestError(
+                    "t0_unix and sink_evidence are observed during the run; "
+                    "supply them to close(r2_observed=...)"
+                )
             self._started = self.clock.now()
             # A deep copy, kept privately: nothing the caller still holds a reference to
             # can reach the published document, at any nesting depth.
@@ -271,7 +296,9 @@ class ExperimentManifest:
             }
             self._sealed = True
         self._reserve()
-        self._write(self._document(status=INCOMPLETE, outcome=None, measurements=None))
+        self._write(
+            self._document(status=INCOMPLETE, outcome=None, measurements=None, r2_observed=None)
+        )
         self._frozen = True
         return self.path
 
@@ -280,7 +307,14 @@ class ExperimentManifest:
             raise ManifestError("the configuration is frozen; a changed config is a different run")
         self.config = config
 
-    def close(self, *, measurements: dict, status: str = COMPLETED, outcome: dict | None = None):
+    def close(
+        self,
+        *,
+        measurements: dict,
+        status: str = COMPLETED,
+        outcome: dict | None = None,
+        r2_observed: ObservedFromR2 | None = None,
+    ):
         """Write the final document. A failed run is closed as failed, never removed."""
         if not self._frozen:
             raise ManifestError("freeze the run before closing it")
@@ -288,8 +322,20 @@ class ExperimentManifest:
             raise ManifestError("this run is already closed")
         if status not in (COMPLETED, FAILED):
             raise ManifestError(f"status must be {COMPLETED} or {FAILED}, not {status!r}")
+        if r2_observed is not None:
+            if not isinstance(r2_observed, ObservedFromR2):
+                raise ManifestError("r2_observed must be an ObservedFromR2 record")
+            if r2_observed.run_id != self.run_id:
+                raise ManifestError("R2 observations belong to a different run_id")
         self._assert_still_ours()
-        self._write(self._document(status=status, outcome=outcome, measurements=measurements))
+        self._write(
+            self._document(
+                status=status,
+                outcome=outcome,
+                measurements=measurements,
+                r2_observed=r2_observed,
+            )
+        )
         self._closed = True
         return self.path
 
@@ -332,9 +378,19 @@ class ExperimentManifest:
                 f"{self.run_id!r}; closing would overwrite another run's evidence"
             )
 
-    def _document(self, *, status: str, outcome: dict | None, measurements: dict | None) -> dict:
+    def _document(
+        self,
+        *,
+        status: str,
+        outcome: dict | None,
+        measurements: dict | None,
+        r2_observed: ObservedFromR2 | None,
+    ) -> dict:
         snapshot = self._snapshot or {}
-        r1, r2 = snapshot.get("r1", {}), snapshot.get("r2", {})
+        r1, r2 = snapshot.get("r1", {}), dict(snapshot.get("r2", {}))
+        if r2_observed is not None:
+            r2["t0_unix"] = r2_observed.t0_unix
+            r2["sink_evidence"] = r2_observed.sink_evidence
         return {
             "manifest_format": MANIFEST_FORMAT,
             "run_id": self.run_id,
@@ -346,6 +402,7 @@ class ExperimentManifest:
             "provenance": {
                 "r1": r1,
                 "r2": r2,
+                "r2_observation_phase": "at-close" if r2_observed is not None else None,
                 # Named so a reader never has to infer that a null was a measurement.
                 "not_supplied": {"r1": _pending(r1), "r2": _pending(r2)},
                 # ADR-0004 7b, named rather than assumed satisfied by a holdout run.
