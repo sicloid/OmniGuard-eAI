@@ -9,7 +9,7 @@ the remaining local kernel/sink requirements; independent team review remains
 the Jira closing condition. These are integration tests on a **development
 validation capture**, not unseen-data efficacy or deployment FPR evidence.
 
-## Real-model IoT-23 Linux runs (19 September)
+## Real-model IoT-23 Linux runs (19–20 September)
 
 Keep the original model and PCAP outside Git. First check all model files against
 the archive's `SHA256SUMS` and the project pins. Prepare the original audited 8-1
@@ -37,14 +37,16 @@ bash lab/run_g8_iot23_kill_docker.sh \
 The orderly run loaded the **exact** frozen model, captured the replayed real
 packets through AF_PACKET, extracted `features-1`, recorded an anomalous RF
 decision and nftables `APPLIED`/release receipts, and observed independent
-established TCP and UDP probe sinks. In the latest run both sinks had 20
-pre-block deliveries, **zero** in the validated block interval, then 292 TCP /
-294 UDP deliveries after release. The og-a local loopback service answered 112
-times during the gateway block; capture reported zero kernel drops. The separate
+established TCP and UDP probe sinks. In the indexed 20 September run both sinks
+had 20 pre-block deliveries and **zero** in the validated block interval,
+despite 24 source attempts per protocol. Stable post-release deliveries were
+292 TCP and 333 UDP. The og-a local loopback service answered 111 times during
+the gateway block; capture reported zero kernel drops. The separate
 SIGKILL run killed the Python controller after `APPLIED`: readback stayed active
 after death, was active two seconds later, then cleared by the kernel timeout.
-Both sinks had zero deliveries in the validated block interval and 14 each
-after expiry; the local service answered 35 times while blocked. Both runners
+Both sinks had zero deliveries despite 12 source attempts per protocol in the
+validated block interval, then 74 stable deliveries each after expiry; the
+local service answered 35 times while blocked. Both runners
 compared parent rules/routes before and after namespace teardown. Ignored raw
 evidence is under `artifacts/g8-iot23.*` and `artifacts/g8-iot23-kill.*`.
 
@@ -158,20 +160,21 @@ margin, but do not apply that margin to the first-delivery latency. Also report
 the reorder wrapper's inversion/heap counters.
 These are integration observations, not model accuracy or external FPR.
 
-On 20 September, the pinned KAN-19 model and hash-pinned prepared 8-1 SYN slice
-were exercised in the disposable Docker topology after these checks were added.
-In the orderly run, TCP and UDP each attempted 33 sends while blocked; both
-sinks recorded zero deliveries, then 293 TCP and 307 UDP deliveries after
-release. The first actual post-release delivery was 1.444315 s (TCP) and
-0.041127 s (UDP); UDP had already resumed 0.009651 s before the controller's
-release readback. Kernel drops were 0, local service succeeded 111 times,
-and the reorder wrapper reported 0 inversions with a high-water mark of 3.
-In the SIGKILL run, each source attempted 12 sends while the kernel element
-remained active after process death; both sinks recorded zero deliveries and
-then 73 each after kernel TTL expiry. The first deliveries strictly after the
-inactive readback were 0.039447 s (TCP) and 0.046616 s (UDP); both protocols
-also delivered traffic before that later readback, once the kernel TTL had
-expired. These
+The canonical 20 September run is indexed in
+[`G8_2026-09-20.json`](evidence/G8_2026-09-20.json), including exact raw-log
+hashes and validator outputs. In the orderly run, TCP and UDP each attempted
+24 sends while blocked; both sinks recorded zero deliveries. Their first actual
+deliveries strictly after controller release readback were 2.804225 s (TCP)
+and 0.041042 s (UDP); UDP also resumed 0.009201 s *before* that readback as
+the kernel lease expired. Stable post-release deliveries after the declared
+300 ms margin were 292 TCP and 333 UDP. Kernel drops were 0, local service
+succeeded 111 times, and the reorder wrapper reported 0 inversions with a
+high-water mark of 4. In the SIGKILL run, each source attempted 12 sends while
+the kernel element remained active after process death; both sinks recorded
+zero deliveries and then 74 stable deliveries each after kernel TTL expiry.
+The first deliveries strictly after the inactive readback were 0.019167 s
+(TCP) and 0.022553 s (UDP); both protocols also delivered traffic before that
+later readback, once the kernel TTL had expired. These
 numbers describe one N=1, six-second-lease development validation run, not a
 distribution or Raspberry Pi measurement. The synthetic wiring smoke separately
 exercised 5 timestamp inversions (maximum 8.82 microseconds) and passed.
