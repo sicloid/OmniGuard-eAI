@@ -51,6 +51,13 @@ actually seen sending. Mixing them reports more than 3600 blocked seconds per ho
 with no false quarantine, then the smallest lease containing at least 90 % of observed
 malicious time.
 
+**Approved by the Lead on 20 September 2026**, both the rule and the pair. N = 1 is out
+because it produces false quarantines on the benign device; N = 2 gives zero of them at
+100 % containment; a 300 s lease reaches the same false-quarantine result but keeps a
+device cut off longer than necessary, so the smallest sufficient lease was taken. The
+values are recorded in [ADR-0004 decision 7b](adr/0004-dataset-source.md), which
+completes the list the holdout freeze requires.
+
 | N | Lease | Benign quarantines | Benign per span-hour | Benign blocked share of span | Malware quarantines | Detection delay | Contained malicious time |
 |---:|---:|---:|---:|---:|---:|---:|---:|
 | 1 | 30 s | **13** | 2.60 | 2.7 % | 2,397 | 5.5 s | 100 % |
@@ -102,10 +109,11 @@ committed copy, because the full output is 2.3 MB and no run dump belongs in Git
    N=2 the blocked share of the span is 76 % at a 30 s lease and 90 % at 300 s, while
    the episode count falls from 1,998 to 257. The lease mostly decides how often the
    device is re-quarantined, not whether it is contained.
-6. **`FPR^N` would have been wrong.** With a 1.4 % window FPR on this capture, `FPR²`
-   predicts roughly 0.2 false quarantines in this span. The measured number is 0.
-   Consecutive windows are not independent, and the false positives here are isolated
-   spikes.
+6. **`FPR^N` is reported as a comparison, never as evidence.** With a 1.4 % window FPR
+   on this capture, `FPR²` would predict roughly 0.2 false quarantines in this span,
+   against 0 measured. The arithmetic assumes consecutive windows are independent and
+   they are not, so the comparison only shows why the assumption is unsafe; the decision
+   rests on the measured counts. (Lead, 20 September.)
 
 ## Limits
 
@@ -129,13 +137,9 @@ schema version, the model and metadata hashes, the threshold policy hash, the
 development pack hash **and N/lease** are recorded. Everything except N and lease was
 frozen in KAN-19; this run proposes the missing pair.
 
-**Needed from the Lead before the holdout freeze can cite it:**
+**Recorded on 20 September 2026.** The Lead approved the selection rule and the pair
+N = 2, lease = 30 s, and the values are written into ADR-0004 decision 7b beside the
+hashes that were already frozen in KAN-19.
 
-1. Approve the selection rule: no false quarantine on the benign validation capture,
-   then the smallest lease containing at least 90 % of observed malicious time.
-2. Approve **N = 2, lease = 30 s**, or pick another cell with the reason recorded. If
-   user-visible churn matters more than re-quarantine count, N = 2 with a 300 s lease is
-   the other defensible cell: the same zero false quarantines, 257 episodes instead of
-   1,998, and 90 % containment.
-
-Once that is recorded, the holdout can be downloaded, hashed, audited and scored once.
+The holdout may therefore be downloaded, hashed and audited, and then scored **once**,
+as a separate one-time evaluation. Scoring it is not part of this card.
