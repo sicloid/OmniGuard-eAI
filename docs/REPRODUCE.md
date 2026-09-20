@@ -158,6 +158,8 @@ exists, report `G10/G13: not passed/frozen`.
 Pi 5/ARM64 results require runs on the actual Pi with OS, Python, package/image
 digests, load, temperature/throttling, route and time mapping recorded. Tailscale
 is private management only; it must not advertise the isolated lab subnets.
+Use the [KAN-44 Pi management checklist](PI5_MANAGEMENT.md) to collect the
+actual device and route evidence before claiming a Pi run.
 macOS ARM64 or an aarch64 wheel existing does not validate the Pi. When the Pi is
 unavailable, use the laptop-only path after G8 and label results `Linux x86_64`;
 never copy a laptop number into the Pi column. KAN-44/46/53 remain open until
