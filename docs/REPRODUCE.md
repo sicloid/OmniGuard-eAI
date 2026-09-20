@@ -51,6 +51,14 @@ set, transformations, label rule, exclusions and SHA-256 match. See
 [sample-pack rules](../data/samplepack/README.md) and
 [feature catalogue](../data/FEATURE_CATALOG.md).
 
+If the six audited captures are not all available, do not run the builder on a
+partial capture directory. The separately supplied v2 sample pack can be used
+for a training replay after checking both `windows.jsonl` against the window
+hash above and `manifest.json` against
+`8ea8c310d6b66a82515a693e5347da274a622146e5347e381f11c4f80821d2a7`.
+Record that this verifies the supplied pack's bytes, not a new extraction from
+the six original PCAPs. Point `--pack` below to that verified v2 file.
+
 ## 3. Training and validation-only policy
 
 Run only against the matching audited pack. Outputs live outside Git and each
@@ -74,6 +82,9 @@ its metadata hash is
 `917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad`.
 `model.joblib` stays outside Git. Its hash, not just matching metadata text,
 must be verified before loading it.
+Training the same windows and selecting the same threshold does not imply an
+identical model binary; compare the actual output hash with the frozen hash
+before using a newly trained model for a gate or release.
 
 ## 4. Isolated Linux traffic lab
 
