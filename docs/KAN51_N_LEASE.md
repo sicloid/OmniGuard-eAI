@@ -1,6 +1,6 @@
-# KAN-51 — N and lease on the validation split, 20 September 2026
+# KAN-51 — N and lease on the validation split
 
-Owner: R1 (Onur). Reproduce with:
+Owner: R1 (Onur). Corrected run of 21 September 2026. Reproduce with:
 
 ```sh
 python -m model.nlease_run \
@@ -13,9 +13,10 @@ The threshold decides whether a window is anomalous. **N** decides how many cons
 anomalous windows it takes to quarantine a device, and the **lease** decides how long
 that quarantine lasts. This card measures what each choice costs.
 
-**The run was specified before it ran.** [`model/nlease_spec.json`](../model/nlease_spec.json)
-was committed in `104b2e4`, before any replay. Spec SHA-256:
-`e812d3e934fa3662108df1fe2e5222b767ab9f58e3f6750eadd12063d411109a`.
+> **Status.** N = 2 is the Lead's provisional validation choice (20 September, first-hand
+> on PR #44). **No lease is approved and the holdout stays sealed** until this corrected
+> result is reviewed. The first run's 30 s recommendation is superseded; see
+> "What changed, and why" below.
 
 ## Method
 
@@ -24,21 +25,27 @@ was committed in `104b2e4`, before any replay. Spec SHA-256:
   `0.9798815486832` is used as recorded, never recomputed.
 - **The policy is the real one.** Each device's results are replayed through
   `gateway.policy.DevicePolicy`, the class the runtime uses, so gap resets, staleness
-  rejection, lease expiry and the no-renewal rule are the shipped behaviour rather than
-  a model of it.
-- **Clock.** A window closes at `start + 5 s` and is decided 0.5 s later; the lease
-  expires exactly `lease_seconds` after the decision. After every expiry the episode is
-  re-armed, as an operator or reconcile step would. Without that a device could be
-  quarantined at most once and the rate would be capped by construction.
+  rejection and the no-renewal rule are the shipped behaviour rather than a model of it.
+- **Clock.** A window closes at `start + 5 s` and is decided 0.5 s later. After every
+  expiry the episode is re-armed, as an operator or reconcile step would.
+- **A lease ends at its deadline.** The replay only ticks at window decisions, so it can
+  notice an expiry late when the device is silent. Every episode is capped at
+  `start + lease`, which is when the kernel element actually expires.
+- **Containment is overlap, not totals.** `malicious_time_blocked_fraction` is the share
+  of observed malicious window-time during which the device was actually quarantined:
+  the intersection of episode intervals with the malicious windows `[start, start + 5)`.
 - **Data.** The seed-1 validation split only: benign Honeypot-5-1 and malware
   Malware-8-1. The test split (7-1, 3-1) is not scored and the ADR-0004 holdout is not
-  read.
+  read. Each capture holds exactly one device, and the runner checks that.
 - **A false quarantine is only counted on a benign device.** The benign windows inside
   Malware-8-1 belong to the infected device and are excluded by construction.
 
-**Two denominators, kept apart.** A quarantine keeps running through a silent gap, so
-blocked time is wall-clock, while a per-window rate belongs to the time the device was
-actually seen sending. Mixing them reports more than 3600 blocked seconds per hour.
+**Spec.** [`model/nlease_spec.json`](../model/nlease_spec.json), SHA-256
+`4d00461aed16177719f679887d7639d13bdf0f7d568f0e4363388b1ce1baf71d`. It supersedes
+`e812d3e9…` (declared in `b72a312` before the first run) only by turning the 0.9 floor
+already written into the lease rule into a validated numeric field, and by stating the
+criterion as interval overlap. The grid, frozen policy, replay settings and floor value
+are unchanged.
 
 | Capture | Windows | Observed | Span | Observed share of span | Anomalous windows |
 |---|---:|---:|---:|---:|---:|
@@ -47,99 +54,105 @@ actually seen sending. Mixing them reports more than 3600 blocked seconds per ho
 
 ## Result
 
-**Status `selected`: N = 2, lease = 30 s**, by the rule fixed in the spec: the smallest N
-with no false quarantine, then the smallest lease containing at least 90 % of observed
-malicious time.
+**Status `selected`: N = 2, lease = 300 s**, by the declared rule: the smallest N with
+no false quarantine on the benign capture, then the smallest lease whose blocked share
+of malicious time is at least 0.9.
 
-**Approved by the Lead on 20 September 2026**, both the rule and the pair. N = 1 is out
-because it produces false quarantines on the benign device; N = 2 gives zero of them at
-100 % containment; a 300 s lease reaches the same false-quarantine result but keeps a
-device cut off longer than necessary, so the smallest sufficient lease was taken. The
-values are recorded in [ADR-0004 decision 7b](adr/0004-dataset-source.md), which
-completes the list the holdout freeze requires.
-
-| N | Lease | Benign quarantines | Benign per span-hour | Benign blocked share of span | Malware quarantines | Detection delay | Contained malicious time |
+| N | Lease | Benign quarantines | Benign blocked share of span | Malware quarantines | Detection delay | Malicious time blocked | Malware blocked share of span |
 |---:|---:|---:|---:|---:|---:|---:|---:|
-| 1 | 30 s | **13** | 2.60 | 2.7 % | 2,397 | 5.5 s | 100 % |
-| 1 | 60 s | **12** | 2.40 | 4.7 % | 1,220 | 5.5 s | 100 % |
-| 1 | 120 s | **12** | 2.40 | 8.6 % | 683 | 5.5 s | 100 % |
-| 1 | 300 s | **11** | 2.20 | 18.5 % | 268 | 5.5 s | 100 % |
-| **2** | **30 s** | **0** | 0 | 0 % | 1,998 | 10.5 s | 100 % |
-| 2 | 60 s | 0 | 0 | 0 % | 1,020 | 10.5 s | 100 % |
-| 2 | 120 s | 0 | 0 | 0 % | 550 | 10.5 s | 100 % |
-| 2 | 300 s | 0 | 0 | 0 % | 257 | 10.5 s | 100 % |
-| 3 | 30 s | 0 | 0 | 0 % | 1,317 | 15.5 s | 100 % |
-| 3 | 60 s | 0 | 0 | 0 % | 983 | 15.5 s | 100 % |
-| 3 | 120 s | 0 | 0 | 0 % | 503 | 15.5 s | 100 % |
-| 3 | 300 s | 0 | 0 | 0 % | 253 | 15.5 s | 100 % |
-| 5 | 30 s | 0 | 0 | 0 % | 23 | **4,860.5 s** | **1.6 %** |
-| 5 | 60 s | 0 | 0 | 0 % | 23 | **4,860.5 s** | **3.2 %** |
-| 5 | 120 s | 0 | 0 | 0 % | 13 | **4,860.5 s** | **3.6 %** |
-| 5 | 300 s | 0 | 0 | 0 % | 8 | **4,860.5 s** | **5.6 %** |
+| 1 | 30 s | **13** | 2.2 % | 2,397 | 5.5 s | 84.1 % | 83.2 % |
+| 1 | 60 s | **12** | 4.0 % | 1,220 | 5.5 s | 86.0 % | 84.7 % |
+| 1 | 120 s | **12** | 8.0 % | 683 | 5.5 s | 99.3 % | 94.8 % |
+| 1 | 300 s | **11** | 18.3 % | 268 | 5.5 s | 96.9 % | 92.9 % |
+| 2 | 30 s | 0 | 0 % | 1,998 | 10.5 s | 59.1 % | 69.3 % |
+| 2 | 60 s | 0 | 0 % | 1,020 | 10.5 s | 70.4 % | 70.8 % |
+| 2 | 120 s | 0 | 0 % | 550 | 10.5 s | 80.6 % | 76.3 % |
+| **2** | **300 s** | **0** | **0 %** | **257** | **10.5 s** | **92.5 %** | **89.0 %** |
+| 3 | 30 s | 0 | 0 % | 1,317 | 15.5 s | 36.3 % | 45.7 % |
+| 3 | 60 s | 0 | 0 % | 983 | 15.5 s | 59.7 % | 68.3 % |
+| 3 | 120 s | 0 | 0 % | 503 | 15.5 s | 70.8 % | 69.9 % |
+| 3 | 300 s | 0 | 0 % | 253 | 15.5 s | 89.1 % | 87.6 % |
+| 5 | 30 s | 0 | 0 % | 23 | 4,860.5 s | 0.6 % | 0.8 % |
+| 5 | 60 s | 0 | 0 % | 23 | 4,860.5 s | 1.6 % | 1.6 % |
+| 5 | 120 s | 0 | 0 % | 13 | 4,860.5 s | 2.1 % | 1.8 % |
+| 5 | 300 s | 0 | 0 % | 8 | 4,860.5 s | 3.2 % | 2.8 % |
 
-**Evidence:** [`model/frozen/kan51/nlease_report.json`](../model/frozen/kan51/nlease_report.json)
-carries every cell with both denominators, the policy's rejection and reset counters and
-the first three episodes per capture. The per-episode lists are dropped from the
-committed copy, because the full output is 2.3 MB and no run dump belongs in Git.
+**Evidence.** [`model/frozen/kan51/nlease_report.json`](../model/frozen/kan51/nlease_report.json)
+is the trimmed report written by the runner itself (`model.nlease_run.trimmed_report`):
+every cell with both denominators, the overlap and blocked seconds, the policy's
+rejection and reset counters, and the first three episodes per capture. The full report
+is written beside it by the same run and kept outside Git.
 
 | Artifact | SHA-256 |
 |---|---|
-| Committed report (trimmed, home paths replaced by `~`) | `d146a620be9af089d7228d5331e5f308f90be1a978a5e970a17f9787a248aa88` |
-| Full run output, kept outside Git | `b350ca50582844a25bdcbd7684483d7c69754837880c5f08c2329f80da634ab0` |
+| Committed trimmed report (`nlease_report.trimmed.json` of the run) | `6d5d934d8666cc725dcc1f3a9a39caf6dc13fef60efbde0c366d4baa0f434e9a` |
+| Full run output, kept outside Git | `a0951c70722bb332fde469608994fcb09742e8aee06e829112430a0162829577` |
+
+The trimmed report reduces local paths to file names, so a rerun on another machine
+differs only in its `environment` block.
 
 ## What this says
 
-1. **N=1 is not usable, and the window FPR alone would not have told us.** The benign
-   device has 14 anomalous windows out of 1,019, which sounds small. At N=1 that is
-   11–13 quarantines of a healthy device in a five-hour span, up to 18.5 % of it
-   blocked at a 300 s lease. A user would notice.
-2. **N=2 removes every false quarantine here.** The 14 false positives on 5-1 are
-   isolated single windows; none has an anomalous neighbour. That is why one extra
-   window of evidence turns 13 quarantines into none. It is a property of this capture,
-   not a general guarantee.
-3. **The price of waiting is one window.** Detection delay is `(N−1)×5 s + 5.5 s`:
-   5.5 s at N=1, 10.5 s at N=2, 15.5 s at N=3, while containment of the malware capture
-   stays at 100 % of observed malicious time up to N=3.
-4. **N=5 collapses, and this is the most useful finding.** Five consecutive anomalous
-   windows almost never occur in 8-1: the policy records 4,397 gap resets, because the
-   device's traffic is not continuous. Detection delay jumps from 15.5 s to 4,860 s and
-   containment falls to 1.6–5.6 %. Going from N=3 to N=5 does not trade a little recall
-   for a little comfort; it loses the incident.
-5. **A shorter lease does not mean less exposure for a device that keeps attacking.** At
-   N=2 the blocked share of the span is 76 % at a 30 s lease and 90 % at 300 s, while
-   the episode count falls from 1,998 to 257. The lease mostly decides how often the
-   device is re-quarantined, not whether it is contained.
-6. **`FPR^N` is reported as a comparison, never as evidence.** With a 1.4 % window FPR
-   on this capture, `FPR²` would predict roughly 0.2 false quarantines in this span,
-   against 0 measured. The arithmetic assumes consecutive windows are independent and
-   they are not, so the comparison only shows why the assumption is unsafe; the decision
-   rests on the measured counts. (Lead, 20 September.)
+1. **N=1 is not usable.** 14 isolated anomalous windows out of 1,019 on the benign
+   device become 11–13 quarantines of a healthy device in a five-hour span, up to 18 % of
+   it blocked at a 300 s lease.
+2. **N=2 removes every false quarantine here,** because none of those 14 windows has an
+   anomalous neighbour. It is a property of this capture, not a general guarantee.
+3. **A short lease leaks the attack.** After each expiry the policy needs two fresh
+   consecutive anomalies before it can quarantine again, so every episode boundary opens
+   at least one window of unblocked traffic. At N=2 with a 30 s lease that happens
+   1,998 times and 41 % of malicious time goes unblocked; at 300 s it happens 257 times
+   and 7.5 % does.
+4. **The price of waiting is one window.** Detection delay is `(N−1)×5 s + 5.5 s`:
+   10.5 s at N=2, 15.5 s at N=3.
+5. **N=5 loses the incident.** Five consecutive anomalous windows almost never occur in
+   8-1 (4,397 gap resets); malicious time blocked falls to 0.6–3.2 %.
+6. **`FPR^N` is a comparison, never evidence.** `FPR²` would predict about 0.2 false
+   quarantines in this span against 0 measured; the arithmetic assumes independent
+   windows and they are not. The decision rests on the measured counts.
+
+**The selected lease is the edge of the grid.** 300 s is the longest lease declared, so
+this run shows that 300 s meets the floor and shorter leases do not; it does not show
+that 300 s is the best value. A longer lease would contain more of this capture and
+would also keep a wrongly quarantined device cut off longer. Extending the grid would be
+a new declared run, not a re-reading of this one.
+
+## What changed, and why
+
+The first run (report kept at
+[`model/frozen/kan51/superseded/nlease_report_9c5f423.json`](../model/frozen/kan51/superseded/nlease_report_9c5f423.json),
+SHA-256 `d146a620…`) recommended **N = 2, lease = 30 s**. The R3 review found two
+defects that carried that recommendation:
+
+1. **Containment compared totals.** `min(blocked_seconds, malicious_seconds) /
+   malicious_seconds` does not require the blocked intervals to overlap the malicious
+   windows. On 8-1 the totals saturated, so every cell from N=1 to N=3 reported 100 %.
+   Measured as overlap, N=2 / 30 s blocks 59 % of malicious time, not 100 %.
+2. **Leases outlived their deadline in the replay.** An expiry during silence was only
+   noticed at the next window, adding up to 9.9 % blocked time on 8-1 and 25.6 % on
+   5-1, and inflating short leases most.
+
+Quarantine **counts** were unaffected, so the N result (13 → 0 false quarantines) stands.
+The lease result changed from 30 s to 300 s. The Lead withdrew the relayed 30 s
+approval on PR #44 for exactly these reasons.
 
 ## Limits
 
 - **One benign device and one malware capture.** A per-hour rate from a single device is
-  an observation, not a population estimate. KAN-21 showed that a threshold frozen on
-  one benign device does not transfer to another; the same caution applies here.
+  an observation, not a population estimate.
 - **Validation data.** The threshold was selected on these same windows, so the benign
   side is the friendly case, not a deployment estimate.
-- **Replay timing.** Every window is decided 0.5 s after it closes. Real capture and
-  inference latency belongs to KAN-42, and 8-1 is a 2018 capture replayed at its
-  recorded timestamps.
+- **Replay timing.** Every window is decided 0.5 s after it closes; real capture and
+  inference latency belongs to KAN-42.
 - **Policy intent, not traffic.** Blocked seconds are what the policy decided. Whether
   packets actually stopped is KAN-33's counter and the KAN-52 experiment.
-- **Empty windows.** The baseline treats a gap as a series reset; the max-gap variant
-  discussed for KAN-20 is not measured here.
+- **Empty windows.** A gap resets the series (the declared baseline); the max-gap
+  variant is not measured.
 
-## What this unblocks, and what it needs
+## What is needed next
 
-ADR-0004 decision 7b allows the untouched holdout to be scored only after the feature
-schema version, the model and metadata hashes, the threshold policy hash, the
-development pack hash **and N/lease** are recorded. Everything except N and lease was
-frozen in KAN-19; this run proposes the missing pair.
-
-**Recorded on 20 September 2026.** The Lead approved the selection rule and the pair
-N = 2, lease = 30 s, and the values are written into ADR-0004 decision 7b beside the
-hashes that were already frozen in KAN-19.
-
-The holdout may therefore be downloaded, hashed and audited, and then scored **once**,
-as a separate one-time evaluation. Scoring it is not part of this card.
+1. Review of this corrected result.
+2. The Lead's first-hand record of the final N/lease pair on PR #44 and in ADR-0004
+   decision 7b. The ADR currently records N = 2 as provisional and the lease as not
+   approved.
+3. Only then may the holdout be downloaded, hashed, audited and scored once.
