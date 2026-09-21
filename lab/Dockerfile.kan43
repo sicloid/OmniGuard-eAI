@@ -1,0 +1,13 @@
+# KAN-43 telemetry volume probe, Linux only.
+#
+# The UDS boundary is the one CPython cannot open on Windows, so the figure for it is
+# measured here rather than estimated there. Dependencies come from the project's own
+# hash-checked core lock; nothing is installed unpinned. No data, secrets or model
+# bytes enter the image — the repository arrives as a read-only bind mount at run
+# time, and the broker password is read from that mount.
+FROM python:3.14.7-slim-bookworm@sha256:d893452fcd120ea9a7233972c85ea868255bde289a636fe76ff090427fe8fac9
+COPY requirements.lock /tmp/requirements.lock
+RUN pip install --no-cache-dir --require-hashes -r /tmp/requirements.lock
+ENV PYTHONPATH=/repo PYTHONIOENCODING=utf-8
+WORKDIR /repo
+CMD ["python", "-m", "lab.telemetry_volume_probe", "--help"]
