@@ -42,6 +42,7 @@ from model.train import rf_scores, window_groups
 
 SPEC = Path(__file__).with_name("nlease_spec.json")
 REPORT_FILENAME = "nlease_report.json"
+TRIMMED_FILENAME = "nlease_report.trimmed.json"
 WINDOW_SECONDS = 5
 SECONDS_PER_HOUR = 3600.0
 
@@ -104,6 +105,11 @@ def load_spec(path: Path = SPEC) -> dict:
     rule = spec.get("selection_rule")
     if not isinstance(rule, dict) or not isinstance(rule.get("n"), str):
         raise SweepSpecError("the selection rule must be declared before the run")
+    floor = rule.get("containment_floor")
+    if isinstance(floor, bool) or not isinstance(floor, int | float) or not 0 < floor <= 1:
+        # The floor picks the lease, so it is read from the declared document and
+        # validated here, never taken from a default argument (R3 review, PR #44).
+        raise SweepSpecError("selection_rule.containment_floor must be a number in (0, 1]")
     return spec
 
 
@@ -127,8 +133,12 @@ def replay_device(results, *, n: int, lease_seconds: float, spec: dict) -> dict:
     episodes: list[dict] = []
 
     def close(now: float, reason: str) -> None:
+        # The replay only ticks at window decisions, so a lease that ran out while the
+        # device was silent is noticed late. The kernel element expires at its deadline,
+        # not when the next window arrives: cap every episode at start + lease.
         if episodes and episodes[-1]["end"] is None:
-            episodes[-1]["end"] = now
+            deadline = episodes[-1]["start"] + float(lease_seconds)
+            episodes[-1]["end"] = min(now, deadline)
             episodes[-1]["ended_by"] = reason
 
     for start, result in results:
@@ -161,6 +171,29 @@ def replay_device(results, *, n: int, lease_seconds: float, spec: dict) -> dict:
         "rejections": dict(policy.rejections),
         "resets": dict(policy.resets),
     }
+
+
+def malicious_overlap_seconds(episodes, malicious_starts) -> float:
+    """Seconds during which the device was both blocked and inside a malicious window.
+
+    A comparison of totals would call any policy that blocked long enough "fully
+    contained", even one that blocked at the wrong moments (R3 review, PR #44). This
+    intersects the episode intervals with the malicious windows `[start, start + 5)`.
+    Both lists are in time order, so a single pass suffices.
+    """
+    intervals = sorted((e["start"], e["end"]) for e in episodes)
+    total = 0.0
+    index = 0
+    for window_start in sorted(malicious_starts):
+        window_end = window_start + WINDOW_SECONDS
+        while index < len(intervals) and intervals[index][1] <= window_start:
+            index += 1
+        probe = index
+        while probe < len(intervals) and intervals[probe][0] < window_end:
+            begin, end = intervals[probe]
+            total += max(0.0, min(end, window_end) - max(begin, window_start))
+            probe += 1
+    return total
 
 
 def _capture_rows(windows, model, threshold: float, meta) -> dict:
@@ -210,7 +243,7 @@ def _observed(rows) -> dict:
     }
 
 
-def select_cell(cells, infected, *, containment_floor: float = 0.9) -> dict:
+def select_cell(cells, infected, *, containment_floor: float) -> dict:
     """Apply the declared rule: no false quarantine first, then the smallest lease.
 
     A benign capture is one that is not infected. Only those can produce a false
@@ -230,7 +263,7 @@ def select_cell(cells, infected, *, containment_floor: float = 0.9) -> dict:
         for cell in clean
         if cell["n"] == smallest_n
         and all(
-            (c["contained_fraction_of_malicious_time"] or 0) >= containment_floor
+            (c["malicious_time_blocked_fraction"] or 0) >= containment_floor
             for group, c in cell["captures"].items()
             if group in infected
         )
@@ -284,9 +317,15 @@ def run(
     replayed = [w for w in windows if w.group_id in validation]
     if not replayed:
         raise SweepSpecError("the validation split holds no windows")
-    out_dir.mkdir(parents=True, exist_ok=False)
+    if out_dir.exists():
+        raise FileExistsError(f"{out_dir} already exists; every run needs a new directory")
 
     rows = _capture_rows(replayed, artifact.model, meta.threshold, meta)
+    for group, entries in rows.items():
+        devices = {result.device_id for _, result, _ in entries}
+        if len(devices) != 1:
+            # "False quarantine is counted per benign device" rests on this.
+            raise SweepSpecError(f"{group} holds {len(devices)} devices; expected exactly one")
     infected = {group for group, entries in rows.items() if any(m for _, _, m in entries)}
     observed = {group: _observed(entries) for group, entries in rows.items()}
 
@@ -307,6 +346,9 @@ def run(
                 malicious_seconds = observed[group]["malicious_windows"] * WINDOW_SECONDS
                 first_malicious = next((start for start, _, m in entries if m), None)
                 detected_at = outcome["episodes"][0]["start"] if outcome["episodes"] else None
+                overlap = malicious_overlap_seconds(
+                    outcome["episodes"], [start for start, _, m in entries if m]
+                )
                 captures[group] = {
                     "infected": group in infected,
                     **outcome,
@@ -328,9 +370,8 @@ def run(
                     "detection_delay_seconds": round(detected_at - first_malicious, 3)
                     if detected_at is not None and first_malicious is not None
                     else None,
-                    "contained_fraction_of_malicious_time": round(
-                        min(outcome["blocked_seconds"], malicious_seconds) / malicious_seconds, 4
-                    )
+                    "malicious_seconds_blocked": round(overlap, 3),
+                    "malicious_time_blocked_fraction": round(overlap / malicious_seconds, 4)
                     if malicious_seconds
                     else None,
                 }
@@ -342,7 +383,9 @@ def run(
             )
             log(f"n={n} lease={lease:>5} {summary}")
 
-    selection = select_cell(cells, infected)
+    selection = select_cell(
+        cells, infected, containment_floor=spec["selection_rule"]["containment_floor"]
+    )
     report = {
         "card": "KAN-51",
         "status": selection["status"],
@@ -368,10 +411,39 @@ def run(
         "selection": selection,
         "cells": cells,
     }
+    # The run directory is created only once the sweep has succeeded, so a crash cannot
+    # leave an empty directory that the next run refuses to reuse.
+    out_dir.mkdir(parents=True, exist_ok=False)
     (out_dir / REPORT_FILENAME).write_text(
         json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8"
     )
+    (out_dir / TRIMMED_FILENAME).write_text(
+        json.dumps(trimmed_report(report), indent=2, sort_keys=True, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
     return report
+
+
+def trimmed_report(report: dict) -> dict:
+    """The committed form of a report, produced by code rather than by hand.
+
+    Per-episode lists are dropped (the full output is megabytes and no run dump
+    belongs in Git); each capture keeps its count and first three episodes. Local
+    paths are reduced to file names so the document does not depend on whose machine
+    ran it. The full report stays beside it and is named by its hash.
+    """
+    trimmed = json.loads(json.dumps(report))
+    trimmed["episodes_note"] = (
+        "Per-episode lists are dropped; each capture keeps its episode count and first "
+        "three episodes. Produced by model.nlease_run.trimmed_report from the full report."
+    )
+    for section in ("spec", "pack", "artifact"):
+        if isinstance(trimmed.get(section), dict) and "path" in trimmed[section]:
+            trimmed[section]["path"] = Path(trimmed[section]["path"]).name
+    for cell in trimmed["cells"]:
+        for capture in cell["captures"].values():
+            capture["first_episodes"] = capture.pop("episodes")[:3]
+    return trimmed
 
 
 def main() -> None:

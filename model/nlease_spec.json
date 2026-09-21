@@ -26,8 +26,18 @@
     "gaps": "windows are replayed in order per device; a non-contiguous window is a gap and DevicePolicy resets the series, which is the declared baseline"
   },
   "grid": {
-    "n": [1, 2, 3, 5],
-    "lease_seconds": [30, 60, 120, 300]
+    "n": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "lease_seconds": [
+      30,
+      60,
+      120,
+      300
+    ]
   },
   "reported_per_cell": [
     "benign device: quarantine episodes, false quarantines per observed device-hour, blocked seconds per observed device-hour",
@@ -36,14 +46,20 @@
   ],
   "selection_rule": {
     "n": "the smallest N with zero quarantine episodes on the benign validation capture",
-    "lease": "among the qualifying N, the smallest lease whose contained fraction of observed malicious time is at least 0.9",
+    "lease": "among the qualifying N, the smallest lease whose blocked share of observed malicious time, measured as interval overlap, is at least containment_floor",
     "if_none": "report that no cell qualifies and choose nothing; the budget is never relaxed to produce a pick",
-    "status": "R1 proposal. The zero-false-quarantine rule and the 0.9 containment floor need Lead approval before the chosen values are recorded for the ADR-0004 decision 7b freeze."
+    "status": "Lead, 20 September 2026, first-hand on PR #44: N = 2 supported as the provisional validation choice; no lease approved and the holdout stays sealed until the corrected result is reviewed.",
+    "containment_floor": 0.9
   },
   "limits": [
     "One benign device and one malware capture: a rate per device-hour from a single device is an observation, not a population estimate.",
     "Replay assumes each window is decided 0.5 s after it closes; real capture and inference delay is measured in KAN-42, not here.",
     "Blocked seconds are policy intent. Whether traffic actually stopped is KAN-33/KAN-52 evidence.",
     "Consecutive windows are not independent, so no cell's false-quarantine rate is derived from the window FPR."
-  ]
+  ],
+  "revision": {
+    "date": "2026-09-21",
+    "reason": "R3 review of PR #44. The 0.9 floor already declared in selection_rule.lease at 104b2e4 becomes the validated numeric field containment_floor, and the lease criterion is stated as interval overlap rather than a comparison of totals. The grid, the frozen policy, the replay settings and the floor value are unchanged.",
+    "supersedes_spec_sha256": "e812d3e934fa3662108df1fe2e5222b767ab9f58e3f6750eadd12063d411109a"
+  }
 }
