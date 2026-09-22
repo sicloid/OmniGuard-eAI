@@ -1,0 +1,47 @@
+{
+  "schema": "iot23-holdout-score-1",
+  "decision": "ADR-0004 decision 7b",
+  "purpose": "Score the untouched IoT-23 malware holdout exactly once with the frozen validation policy, and report the result whatever it is. Fixed before any holdout byte is downloaded.",
+  "selection_manifest": "data/holdout/selection.json",
+  "frozen": {
+    "feature_schema_version": "features-1",
+    "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+    "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+    "threshold_policy_sha256": "4a9491b5ce0be6a5225ce8f0e0b4d72022e67a62ba38c6cf62aeb051acc7bcdb",
+    "threshold": 0.9798815486832,
+    "development_pack_windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+    "n": 2,
+    "lease_seconds": 300,
+    "decision_delay_seconds": 0.5,
+    "max_result_age": 2.5,
+    "max_lease_seconds": 600,
+    "approval": "Lead, first-hand on PR #44, 22 September 2026"
+  },
+  "capture_topology": {
+    "rule": "IoT-23 names each primary capture after the infected device's address. That address is the device; its /24 is the LAN. Declared here from the file names in the selection manifest, before any byte is read.",
+    "CTU-IoT-Malware-Capture-48-1": {"device_ip": "192.168.1.200", "lan_cidr": "192.168.1.0/24"},
+    "CTU-IoT-Malware-Capture-20-1": {"device_ip": "192.168.100.103", "lan_cidr": "192.168.100.0/24"},
+    "CTU-IoT-Malware-Capture-36-1": {"device_ip": "192.168.1.198", "lan_cidr": "192.168.1.0/24"}
+  },
+  "audit_gate": {
+    "rule": "Scoring is refused unless every capture has at least one EGRESS packet from its declared device and its declared LAN, and every pcap and label file matches the SHA-256 recorded in the selection manifest.",
+    "min_device_egress_packets": 1
+  },
+  "labels": "window-label-1, applied by the frozen data.samplepack.build builder; unknown windows are excluded, never counted as benign",
+  "reported": [
+    "per capture and per role (seen family, unseen family): malicious windows, anomalous malicious windows, window recall at the frozen threshold",
+    "per capture: whether the N = 2 / 300 s policy quarantined the device, delay from the first malicious window to the first quarantine, and the malicious window-time blocked (interval overlap)",
+    "per capture: benign-labelled windows inside the infected capture and how many were flagged, reported separately and never as a benign-device FPR",
+    "untouched benign FPR: not measured (ADR-0004 decision 7c)"
+  ],
+  "one_shot": {
+    "rule": "The scorer refuses to run if data/holdout/score_record.json exists. The record is committed after the only run, so a second run needs that commit reverted in review. Whatever the result, it is reported; any adjustment afterwards consumes this holdout.",
+    "record": "data/holdout/score_record.json"
+  },
+  "never": [
+    "train, validate, or choose a threshold, N, lease or feature on these captures",
+    "score before every hash is recorded and the audit gate passes",
+    "report a pooled number as a benign-device FPR",
+    "re-score after the record exists"
+  ]
+}
