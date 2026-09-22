@@ -1,0 +1,60 @@
+{
+  "schema": "ciciot2023-audit-1",
+  "card": "KAN-13",
+  "date": "2026-09-23",
+  "status": "preliminary: a prefix of one benign capture, audited while the download continues",
+  "tool": "data.audit",
+  "what_changed_since_12_september": "The 12 September audit recorded cicresearch.ca as unreachable and therefore audited nothing. On 22 September the host answered from the shell with the proxy unset. The browser path still resets, and long transfers are throttled and dropped, so the download is resumable and still running.",
+  "documentation": {
+    "files": [
+      "Supplementary Materials/README.pdf",
+      "Supplementary Materials/README_Victims_List.pdf",
+      "PCAP/README_PCAP.pdf"
+    ],
+    "findings": [
+      "The victim list identifies devices by model name and MAC address across 43 pages and carries no IP address or CIDR anywhere. Neither does the PCAP readme.",
+      "Device identity therefore cannot be declared from the dataset's documentation. It has to be derived from the capture itself by mapping Ethernet source MAC to IP, and any result must say so.",
+      "Captures are split by tcpdump into files of at most 2 GB, so one attack class spans several files."
+    ]
+  },
+  "audited": {
+    "capture": "PCAP/Benign_Final/BenignTraffic.pcap",
+    "role": "benign",
+    "note": "the first 20,180,992 bytes of an incomplete download, copied out and audited as a prefix",
+    "prefix_bytes": 20180992,
+    "prefix_sha256": "f2aa5bb5c24600a7327d62634f27a540fbcdc9b9787133a3a18b1241cf10a0a0",
+    "declared_lan": "192.168.137.0/24",
+    "lan_source": "observed: every private address in the prefix falls in this /24, across 62 distinct source MACs. It is not quoted from the dataset's documentation, because that documentation carries no addresses.",
+    "span_seconds": 1060.85,
+    "packets": 69840,
+    "ip_packets": 66558,
+    "direction_counts": {
+      "EGRESS": 30262,
+      "INGRESS": 21924,
+      "LOCAL": 13739,
+      "OUTSIDE": 633
+    },
+    "direction_shares_of_ip_packets": {
+      "EGRESS": 0.455,
+      "INGRESS": 0.329,
+      "LOCAL": 0.206,
+      "OUTSIDE": 0.01
+    },
+    "top_pairs_note": "the heaviest flows run from a device to a public address (157.249.81.141, 99.81.244.93, 35.185.101.66), with 8.8.8.8 resolver traffic present, which is what egress-dominant benign traffic looks like"
+  },
+  "reading": {
+    "benign_traffic_is_egress_dominant": "45.5 % of the prefix's IP packets leave the LAN. For comparison, the IoT-23 benign captures audited on 12 September were 78 % (4-1), 46 % (7-1) and 35 % (5-1). This benign source sits in the same range and is usable for an egress detector.",
+    "what_this_does_not_say": [
+      "It says nothing about the attack captures. ADR-0004's topology concern is about attacks running between IoT devices, and the Mirai capture has not been downloaded or audited yet.",
+      "A 1,061 s prefix of a 2 GB file is not the whole capture, and the direction mix may move.",
+      "Device identity rests on MAC-to-IP observed in the capture, not on the published documentation.",
+      "Nothing here adopts the source. ADR-0004 stays PROPOSED and the G1 choice stays formally in force."
+    ]
+  },
+  "next": [
+    "finish downloading the four benign captures and the Mirai capture",
+    "record every file's size and SHA-256 in selection.json",
+    "audit each complete capture, the Mirai one included, and report the direction split whatever it shows",
+    "only then decide whether a KAN-23 transfer test is possible, and under which declared rule"
+  ]
+}
