@@ -1,4 +1,4 @@
-# KAN-54 results freeze inventory — preparation, 20 September 2026
+# KAN-54 results freeze inventory — preparation, updated 22 September 2026
 
 **Status: not frozen.** This inventory names evidence that already has stable
 bytes and the measurements still missing for G13. It is not the G13 result set,
@@ -17,6 +17,8 @@ The [reproduction guide](REPRODUCE.md) explains how to regenerate each path.
 | Supplied v2 `manifest.json` (external) | `8ea8c310d6b66a82515a693e5347da274a622146e5347e381f11c4f80821d2a7` | `window-label-1` pack metadata used for the 20 September clean-checkout training replay; verifying this hash does not re-extract six source PCAPs. |
 | `model/frozen/kan20/ablation_report.json` | `4c85add98f2af26fe38e9dbae69b7bc8b32977e13384b3ae19277b3246ca6d87` | Development validation ablation; Mac timing ranks sets, not gateway/Pi cost. |
 | `data/holdout/selection.json` | `7e12f6a0bed01b0c32c1914490e9662b481c2f9ac04c3fa7273c8d3302860890` | Holdout selection definition, not a scored holdout result. |
+| `model/frozen/kan51/nlease_report.json` | `6d5d934d8666cc725dcc1f3a9a39caf6dc13fef60efbde0c366d4baa0f434e9a` | Corrected validation grid; N = 2 and lease = 300 s were accepted by the Lead. |
+| `model/nlease_spec.json` | `4d00461aed16177719f679887d7639d13bdf0f7d568f0e4363388b1ce1baf71d` | Original pre-run spec bytes. Its historical status text predates the Lead decision; use ADR-0004 decision 7b for the later freeze. Do not rewrite this file and break the run provenance. |
 
 The KAN-21 fold report in [KAN21_HOLDOUT.md](KAN21_HOLDOUT.md) is an
 unseen-family experiment on the already-used IoT-23 source. It reports failures
@@ -37,16 +39,21 @@ model reproduction.
    experiment, including all misses, censored runs, source-attempt windows,
    benign interruption and interval uncertainty. This card was `Yapılacaklar`
    on 20 September; no final plot can be invented from the G8 lab probe.
-2. **KAN-51 and KAN-42/43/45 as applicable:** policy N/lease, real-run manifests,
-   stage costs and telemetry volume with complete provenance. A blank field is
+2. **KAN-42/43/45 as applicable:** N = 2 / 300 s validation policy is recorded
+   in ADR-0004 decision 7b and the KAN-51 report. Real-run manifests, stage
+   costs and telemetry volume still need complete provenance. A blank field is
    missing, not zero. Freeze only figures whose accepted runs exist.
 3. **KAN-50:** independent owner review of real
    StateEvent→UDS→MQTT→PostgreSQL→Grafana G10, including correlation and
    completeness. KAN-49/G8 received independent exact-head approval and
    merged as PR #41; that local acceptance does not establish G10. CI,
    Compose health and seeded dashboards have narrower scope.
-4. **KAN-53:** a separate Pi 5/ARM64 run only if actual hardware and KAN-46
-   load/throttle evidence exist; never copy a laptop number into that column.
+4. **KAN-53:** an actual Pi 5/ARM64 functional run and KAN-46 load/throttle
+   evidence now exist in the
+   [constrained Pi bundle](evidence/PI5_2026-09-22_constrained/README.md).
+   The guard marked its timing invalid. Freeze the functional observation with
+   that verdict, and leave Pi performance figures absent rather than replacing
+   them with laptop values. KAN-53 review and G10 acceptance remain separate.
 5. **Final inventory:** exact Git commit, hashes of every input/output and plot,
    run IDs, environment/image/package versions, clock/boot mapping, declared
    data role, threshold/N/lease and reviewer decision. Include failed or

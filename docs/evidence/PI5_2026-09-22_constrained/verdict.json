@@ -1,0 +1,13 @@
+{
+  "after_load_per_core": 0.813232421875,
+  "command_exit": 0,
+  "command_start_failed": false,
+  "elapsed_monotonic_seconds": 17.603780208,
+  "max_load_per_core": 0.5,
+  "max_temperature_c": 80.0,
+  "reasons": [
+    "before_load_high"
+  ],
+  "scope": "pre/post host guard only; measurement quality needs separate review",
+  "status": "invalid"
+}

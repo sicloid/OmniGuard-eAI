@@ -8,10 +8,12 @@ credentials and model binaries outside Git and slides.
 
 ## Choose the path before starting
 
-1. **Pi path:** use only when KAN-44/46/53 contain actual Pi 5 ARM64, network
-   management, load and throttling evidence. Check that Tailscale is management
-   only and advertises no `10.203.1.0/24` or `10.203.2.0/24` lab route. Keep Pi
-   measurements in a separately labelled result set.
+1. **Pi path:** use the real Pi 5 ARM64 functional result with its
+   [guard evidence](evidence/PI5_2026-09-22_constrained/README.md). The lab
+   passed; its timing was invalidated by pre-run load and must not appear in a
+   performance chart. Check that Tailscale is management only and advertises no
+   `10.203.1.0/24` or `10.203.2.0/24` lab route. Keep Pi observations in a
+   separately labelled result set with detected power and cooling recorded.
 2. **Laptop fallback:** use the dedicated CachyOS/amd64 Docker lab and label the
    environment Linux x86_64. It avoids any Pi/Tailscale dependency. Real-model
    G8 local sink/kernel runs received independent review, PR #41 merged, and
@@ -43,7 +45,9 @@ docker compose version
 For the Pi path, record `uname -m`, `/etc/os-release`, actual Python/package
 versions, thermal/throttling and system load immediately before and after the
 run. An unavailable reading is `missing`, not `normal`. KAN-46 decides whether
-the run is valid; never silently omit a throttled result.
+the measurement environment is accepted; never silently omit a throttled or
+load-contaminated result. A separately successful functional run can be shown
+with the invalid performance verdict beside it.
 
 ## Demonstration order
 
