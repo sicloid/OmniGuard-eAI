@@ -20,5 +20,8 @@ include = ["core*", "stubs*", "sources*", "gateway*", "lab*", "model*", "telemet
 target-version = "py314"
 line-length = 100
 
+[tool.ruff.per-file-target-version]
+"measure/pi_guard.py" = "py311"
+
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

@@ -4,7 +4,8 @@ Payload-independent IoT malware detection and reversible outbound containment
 research prototype. Local Random Forest inference, isolated Linux namespaces,
 nftables/conntrack, and self-hosted Mosquitto → PostgreSQL → Grafana telemetry.
 No managed cloud service is required. Raspberry Pi 5 is a later shared integration
-and ARM64 validation target; laptop development remains possible.
+and ARM64 validation target; laptop development remains possible. The physical
+Pi 5 and its ARM64 runs are owned by Şükrü; Gabriel has no direct Pi access.
 
 ## Architecture and contributor context
 
@@ -16,17 +17,29 @@ Original V2 planning files are retained as historical sources.
 
 ## Current implementation
 
-G1 contracts are team-approved and frozen as `0.1.0`; PR #1 is merged.
-PCAP/live capture, bounded windows, the checked detector, shared extractor,
-artifact loader, capture-group split, RF/rate-rule training, validation threshold,
-bounded policy, nftables enforcer and gateway-to-host UDS bridge are implemented.
-KAN-20 ablation results are merged. The isolated lab and Compose service smokes
-pass; a complete real-artifact core/sink run and the full G10 telemetry gate are
-still required. **G8/G10 are not passed.** The pinned trained `model.joblib` is
-kept outside Git and must be supplied for the real G8 gate.
-See [current status](docs/STATUS.md) and [review evidence](docs/REVIEW_CLOSEOUT_2026-09-12.md).
+G1 contracts are team-approved and frozen as `0.1.0`. The repository includes
+the real IoT-23 data audit, pinned RF artifact loader, live capture/window/policy pipeline,
+runtime nftables enforcer, UDS/MQTT/DB adapters and Grafana dashboard. The
+real-model G8 orderly and process-kill runs passed their bounded local
+sink/kernel checks on Linux; Gabriel independently approved the exact head,
+PR #41 merged, and KAN-49 is complete. A separate local integration
+run on 20 September carried two actual G8 StateEvents through peer-verified
+UDS, broker PUBACK, PostgreSQL and Grafana. Duplicate replay did not create a
+second row, and a broker outage spooled two real events which were delivered
+with unchanged IDs after restart. This run used a **local composite commit**
+`ce5bdbf` of PR #41 and main, not a merged/reviewed G10 release. The frozen
+model binary and capture remain outside Git. KAN-50 still needs
+decision-to-application correlation, an end-to-end completeness/loss report,
+and owner acceptance. G10 is not declared a closed gate.
+See the [G8 runbook](docs/G8_RUNBOOK.md), [reproduction map](docs/REPRODUCE.md),
+and [current status](docs/STATUS.md) for scope and remaining work.
 
 ## Run locally
+
+Start with the [clean-checkout reproduction map](docs/REPRODUCE.md) for data,
+training, lab, platform, G8/G10, Pi and laptop fallback. The
+[demo runbook](docs/DEMO_RUNBOOK.md) gives the presentation order, failure rules
+and cleanup steps; neither document turns a pending gate into a pass.
 
 Reference interpreter: Python 3.14.7, pinned in `.python-version`. Dependencies
 are hash-locked in [requirements.lock](requirements.lock). ML development uses
@@ -79,9 +92,8 @@ end-to-end detection pipeline. Do not cite its output as research measurements.
 All three collaborators were verified on 2026-09-10. AI work
 supports human module owners; every change still needs owner review.
 
-Next: R2's real-artifact G8 gate, R3's G10 telemetry gate, the joint experiment
-freeze, and a repeatable demo/release. Keep the assigned Jira owners and review
-requirements for these gates.
+Next: G10 correlation/completeness evidence,
+Pi ARM64 measurements, measurement freeze, team rehearsal and final release.
 Full roadmap: [development status](docs/STATUS.md).
 
 Docker lab and platform (from the repository root):
