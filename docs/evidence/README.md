@@ -1,4 +1,11 @@
-# G8 evidence index
+# Evidence index
+
+The [Pi 5 constrained-power bundle](PI5_2026-09-22_constrained/README.md)
+contains real ARM64 lab output and the guard's pre/post samples. The lab passed
+its functional checks; its timing was invalidated by high pre-run host load.
+The bundle is neither an accepted Pi performance benchmark nor a G10 result.
+
+## G8 development-validation evidence
 
 [`G8_2026-09-20.json`](G8_2026-09-20.json) indexes two runs from a clean
 checkout of PR #41: orderly controller completion and a separate SIGKILL run.

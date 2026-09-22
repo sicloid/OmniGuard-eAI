@@ -92,8 +92,11 @@ end-to-end detection pipeline. Do not cite its output as research measurements.
 All three collaborators were verified on 2026-09-10. AI work
 supports human module owners; every change still needs owner review.
 
-Next: G10 correlation/completeness evidence,
-Pi ARM64 measurements, measurement freeze, team rehearsal and final release.
+Next: G10 correlation/completeness evidence, accepted experimental measurements,
+team rehearsal and final release. A real Pi 5 ARM64 functional lab run is
+[recorded separately](docs/evidence/PI5_2026-09-22_constrained/README.md):
+the lab passed, while high pre-run load invalidated its timing. No Pi
+performance number is claimed from that run.
 Full roadmap: [development status](docs/STATUS.md).
 
 Docker lab and platform (from the repository root):
