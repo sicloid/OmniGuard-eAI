@@ -1,6 +1,23 @@
 {
   "schema": "iot23-holdout-score-1",
+  "card": "KAN-71",
   "decision": "ADR-0004 decision 7b",
+  "scope": {
+    "what_this_is": "the malware-only one-shot score of the ADR-0004 IoT-23 holdout with the frozen KAN-19 model and policy",
+    "what_this_is_not": [
+      "KAN-21, which closed on 14 September as a leave-one-family-out experiment over development captures and is not reopened by this card",
+      "KAN-70, which is the untouched benign holdout and is a different card",
+      "a benign false-positive measurement: this pack has no untouched benign device",
+      "a final G13 claim on its own"
+    ],
+    "lead_conditions": {
+      "reference": "KAN-71 description and comment 11530, Şükrü Biçer (Lead/R2), 22 September 2026",
+      "recorded_before_scoring": "model and metadata hashes, threshold, features-1, seed, N = 2 and lease = 300 s, all verified by the runner",
+      "single_run": true,
+      "tuning_or_retry_after": false,
+      "reporting": "per family and per capture: data role, hashes, score output, and any error or missing evidence, reported in full whatever the result says"
+    }
+  },
   "purpose": "Score the untouched IoT-23 malware holdout exactly once with the frozen validation policy, and report the result whatever it is. Fixed before any holdout byte is downloaded.",
   "selection_manifest": "data/holdout/selection.json",
   "frozen": {
