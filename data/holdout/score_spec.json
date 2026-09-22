@@ -19,9 +19,18 @@
   },
   "capture_topology": {
     "rule": "IoT-23 names each primary capture after the infected device's address. That address is the device; its /24 is the LAN. Declared here from the file names in the selection manifest, before any byte is read.",
-    "CTU-IoT-Malware-Capture-48-1": {"device_ip": "192.168.1.200", "lan_cidr": "192.168.1.0/24"},
-    "CTU-IoT-Malware-Capture-20-1": {"device_ip": "192.168.100.103", "lan_cidr": "192.168.100.0/24"},
-    "CTU-IoT-Malware-Capture-36-1": {"device_ip": "192.168.1.198", "lan_cidr": "192.168.1.0/24"}
+    "CTU-IoT-Malware-Capture-48-1": {
+      "device_ip": "192.168.1.200",
+      "lan_cidr": "192.168.1.0/24"
+    },
+    "CTU-IoT-Malware-Capture-20-1": {
+      "device_ip": "192.168.100.103",
+      "lan_cidr": "192.168.100.0/24"
+    },
+    "CTU-IoT-Malware-Capture-36-1": {
+      "device_ip": "192.168.1.198",
+      "lan_cidr": "192.168.1.0/24"
+    }
   },
   "audit_gate": {
     "rule": "Scoring is refused unless every capture has at least one EGRESS packet from its declared device and its declared LAN, and every pcap and label file matches the SHA-256 recorded in the selection manifest.",
@@ -43,5 +52,16 @@
     "score before every hash is recorded and the audit gate passes",
     "report a pooled number as a benign-device FPR",
     "re-score after the record exists"
+  ],
+  "deviations": [
+    {
+      "date": "2026-09-22",
+      "approved_by": "Lead (Şükrü Biçer), 22 September 2026",
+      "found_at": "audit step, before any pack was built or any window scored",
+      "what": "CTU-IoT-Malware-Capture-48-1 ends with an 8-byte record (the last of 13,565,553): complete as a PCAP record, too short for an Ethernet header. The frozen builder only tolerated a short read, so it refused the capture.",
+      "change": "A final record too short for its link-layer header is treated like a truncated tail: the capture is used up to that point and the still-open window is dropped. Only the file's final record qualifies, checked against a header-only record count; a short frame elsewhere, or a malformed IP header even in the last record, still fails.",
+      "evidence": "Rebuilding the development pack with the changed builder reproduces windows.jsonl 4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625 and manifest v2 8ea8c310d6b66a82515a693e5347da274a622146e5347e381f11c4f80821d2a7 byte for byte, so the frozen model, threshold and N/lease are unaffected.",
+      "supersedes_spec_sha256": "2d06143d2b7098cc2e95a1286f05e203e8560317efe925733310e04a934014aa"
+    }
   ]
 }

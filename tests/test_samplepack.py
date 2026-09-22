@@ -164,6 +164,34 @@ class SamplePackTests(unittest.TestCase):
         self.assertTrue(capture["truncated_tail"])
         self.assertEqual(capture["windows"]["dropped_truncated_tail"], 1)
 
+    def test_a_short_final_frame_is_a_truncated_tail(self):
+        # IoT-23 48-1 ends with an 8-byte record: complete as a record, too short for an
+        # Ethernet header. Only as the final record is it a cut capture.
+        path = self.pcap(
+            "f.pcap",
+            [
+                (100.0, frame("192.168.1.5", "203.0.113.9")),
+                (106.0, frame("192.168.1.5", "203.0.113.9")),
+                (107.0, b"\x00" * 8),
+            ],
+        )
+        manifest, out = self.build([self.spec(pcap=path)])
+        rows = [json.loads(line) for line in (out / "windows.jsonl").read_text().splitlines()]
+        self.assertEqual([r["window_start"] for r in rows], [100.0])
+        self.assertTrue(manifest["captures"][0]["truncated_tail"])
+
+    def test_a_short_frame_before_the_end_still_fails_the_build(self):
+        path = self.pcap(
+            "m.pcap",
+            [
+                (100.0, frame("192.168.1.5", "203.0.113.9")),
+                (101.0, b"\x00" * 8),
+                (106.0, frame("192.168.1.5", "203.0.113.9")),
+            ],
+        )
+        with self.assertRaises(ValueError):
+            build_sample_pack([self.spec(pcap=path)], self.dir / "out-mid")
+
     def test_declared_label_is_recorded_as_an_assumption(self):
         spec = self.spec(conn_log=None, declared_label="benign")
         manifest, out = self.build([spec])

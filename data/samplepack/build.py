@@ -37,10 +37,11 @@ from pathlib import Path
 
 from core.features import FEATURE_ORDER, FEATURE_SCHEMA_VERSION, WINDOW_SECONDS, extract_features
 from core.schema import Direction, FeatureVector, PacketTuple
+from data.audit import pcap_record_count
 from data.samplepack.labels import BENIGN, DEFAULT_TOLERANCE, MALICIOUS, load_conn_log
 from model.train import LabelledWindow
 from sources.from_pcap import read_pcap
-from sources.packets import PacketNormalizer
+from sources.packets import PacketError, PacketNormalizer
 from sources.scope import ON_LINK_DESTINATIONS
 
 WINDOWS_FILENAME = "windows.jsonl"
@@ -58,6 +59,9 @@ LABELS = (MALICIOUS_LABEL, BENIGN_LABEL, UNKNOWN_LABEL)
 # that error is a truncated tail; PCAPNG, link-type, size-bound and packet errors must
 # fail the build instead of producing a nominally successful pack.
 TRUNCATED_RECORD = "truncated PCAP header/record"
+# A final record too short for its link-layer header is the only other accepted shape of
+# a cut capture. A malformed IP header, even in the last record, still fails the build.
+SHORT_LINK_HEADERS = frozenset({"short Ethernet header", "short VLAN header", "short SLL header"})
 
 
 class SamplePackError(ValueError):
@@ -107,13 +111,29 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _windows_of(packets: Iterable[PacketTuple], counts: _Counts) -> dict[tuple[str, float], list]:
+def _windows_of(
+    packets: Iterable[PacketTuple], counts: _Counts, *, failed_on_final_record=None
+) -> dict[tuple[str, float], list]:
     grouped: dict[tuple[str, float], list[PacketTuple]] = {}
     stream = iter(packets)
     while True:
         try:
             packet = next(stream)
         except StopIteration:
+            break
+        except PacketError as exc:
+            # A complete record too short for its link header is the other shape of a
+            # capture cut at its last packet (IoT-23 48-1 ends with an 8-byte frame). It
+            # is treated as a truncated tail only when it is the file's final record;
+            # a short frame anywhere else is corruption and fails the build.
+            # Approved by the Lead on 22 September 2026 for the ADR-0004 holdout.
+            if (
+                str(exc) not in SHORT_LINK_HEADERS
+                or failed_on_final_record is None
+                or not failed_on_final_record()
+            ):
+                raise
+            counts.truncated_tail = True
             break
         except ValueError as exc:
             if str(exc) != TRUNCATED_RECORD:
@@ -168,7 +188,13 @@ def build_sample_pack(
                 "supply declared_label instead of letting every window become unknown"
             )
         normalizer = PacketNormalizer(list(spec.lan_cidrs), spec.devices)
-        grouped = _windows_of(read_pcap(spec.pcap, normalizer), counts)
+        grouped = _windows_of(
+            read_pcap(spec.pcap, normalizer),
+            counts,
+            failed_on_final_record=lambda n=normalizer, pcap=spec.pcap: (
+                n.stats.records == pcap_record_count(pcap)
+            ),
+        )
         counts.multicast_or_broadcast = normalizer.stats.on_link
         for (device_id, start), packets in sorted(grouped.items()):
             vector = extract_features(device_id, start, packets)

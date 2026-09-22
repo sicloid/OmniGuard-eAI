@@ -137,9 +137,10 @@ def verify_hashes(root: Path, selection_path: Path = SELECTION) -> None:
 def audit(root: Path, spec: dict, selection_path: Path = SELECTION, *, log=print) -> dict:
     """Hashes first, then direction: each declared device must send outward."""
     from core.schema import Direction
-    from data.audit import summarize_pcap
+    from data.audit import pcap_record_count, summarize_pcap
+    from data.samplepack.build import SHORT_LINK_HEADERS
     from sources.from_pcap import read_pcap
-    from sources.packets import PacketNormalizer
+    from sources.packets import PacketError, PacketNormalizer
 
     verify_hashes(root, selection_path)
     selection = json.loads(Path(selection_path).read_text(encoding="utf-8"))
@@ -155,6 +156,13 @@ def audit(root: Path, spec: dict, selection_path: Path = SELECTION, *, log=print
         try:
             for packet in read_pcap(pcap, normalizer):
                 egress += packet.direction is Direction.EGRESS
+        except PacketError as exc:
+            # Same rule as the builder: only a final record too short for its link
+            # header ends the capture; anything else is corruption.
+            if str(exc) not in SHORT_LINK_HEADERS or normalizer.stats.records != pcap_record_count(
+                pcap
+            ):
+                raise
         except ValueError as exc:
             # A capture cut mid-record is used up to that point, as the builder does.
             if "truncated" not in str(exc):
