@@ -1,0 +1,98 @@
+{
+  "schema": "ciciot2023-selection-1",
+  "card": "KAN-13",
+  "decision": "ADR-0004 decision 2 — CICIoT2023 is a conditional external transfer candidate (KAN-23) only",
+  "purpose": "Download the smallest set of raw CICIoT2023 files that lets data.audit answer the questions ADR-0004 decision 2 asks before any external transfer test: capture point, subnets, attacker and victim identity, direction, and label resolution. Fixed before any byte is downloaded.",
+  "status": "declared; nothing downloaded yet",
+  "source": {
+    "host": "cicresearch.ca",
+    "path": "/IOTDataset/CIC_IOT_Dataset2023/",
+    "access": "the published files sit behind a registration form asking for name, e-mail and organisation, so the owner filled it. The session token is used for this download only and is never committed.",
+    "reachability_note": "The KAN-13 audit of 12 September recorded this host as unreachable. On 22 September it answered from the shell with the proxy unset, while the browser path still resets. The audit document is corrected by this run rather than from memory."
+  },
+  "why_these_files": {
+    "benign": "IoT-23 gives us three benign honeypot captures and every result rests on one of them. The 22 September KAN-52 test confirmation showed how fragile that is: CTU-Honeypot-Capture-7-1 produced zero false quarantines at N = 2 only because its traffic is 7,505 fragments with 7,504 gap resets, not because the detector was right. A second, independent benign source is the point of this download.",
+    "mirai": "The development pack holds Mirai (34-1) and the sealed holdout holds Mirai (48-1). A transfer comparison is only readable inside one family, so one Mirai capture is taken and the other 32 attack classes are not.",
+    "documentation": "Without the victim list the captures are unusable: data.audit assigns EGRESS, INGRESS, LOCAL and OUTSIDE relative to a declared LAN and device, and no direction can be assigned to addresses we cannot identify."
+  },
+  "budget_bytes": 26843545600,
+  "budget_note": "25 GiB, the standing download budget. The server sends no Content-Length, so files are fetched one at a time and the running total is checked after each. When the next file would cross the budget the download stops, and the manifest records what was taken.",
+  "selection": [
+    {
+      "path": "Supplementary Materials/README_Victims_List.pdf",
+      "role": "documentation",
+      "needed_for": "device and victim identity, without which direction cannot be assigned",
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "Supplementary Materials/README.pdf",
+      "role": "documentation",
+      "needed_for": "topology and collection description",
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "PCAP/README_PCAP.pdf",
+      "role": "documentation",
+      "needed_for": "what each PCAP folder holds and how it was captured",
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "PCAP/Benign_Final/BenignTraffic.pcap",
+      "role": "benign",
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "PCAP/Benign_Final/BenignTraffic1.pcap",
+      "role": "benign",
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "PCAP/Benign_Final/BenignTraffic2.pcap",
+      "role": "benign",
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "PCAP/Benign_Final/BenignTraffic3.pcap",
+      "role": "benign",
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "PCAP/Mirai-udpplain/Mirai-udpplain.pcap",
+      "role": "malware",
+      "family": "Mirai",
+      "note": "the first file of a 25-file folder; the rest are not taken",
+      "bytes": null,
+      "sha256": null
+    }
+  ],
+  "not_downloaded": {
+    "CSV/": "the published flow features. ADR-0004 decision 2 requires features to come from raw PCAP through our own extractor at the same catalogue version, so these can never be a model input and are not worth the bytes.",
+    "PCAP/PCAP.zip": "every capture in one archive; far over the budget.",
+    "the other 32 attack folders": "every attack in this dataset runs between IoT devices, which is LOCAL traffic at a home gateway. Until the audit shows EGRESS, more attack classes buy nothing.",
+    "Supplementary Materials/pcap2csv, tools": "the dataset's own feature extraction, which we are forbidden to use as a model input."
+  },
+  "never": [
+    "treat CICIoT2023 as the primary source: ADR-0004 is PROPOSED and the G1 choice stays formally in force until it is accepted",
+    "relabel LOCAL traffic as EGRESS to make a capture usable",
+    "use the published CSV features as a model input",
+    "score the frozen model on these captures before the audit passes and the run is declared",
+    "tune any parameter on what this data shows"
+  ],
+  "audit_gate": {
+    "tool": "data.audit",
+    "must_answer": [
+      "capture point and the subnets present",
+      "which address is the device and which is the attacker, taken from the victim list rather than guessed",
+      "the EGRESS, INGRESS, LOCAL and OUTSIDE split per capture",
+      "label resolution: what the dataset can and cannot say about a single window"
+    ],
+    "rule": "a capture whose audit does not show EGRESS does not enter any test, and the audit result is reported whatever it says"
+  }
+}
