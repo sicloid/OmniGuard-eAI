@@ -32,8 +32,34 @@
     "validation": "seed-1 validation split: benign CTU-Honeypot-Capture-5-1 and malware CTU-IoT-Malware-Capture-8-1. The threshold and the N/lease pair were selected on these windows, so every validation number is the friendly case and is labelled as such.",
     "train": "CTU-Honeypot-Capture-4-1 and CTU-IoT-Malware-Capture-34-1: not scored here. The model was fitted on them and any rate from them would be optimistic for a reason the plot cannot show.",
     "test": "seed-1 test split: benign CTU-Honeypot-Capture-7-1 and malware CTU-IoT-Malware-Capture-3-1. Scored only with a Lead approval recorded in this file and naming this card, at most once. Without that record the runner refuses the role. 7-1 carries no published label file, so its benign label is assumed (ADR-0004), and any number from it must say so.",
-    "holdout": "the ADR-0004 IoT-23 malware holdout is out of scope for this card and stays sealed",
-    "test_approval": null
+    "holdout": "the ADR-0004 IoT-23 malware holdout is out of scope for this card. It is scored once under KAN-71, with its own spec and its own record.",
+    "test_approval": {
+      "card": "KAN-52",
+      "approved_by": "Şükrü Biçer (Lead/R2)",
+      "date": "2026-09-22",
+      "reference": "KAN-52 comment 11528, 22 September 2026, 22:22 +03",
+      "decision": "The seed-1 test split (7-1, 3-1) may be used once, for a confirmation run.",
+      "single_run": true,
+      "tuning_or_retry_after": false,
+      "conditions": [
+        "The frozen inputs below are written into this spec before the run and verified by the runner.",
+        "One run only: after the result is seen there is no tuning, no re-selection and no retry.",
+        "The report and the figure label the result as a test confirmation.",
+        "7-1's benign label is declared, not measured (ADR-0004), and every number from it says so.",
+        "The validation numbers stay labelled as the optimistic case.",
+        "This run is not a benign-device generalisation result and not a final security claim."
+      ],
+      "frozen_inputs": {
+        "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+        "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+        "threshold": 0.9798815486832,
+        "feature_schema_version": "features-1",
+        "seed": 1,
+        "n": 2,
+        "lease_seconds": 300
+      },
+      "record": "model/leakage_test_record.json, written by the only run and committed; a second run needs that commit reverted in review"
+    }
   },
   "metrics": {
     "x_axis": "false quarantine episodes per observed benign device-hour, the same denominator the bootstrap interval uses so the point and its error bar mean one thing; the table also gives the wall-clock span rate and the blocked benign seconds per device-hour",

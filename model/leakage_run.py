@@ -50,10 +50,23 @@ from model.split import split_by_group
 from model.train import window_groups
 
 SPEC = Path(__file__).with_name("leakage_spec.json")
+TEST_RECORD = Path(__file__).with_name("leakage_test_record.json")
 REPORT_FILENAME = "leakage_report.json"
 TRIMMED_FILENAME = "leakage_report.trimmed.json"
 PLOT_FILENAME = "kan52_headline.svg"
 ROLES = ("validation", "test")
+# The frozen inputs the Lead's approval has to restate. Making the approval repeat them
+# is what lets a reviewer check the run against the decision instead of against a name
+# and a date.
+APPROVAL_PINS = (
+    "model_sha256",
+    "metadata_sha256",
+    "threshold",
+    "feature_schema_version",
+    "seed",
+    "n",
+    "lease_seconds",
+)
 
 
 class LeakageSpecError(ValueError):
@@ -115,18 +128,29 @@ def load_spec(path: Path = SPEC) -> dict:
 
 
 def test_role_allowed(spec: dict) -> bool:
-    """The test split is scored once, and only against a recorded approval.
+    """The test split is scored once, against an approval that restates what it approved.
 
     The approval lives in the committed spec, so using the test split leaves a diff in
-    review rather than a flag in somebody's shell history.
+    review rather than a flag in somebody's shell history. A name and a date are not
+    enough: the approval has to repeat the frozen model, threshold, schema, seed, N and
+    lease, and every one of them has to equal what this spec freezes. An approval that
+    names different numbers approves a different run, and this returns False for it.
+    It must also carry the Lead's condition that the run happens once, with no tuning
+    and no retry afterwards.
     """
     approval = spec["data_roles"].get("test_approval")
-    return (
-        isinstance(approval, dict)
-        and approval.get("card") == "KAN-52"
-        and bool(str(approval.get("approved_by", "")).strip())
-        and bool(str(approval.get("date", "")).strip())
-    )
+    if not isinstance(approval, dict) or approval.get("card") != "KAN-52":
+        return False
+    if not (str(approval.get("approved_by", "")).strip() and str(approval.get("date", "")).strip()):
+        return False
+    if approval.get("single_run") is not True or approval.get("tuning_or_retry_after") is not False:
+        return False
+    frozen = {**spec["frozen_policy"], **spec["frozen_policy"]["operating_point"]}
+    frozen["feature_schema_version"] = spec["feature_schema_version"]
+    recorded = approval.get("frozen_inputs")
+    if not isinstance(recorded, dict):
+        return False
+    return all(name in recorded and recorded[name] == frozen.get(name) for name in APPROVAL_PINS)
 
 
 def activity_segments(rows) -> dict:
@@ -343,15 +367,22 @@ def measure(
     manifest: Path | None = None,
     *,
     role: str = "validation",
+    record: Path = TEST_RECORD,
     log=print,
 ) -> dict:
     spec = load_spec(spec_path)
     if role not in ROLES:
         raise LeakageSpecError(f"role must be one of {ROLES}")
-    if role == "test" and not test_role_allowed(spec):
-        raise LeakageSpecError(
-            "the test split needs a Lead approval recorded in data_roles.test_approval"
-        )
+    if role == "test":
+        if not test_role_allowed(spec):
+            raise LeakageSpecError(
+                "the test split needs a Lead approval in data_roles.test_approval that "
+                "restates the frozen inputs and the single-run condition"
+            )
+        if Path(record).exists():
+            # The record is committed after the only run, so a second one needs that
+            # commit reverted in review rather than a rerun in somebody's shell.
+            raise LeakageSpecError(f"{Path(record).name} exists: the test split is spent")
     pack, out_dir = Path(pack), Path(out_dir)
     provenance = verify_pack(pack, manifest)
     if provenance.windows_sha256 != spec["development_pack_windows_sha256"]:
@@ -469,10 +500,39 @@ def measure(
     (out_dir / REPORT_FILENAME).write_text(
         json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8"
     )
+    trimmed = trimmed_report(report)
     (out_dir / TRIMMED_FILENAME).write_text(
-        json.dumps(trimmed_report(report), indent=2, sort_keys=True, allow_nan=False) + "\n",
+        json.dumps(trimmed, indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
     )
+    if role == "test":
+        approval = spec["data_roles"]["test_approval"]
+        Path(record).write_text(
+            json.dumps(
+                {
+                    "card": "KAN-52",
+                    "role": "test",
+                    "captures": report["captures"],
+                    "approved_by": approval["approved_by"],
+                    "approval_date": approval["date"],
+                    "approval_reference": approval.get("reference"),
+                    "single_run": True,
+                    "tuning_or_retry_after": False,
+                    "spec_sha256": report["spec"]["sha256"],
+                    "report_sha256": _sha256(out_dir / REPORT_FILENAME),
+                    "trimmed_report_sha256": _sha256(out_dir / TRIMMED_FILENAME),
+                    "note": (
+                        "The seed-1 test split was scored once under the frozen policy. "
+                        "Nothing may be tuned and no second run may be made on it; this "
+                        "record is what a reviewer would have to revert to allow one."
+                    ),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
     return report
 
 

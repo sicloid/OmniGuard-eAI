@@ -100,7 +100,9 @@ def render(report: dict) -> str:
         "KAN-52 &#8212; what containment costs a benign device, and what still gets out</text>",
         f'<text x="{LEFT}" y="50" font-size="12" fill="#475569">'
         f"Frozen KAN-19 model and threshold, replayed through DevicePolicy on the "
-        f"{_escape(report['evaluated_split'])} split. One point per (N, lease) cell.</text>",
+        f"{_escape(report['evaluated_split'])} split. One point per (N, lease) cell."
+        + (" One-shot test confirmation." if report["evaluated_split"] == "test" else "")
+        + "</text>",
     ]
 
     for tick in range(0, 11, 2):

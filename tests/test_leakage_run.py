@@ -12,6 +12,7 @@ from model.leakage_run import (
     bootstrap_interval,
     cell_metrics,
     load_spec,
+    measure,
     percentile,
     resample_series,
     stitch,
@@ -63,25 +64,63 @@ class SpecTests(unittest.TestCase):
             with self.assertRaises(LeakageSpecError):
                 load_spec(path)
 
-    def test_the_test_split_stays_shut_until_an_approval_is_recorded(self):
-        self.assertIsNone(COMMITTED["data_roles"]["test_approval"])
-        self.assertFalse(test_role_allowed(COMMITTED))
-        approved = json.loads(json.dumps(COMMITTED))
-        approved["data_roles"]["test_approval"] = {
+    def test_the_committed_approval_restates_the_frozen_inputs(self):
+        approval = COMMITTED["data_roles"]["test_approval"]
+        self.assertTrue(test_role_allowed(COMMITTED))
+        self.assertEqual(approval["single_run"], True)
+        self.assertEqual(approval["tuning_or_retry_after"], False)
+        frozen = COMMITTED["frozen_policy"]
+        self.assertEqual(approval["frozen_inputs"]["threshold"], frozen["threshold"])
+        self.assertEqual(approval["frozen_inputs"]["n"], frozen["operating_point"]["n"])
+        self.assertEqual(
+            approval["frozen_inputs"]["lease_seconds"], frozen["operating_point"]["lease_seconds"]
+        )
+
+    def test_a_name_and_a_date_alone_do_not_open_the_test_split(self):
+        thin = json.loads(json.dumps(COMMITTED))
+        thin["data_roles"]["test_approval"] = {
             "card": "KAN-52",
             "approved_by": "Lead",
             "date": "2026-09-23",
         }
-        self.assertTrue(test_role_allowed(approved))
+        self.assertFalse(test_role_allowed(thin))
+
+    def test_an_approval_naming_other_numbers_approves_another_run(self):
+        for field, value in (("n", 3), ("threshold", 0.5), ("lease_seconds", 600), ("seed", 2)):
+            drifted = json.loads(json.dumps(COMMITTED))
+            drifted["data_roles"]["test_approval"]["frozen_inputs"][field] = value
+            with self.subTest(field=field):
+                self.assertFalse(test_role_allowed(drifted))
+
+    def test_an_approval_without_the_single_run_condition_is_refused(self):
+        for field, value in (("single_run", False), ("tuning_or_retry_after", True)):
+            loose = json.loads(json.dumps(COMMITTED))
+            loose["data_roles"]["test_approval"][field] = value
+            with self.subTest(field=field):
+                self.assertFalse(test_role_allowed(loose))
 
     def test_an_approval_for_another_card_does_not_open_the_test_split(self):
         borrowed = json.loads(json.dumps(COMMITTED))
-        borrowed["data_roles"]["test_approval"] = {
-            "card": "KAN-51",
-            "approved_by": "Lead",
-            "date": "2026-09-23",
-        }
+        borrowed["data_roles"]["test_approval"]["card"] = "KAN-51"
         self.assertFalse(test_role_allowed(borrowed))
+
+
+class OneShotTests(unittest.TestCase):
+    def test_a_second_test_run_is_refused_once_the_record_exists(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            record = base / "leakage_test_record.json"
+            record.write_text("{}", encoding="utf-8")
+            with self.assertRaises(LeakageSpecError):
+                measure(
+                    base / "pack",
+                    base / "artifact",
+                    base / "out",
+                    SPEC,
+                    role="test",
+                    record=record,
+                )
+            self.assertFalse((base / "out").exists())
 
 
 class ActivityTests(unittest.TestCase):

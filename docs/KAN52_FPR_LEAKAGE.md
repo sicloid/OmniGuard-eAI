@@ -122,7 +122,10 @@ rests on a single honeypot device over five hours.
   is an observation, not a population estimate.
 - **Validation data.** The threshold and the N/lease pair were chosen on these same
   windows, so this is the friendly case. The untouched estimates are the ADR-0004
-  holdout (KAN-21) and, for benign devices, KAN-65 and KAN-70.
+  malware holdout, scored once under KAN-71, and, for benign devices, KAN-65 and
+  KAN-70. KAN-21 is not that estimate: it closed on 14 September as a
+  leave-one-family-out experiment over the development captures, every one of which has
+  been on a test side, so nothing in it is untouched.
 - **Policy intent, not packets.** Blocked seconds are what the policy decided. What
   actually stopped is KAN-33's sink measurement and the G8 run.
 - **Replay timing.** Every window is decided 0.5 s after it closes; real capture and
