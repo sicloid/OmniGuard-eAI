@@ -34,3 +34,4 @@ model/frozen/kan51/superseded/*.json text eol=lf
 data/holdout/score_spec.json text eol=lf
 data/holdout/score_record.json text eol=lf
 data/holdout/selection.json text eol=lf
+data/holdout/audit_record.json text eol=lf

@@ -1,0 +1,34 @@
+{
+  "captures": {
+    "CTU-IoT-Malware-Capture-20-1": {
+      "device_egress_packets": 20048,
+      "direction_counts": {
+        "EGRESS": 20051,
+        "INGRESS": 20019,
+        "LOCAL": 1137
+      },
+      "ip_packets": 41207
+    },
+    "CTU-IoT-Malware-Capture-36-1": {
+      "device_egress_packets": 13659726,
+      "direction_counts": {
+        "EGRESS": 13659982,
+        "INGRESS": 1662,
+        "LOCAL": 1542
+      },
+      "ip_packets": 13663186
+    },
+    "CTU-IoT-Malware-Capture-48-1": {
+      "device_egress_packets": 13535982,
+      "direction_counts": {
+        "EGRESS": 13536150,
+        "INGRESS": 22172,
+        "LOCAL": 978
+      },
+      "ip_packets": 13559300
+    }
+  },
+  "passed": true,
+  "spec_sha256": "8a9f6cf5a8085b842c651408a24ce3775bd0cd3b29e3a894622963198097f011",
+  "step": "audit"
+}
