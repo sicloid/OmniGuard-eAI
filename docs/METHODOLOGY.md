@@ -1,17 +1,18 @@
 # OmniGuard eAI — methodology and limitations (KAN-57)
 
-Owner: R1 (Onur), with Lead review. **Status: draft, 18 September 2026.**
+Owner: R1 (Onur), with Lead review. **Status: draft, 22 September 2026.**
 
 This document states how the detection results are produced, what each result may be
 used to claim, and what it may not. It collects rules that are already enforced in code
 and recorded in ADRs; it adds no new rule. Sections that depend on experiments not yet
 run say so. Where a number appears, the linked result document is the authority.
 
-| Prerequisite (from the card) | State on 17 September |
+| Prerequisite (from the card) | State on 22 September |
 |---|---|
 | Capture-aware train/validation/test split (KAN-17) | Done, in `model/split.py` |
 | Validation-only threshold calibration (KAN-19) | Done, frozen in `model/frozen/kan19-seed1/` |
-| FPR / containment leakage main experiment (KAN-52) | **Not run.** Sections 8 and 9 stay provisional until it is. KAN-33 (PR #40) builds the leakage measurement machinery; having the instrument is not having the experiment |
+| N and lease selection (KAN-51) | Done. N = 2, lease = 300 s, frozen by the Lead in ADR-0004 decision 7b (`8c0254a`) on validation data |
+| FPR / containment leakage main experiment (KAN-52) | **Measured**, 22 September, PR #49. Sections 7–10 now cite it. It measures policy-level leakage; the byte-level instrument is KAN-33 and the G8 run, and the two are never added |
 
 ## 1. What the system claims to do, and what it does not
 
@@ -45,7 +46,7 @@ accepted. Nothing below should be read as that decision having been made.
 | Role | Data | May be used for | Status |
 |---|---|---|---|
 | Development | Six audited IoT-23 captures: benign 4-1, 5-1, 7-1; malware 3-1 (Muhstik), 8-1 (Hakai), 34-1 (Mirai) | Training, validation, threshold, ablation, N sweep, exploratory folds | In use by the current experiments. Every capture has already been on a test or validation side (KAN-18, KAN-21), so **nothing here is untouched** |
-| Untouched malware holdout | IoT-23 48-1 (Mirai), 20-1 (Torii), 36-1 (Okiru), selected by a pre-committed rule | Scoring **once**, after the freeze in §5 | Selected (`data/holdout/selection.json`), not downloaded, never scored |
+| Untouched malware holdout | IoT-23 48-1 (Mirai), 20-1 (Torii), 36-1 (Okiru), selected by a pre-committed rule | Scoring **once**, after the freeze in §5 | Selected, downloaded, hashed, audited and packed (`data/holdout/`); `scored: false`. 48-1 is a seen family, 20-1 and 36-1 are unseen |
 | Untouched benign holdout | None exists. IoT-23 publishes three benign scenarios, all used | — | Until one exists, holdout reports say "untouched benign FPR: not measured" |
 | External transfer | CICIoT2023 (KAN-23) | A separate transfer test, never a substitute for the holdout | No locally audited capture set yet; see below |
 
@@ -168,9 +169,15 @@ second benign source (UNSW-IoTraffic) needs a separate decision.
   - threshold policy hash;
   - N and lease;
   - development pack hash.
-  - **Current state:** all of these except N and lease are recorded, so the holdout
-    stays unscored. It is scored once, and the result is reported whatever it is.
-    Tuning after that consumes it.
+  - **Current state:** every one of them is now recorded — N = 2 and lease = 300 s were
+    frozen in decision 7b on 22 September — and the captures are downloaded, hashed and
+    audited. What remains is the Lead's decision to spend the single run. It is scored
+    once, the result is reported whatever it is, and tuning after that consumes it.
+  - **One deviation is recorded** (`data/holdout/score_spec.json`): 48-1 ends with an
+    8-byte record that is a complete PCAP record but too short for an Ethernet header.
+    A final record too short for its link-layer header is now treated as a truncated
+    tail. Rebuilding the development pack with the changed builder reproduces
+    `4b97fb95…` and `8ea8c310…` byte for byte, so no frozen number moved.
 
 ### What the threshold results already show
 
@@ -179,7 +186,7 @@ second benign source (UNSW-IoTraffic) needs a separate decision.
 - **It does not transfer between benign devices.** In KAN-21, three of the twelve folds
   that found a threshold gave 12.6 % or 63.1 % FPR on an unseen benign capture. In 6 of
   18 folds, no threshold met the budget at all.
-- **Recall at 1 % sits on a score cliff** (KAN-20, PR #35, still in review).
+- **Recall at 1 % sits on a score cliff** (KAN-20, merged in PR #35 on 19 September).
   - Near the top, the 200-tree forest scores in steps of about 0.005.
   - A 2,055-window validation set allows about 20 false positives.
   - Once more benign windows than that share the top levels, the threshold jumps and
@@ -187,14 +194,21 @@ second benign source (UNSW-IoTraffic) needs a separate decision.
   - Small changes, such as dropping one feature, can move recall at the budget from
     0.95 to 0.33.
 
+- **What the threshold costs is decided by N, not by the threshold alone** (KAN-52).
+  The same frozen threshold leaves 14 anomalous windows on the benign validation
+  capture. At N = 1 those become 11–13 quarantines of a healthy device (up to 9.2 per
+  observed device-hour, and at a 300 s lease 659 blocked seconds per span hour); at
+  N = 2 they become none, because none of the 14 has an anomalous neighbour. That is a
+  property of this capture, not a guarantee.
+
 These are reasons **not** to freeze one runtime threshold from IoT-23 validation data
 and call it a deployment operating point.
 
-## 6. Feature ablation and cost (KAN-20, in review)
+## 6. Feature ablation and cost (KAN-20, merged 19 September)
 
 - **Setup:** 29 declared subsets of `features-1`, validation only, same budget, three
-  seeds. The compact-set rule was fixed before the run; its 0.02 tolerance is awaiting
-  Lead review.
+  seeds. The compact-set rule, including its 0.02 tolerance, was fixed before the run
+  and reviewed with the card.
 - **Volume features carry the detection.** The `without:volume` set (the ten non-volume
   features together) finds no threshold under the budget on any seed, and no volume-free
   candidate reached a useful recall: the best was about 0.12. Some volume-free sets do
@@ -219,10 +233,29 @@ and call it a deployment operating point.
   - Recall intervals collapse to a point.
   - FPR intervals span nearly the whole range.
   - These are reported as degenerate, not as confidence intervals.
+- **Resampling inside one capture** (KAN-52). Where a statistic depends on the order of
+  events rather than on independent draws — a quarantine rate, a blocked fraction — the
+  capture is cut into blocks of **wall-clock time** and the blocks are resampled, each
+  keeping its windows, its inner gaps and the silence at its edges.
+  - Blocks are time, not counts of windows. Drawing a fixed number of windows and
+    joining them deletes the silence between them: 8-1 has 4,397 gaps and a median
+    activity segment of 10 s, so a count-based resample is a busier device than the one
+    that was captured.
+  - A block is longer than the longest lease, so one episode fits inside a block.
+  - Every interval is published with three companions: the measurement, the raw spread
+    of the resamples, and the bias between them. **If the resamples do not straddle the
+    measurement, the interval is marked and is not quoted as an uncertainty.** In KAN-52
+    this happened in 5 of 16 cells, because leakage depends on structure longer than one
+    block. Widening the blocks until the symptom disappears is not a fix.
+  - This is variability inside one capture. It is never a device-to-device interval.
 - **Seeds:** variation across seeds changes which captures are in each split. It is
   reported as sensitivity, not averaged into one number.
 - **Zero false positives:** zero observed false quarantines is not zero risk. The
-  number of independent benign device-hours is reported next to any such figure.
+  number of independent benign device-hours is reported next to any such figure, and so
+  is the bound that follows from it. At the frozen operating point KAN-52 observed zero
+  in 5.0 benign device-hours of span, which is consistent with a true rate up to about
+  **0.6 per device-hour** (rule of three). One device over five hours cannot measure a
+  rarer rate than that.
 - **Consecutive windows are not independent.** `FPR^N` is never presented as the
   false-quarantine probability.
 
@@ -249,9 +282,13 @@ These hold for every result, whatever the numbers:
 
 - **Traffic coverage.** The lab design is IPv4-only with IPv6 disabled (ARCHITECTURE.md).
   No containment claim covers IPv6.
-  - Leakage is measured from independent sink and forwarding evidence, not by filtering
-    on EGRESS (KAN-33's counter, PR #40, does this; the experiment that uses it is
-    KAN-52 and has not been run).
+  - **Two different leakages, never added.** *Policy leakage* is the share of observed
+    malicious window-time during which the device was not quarantined; KAN-52 measures
+    it by interval overlap from the replayed policy decisions, and it is an intent, not
+    a packet count. *Byte leakage* is what an independent sink receives before the
+    kernel ACK; KAN-33's counter measures that on Linux namespaces and the G8 run
+    (`docs/evidence/G8_2026-09-20.json`) is where it was exercised with the real frozen
+    model.
   - An unobserved path or address family is unmeasured, never "zero leakage".
 - **Replay is not a live botnet.** PCAP replay does not reproduce an adaptive attacker.
   Replayed traffic is labelled as a lab transformation.
@@ -283,17 +320,25 @@ These hold for every result, whatever the numbers:
 | "Payload is never read; IP/MAC/port metadata is processed locally." | "The system is privacy-preserving / GDPR compliant." |
 | "Quarantine restricts the device's WAN egress for a bounded lease." | "OmniGuard blocks the malicious connection." / "Release means the device is clean." |
 | "No false quarantine was observed in X independent benign device-hours." | "OmniGuard causes no false quarantines." |
+| "At N = 2 and a 300 s lease, no false quarantine was observed on the benign validation capture in 5.0 device-hours; a rate up to about 0.6 per device-hour is consistent with that." | "N = 2 removes false quarantines." |
+| "7.5 % of the infected capture's observed malicious window-time was not under quarantine at the frozen point; this is a policy decision, not a byte count." | "OmniGuard blocks 92.5 % of attack traffic." |
+| "On this grid a longer lease usually leaked less, but not always: at N = 1, 120 s leaked less than 300 s." | "A longer lease always contains more." |
 
 ## 11. Open items before this document is final
 
-1. **KAN-52:** measure false quarantine per device-hour, benign blocked time and
-   L3 leakage, and replace the provisional wording in §8–9 with the measured result.
-   KAN-33's counter (PR #40) is the instrument this experiment will use; its own smoke
-   run is not the experiment and is not cited as one.
-2. **KAN-51:** choose and record N and lease. Then score the holdout once and add the
-   result under its own heading, including "untouched benign FPR: not measured" unless
+1. **Lead review** of this document, and of ADR-0004's remaining open decisions. The ADR
+   is still PROPOSED, so §2.1 stands as written: the source decision has not been made.
+2. **The holdout, scored once.** Everything the freeze requires is recorded and the
+   captures are audited and packed. When the Lead spends the run, its result gets its own
+   heading here, whatever it says, including "untouched benign FPR: not measured" unless
    a benign holdout exists by then.
-3. **Lead review:** the whole document, the KAN-20 tolerance, and ADR-0004's remaining
-   open decisions.
-4. **If UNSW-IoTraffic is approved:** add its device-level holdout split (ADR-0004
-   decision 7c) and the repeated KAN-21 folds to §2, §4 and §8.
+3. **The test split (7-1, 3-1).** KAN-52 measured validation only, which is the data the
+   threshold and the N/lease pair were chosen on. Whether to spend the test split on one
+   confirmation run is a Lead decision; `model/leakage_spec.json` refuses the role until
+   that approval is written into it. Any number from 7-1 carries its declared label.
+4. **A benign device that is not a honeypot.** Every benign figure here rests on one
+   IoT-23 capture. KAN-66 records controlled Pi scenarios with a declared mode and
+   KAN-65 evaluates the frozen model on them; that is also where §8's Raspberry Pi
+   confound can finally be attacked from the benign side.
+5. **If UNSW-IoTraffic is approved (KAN-68):** add its device-level holdout split
+   (ADR-0004 decision 7c) and the repeated KAN-21 folds to §2, §4 and §8.
