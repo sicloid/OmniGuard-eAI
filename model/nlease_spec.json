@@ -1,0 +1,65 @@
+{
+  "card": "KAN-51",
+  "purpose": "Replay the frozen KAN-19 policy over validation windows at several N and lease values, and record what each costs in false quarantine, blocked time and detection delay. Fixed before the run.",
+  "feature_schema_version": "features-1",
+  "development_pack_windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+  "frozen_policy": {
+    "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+    "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+    "threshold": 0.9798815486832,
+    "seed": 1,
+    "note": "The KAN-19 operating artifact is loaded and its hashes verified; the threshold is never recomputed."
+  },
+  "evaluated_on": "the seed-1 validation split only: benign Honeypot-5-1 and malware Malware-8-1",
+  "never": [
+    "score the development pack's test split (7-1, 3-1)",
+    "read the ADR-0004 holdout captures",
+    "retrain, re-threshold or replace the frozen model",
+    "present FPR^N as a false-quarantine probability"
+  ],
+  "replay": {
+    "window_seconds": 5,
+    "decision_delay_seconds": 0.5,
+    "max_result_age": 2.5,
+    "max_lease_seconds": 600,
+    "rearm": "after every lease expiry the episode is re-armed, as an operator or reconcile step would; without it a device could be quarantined at most once and the rate would be capped by construction",
+    "gaps": "windows are replayed in order per device; a non-contiguous window is a gap and DevicePolicy resets the series, which is the declared baseline"
+  },
+  "grid": {
+    "n": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "lease_seconds": [
+      30,
+      60,
+      120,
+      300
+    ]
+  },
+  "reported_per_cell": [
+    "benign device: quarantine episodes, false quarantines per observed device-hour, blocked seconds per observed device-hour",
+    "malware device: whether the incident was detected, delay from the first malicious window to the quarantine decision, contained fraction of observed malicious time, number of re-quarantines",
+    "both: observed windows, observed device-hours, policy rejection and reset counters"
+  ],
+  "selection_rule": {
+    "n": "the smallest N with zero quarantine episodes on the benign validation capture",
+    "lease": "among the qualifying N, the smallest lease whose blocked share of observed malicious time, measured as interval overlap, is at least containment_floor",
+    "if_none": "report that no cell qualifies and choose nothing; the budget is never relaxed to produce a pick",
+    "status": "Lead, 20 September 2026, first-hand on PR #44: N = 2 supported as the provisional validation choice; no lease approved and the holdout stays sealed until the corrected result is reviewed.",
+    "containment_floor": 0.9
+  },
+  "limits": [
+    "One benign device and one malware capture: a rate per device-hour from a single device is an observation, not a population estimate.",
+    "Replay assumes each window is decided 0.5 s after it closes; real capture and inference delay is measured in KAN-42, not here.",
+    "Blocked seconds are policy intent. Whether traffic actually stopped is KAN-33/KAN-52 evidence.",
+    "Consecutive windows are not independent, so no cell's false-quarantine rate is derived from the window FPR."
+  ],
+  "revision": {
+    "date": "2026-09-21",
+    "reason": "R3 review of PR #44. The 0.9 floor already declared in selection_rule.lease at 104b2e4 becomes the validated numeric field containment_floor, and the lease criterion is stated as interval overlap rather than a comparison of totals. The grid, the frozen policy, the replay settings and the floor value are unchanged.",
+    "supersedes_spec_sha256": "e812d3e934fa3662108df1fe2e5222b767ab9f58e3f6750eadd12063d411109a"
+  }
+}

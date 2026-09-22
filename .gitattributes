@@ -26,6 +26,8 @@ model/frozen/kan20/*.json text eol=lf
 docs/evidence/G8_2026-09-20.json text eol=lf
 docs/evidence/G8_2026-09-20_raw/** text eol=lf
 model/forest_spec.json text eol=lf
-
 # Exact-byte G10 evidence hashes must match on Windows checkouts as well.
 docs/evidence/G10_2026-09-20_raw/* text eol=lf
+model/nlease_spec.json text eol=lf
+model/frozen/kan51/*.json text eol=lf
+model/frozen/kan51/superseded/*.json text eol=lf

@@ -200,6 +200,25 @@ lease değerleri, geliştirme pack'inin `windows_sha256`'i. Holdout **bir kez** 
 ve sonuç ne olursa olsun raporlanır. Sonrasında ayar yapılırsa bu holdout "tüketilmiş"
 sayılır; yeni bir iddia için yeni, dokunulmamış capture'lar gerekir.
 
+**Kayıt durumu (21 Eylül 2026).** KAN-19'da dondurulan beş kalem kayıtlı; N ve lease
+KAN-51'de ölçülüyor ve **henüz tamamlanmadı**:
+
+| Kalem | Değer | Durum |
+|---|---|---|
+| `feature_schema_version` | `features-1` | Kayıtlı (KAN-15/16) |
+| `model_sha256` | `d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b` | Kayıtlı (KAN-19) |
+| `model.meta.json` | `917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad` | Kayıtlı (KAN-19) |
+| `threshold.policy.json` | `4a9491b5ce0be6a5225ce8f0e0b4d72022e67a62ba38c6cf62aeb051acc7bcdb` (eşik 0,9798815486832) | Kayıtlı (KAN-19) |
+| Geliştirme pack'i `windows_sha256` | `4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625` | Kayıtlı (KAN-14) |
+| **N** | **2** | Lead'in geçici validation seçimi (20 Eylül, [PR #44'te birinci elden](https://github.com/sicloid/OmniGuard-eAI/pull/44)) |
+| **lease** | — | **Onaylanmadı.** Düzeltilmiş KAN-51 sonucu review bekliyor |
+
+İlk KAN-51 koşusu 30 saniyelik lease önermişti; R3 review'u bu sonucu taşıyan iki hata
+buldu (kapsama, aralık örtüşmesi yerine toplam karşılaştırıyordu; lease süresi sessizlik
+sırasında bitmiyordu). Lead bu nedenle 30 saniyelik öneriyi geri çekti. Nihai N/lease
+çifti, düzeltilmiş sonuç review edildikten sonra Lead tarafından bu PR'da birinci
+elden kaydedilecek. **O zamana kadar holdout mühürlü kalır.**
+
 **c. İç holdout — benign tarafı: bugün yok.** IoT-23 yalnız üç benign senaryo yayınlıyor
 ve üçü de geliştirme verisinde. Dokunulmamış benign FPR IoT-23'ten ölçülemez. İki yol
 var, ikisi de ayrı onay ister:
