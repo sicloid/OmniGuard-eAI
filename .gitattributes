@@ -31,3 +31,7 @@ docs/evidence/G10_2026-09-20_raw/* text eol=lf
 model/nlease_spec.json text eol=lf
 model/frozen/kan51/*.json text eol=lf
 model/frozen/kan51/superseded/*.json text eol=lf
+model/leakage_spec.json text eol=lf
+model/frozen/kan52/*.json text eol=lf
+# The KAN-52 figure is hashed in docs/KAN52_FPR_LEAKAGE.md like any other evidence.
+model/frozen/kan52/*.svg text eol=lf

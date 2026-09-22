@@ -290,6 +290,11 @@ def summarise(values, measured: float, *, digits: int, bounds=(0.0, None)) -> di
         "interval": [round(interval[0], digits), round(interval[1], digits)],
         "resample_spread": [round(low, digits), round(high, digits)],
         "bias": round(sum(values) / len(values) - measured, digits),
+        # When the resamples do not even straddle the measurement, the bias is larger
+        # than the spread: the blocks cannot reproduce what this cell did, and the
+        # interval is too narrow to mean what an interval usually means. Reflecting it
+        # does not repair that, so the cell is flagged and the figure draws it dotted.
+        "reproduced": bool(low <= measured <= high),
     }
 
 

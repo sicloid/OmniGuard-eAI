@@ -7,14 +7,16 @@ in, so the figure cannot show a cell that was not measured.
 
 Reading it: each point is one (N, lease) cell. Right means a benign device is
 quarantined more often for nothing. Up means more of the attack's observed time went
-unblocked. The bars are the moving block bootstrap interval from the same run, which is
-temporal variability inside one capture — not the spread across devices.
+unblocked. The bars are the block bootstrap interval from the same run: temporal
+variability inside one capture, not the spread across devices. A dotted bar is a cell
+whose resamples did not straddle the measurement, which means the blocks could not
+reproduce it and the width is not an uncertainty anybody should quote.
 """
 
 from pathlib import Path
 
-WIDTH, HEIGHT = 920, 600
-LEFT, RIGHT, TOP, BOTTOM = 96, 300, 64, 92
+WIDTH, HEIGHT = 920, 630
+LEFT, RIGHT, TOP, BOTTOM = 96, 300, 64, 110
 COLOURS = {1: "#c2410c", 2: "#1d4ed8", 3: "#047857", 5: "#6d28d9"}
 FALLBACK = "#475569"
 RADII = {30: 4.0, 60: 5.5, 120: 7.0, 300: 9.0}
@@ -65,6 +67,12 @@ def points(report: dict) -> list[dict]:
                 "x_interval": clean["bootstrap"]["quarantines_per_observed_hour"]["interval"],
                 "y_interval": (attacked["bootstrap"].get("containment_leakage") or {}).get(
                     "interval"
+                ),
+                "reproduced": bool(
+                    clean["bootstrap"]["quarantines_per_observed_hour"].get("reproduced", True)
+                )
+                and bool(
+                    (attacked["bootstrap"].get("containment_leakage") or {}).get("reproduced", True)
                 ),
             }
         )
@@ -141,15 +149,18 @@ def render(report: dict) -> str:
         radius = RADII.get(point["lease_seconds"], 5.0)
         x, y = sx(point["x"]), sy(point["y"])
         low, high = sx(point["x_interval"][0]), sx(point["x_interval"][1])
+        # A cell the resampling could not reproduce gets a dotted bar: the number is
+        # still the measurement, but the width around it should not be quoted.
+        dash = "" if point["reproduced"] else ' stroke-dasharray="2 2"'
         out.append(
             f'<line x1="{low}" y1="{y}" x2="{high}" y2="{y}" stroke="{colour}" '
-            f'stroke-width="1" opacity="0.45"/>'
+            f'stroke-width="1" opacity="0.45"{dash}/>'
         )
         if point["y_interval"]:
             out.append(
                 f'<line x1="{x}" y1="{sy(point["y_interval"][0])}" x2="{x}" '
                 f'y2="{sy(point["y_interval"][1])}" stroke="{colour}" stroke-width="1" '
-                f'opacity="0.45"/>'
+                f'opacity="0.45"{dash}/>'
             )
         if point["n"] == operating["n"] and point["lease_seconds"] == operating["lease_seconds"]:
             out.append(
@@ -203,6 +214,7 @@ def render(report: dict) -> str:
     )
 
     benign, infected = report["benign_captures"][0], report["infected_captures"][0]
+    unreproduced = sum(1 for point in drawn if not point["reproduced"])
     footnotes = [
         f"Benign: {benign}, {report['observed'][benign]['observed_hours']:g} observed "
         f"device-hours. Infected: {infected}, "
@@ -212,10 +224,14 @@ def render(report: dict) -> str:
         "cannot show a rate this data has no power to measure.",
         "Leakage here is policy intent. Bytes delivered before the kernel ACK are KAN-33 "
         "and the G8 run, reported separately.",
+        f"Dotted bars ({unreproduced} of {len(drawn)} cells): the resampled blocks did not "
+        "straddle the measurement, so that width is not an uncertainty to quote."
+        if unreproduced
+        else "Every cell's resamples straddle its measurement.",
     ]
     for index, line in enumerate(footnotes):
         out.append(
-            f'<text x="{LEFT}" y="{HEIGHT - 38 + index * 14}" font-size="10.5" fill="#64748b">'
+            f'<text x="{LEFT}" y="{HEIGHT - 56 + index * 14}" font-size="10.5" fill="#64748b">'
             f"{_escape(line)}</text>"
         )
     out.append("</svg>")
