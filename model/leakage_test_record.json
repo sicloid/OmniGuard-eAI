@@ -1,0 +1,17 @@
+{
+  "approval_date": "2026-09-22",
+  "approval_reference": "KAN-52 comment 11528, 22 September 2026, 22:22 +03",
+  "approved_by": "\u015e\u00fckr\u00fc Bi\u00e7er (Lead/R2)",
+  "captures": [
+    "CTU-Honeypot-Capture-7-1",
+    "CTU-IoT-Malware-Capture-3-1"
+  ],
+  "card": "KAN-52",
+  "note": "The seed-1 test split was scored once under the frozen policy. Nothing may be tuned and no second run may be made on it; this record is what a reviewer would have to revert to allow one.",
+  "report_sha256": "4f779cf1a5492993fe8a64648a4530f57d4d1f8d3806459f61c4c192e7dffda3",
+  "role": "test",
+  "single_run": true,
+  "spec_sha256": "dec64b5aa71e6eae058d75004f117d03984dbccfec68232a289684052d51d115",
+  "trimmed_report_sha256": "5a4fd035b980fecd328737a789ff7effa4c064da61064516be7d4e18a8f60f1a",
+  "tuning_or_retry_after": false
+}

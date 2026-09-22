@@ -35,3 +35,6 @@ model/leakage_spec.json text eol=lf
 model/frozen/kan52/*.json text eol=lf
 # The KAN-52 figure is hashed in docs/KAN52_FPR_LEAKAGE.md like any other evidence.
 model/frozen/kan52/*.svg text eol=lf
+model/frozen/kan52/test/*.json text eol=lf
+model/frozen/kan52/test/*.svg text eol=lf
+model/leakage_test_record.json text eol=lf

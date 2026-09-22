@@ -99,6 +99,63 @@ stands; the width does not. These cells are drawn with a dotted bar in the figur
    benign capture, 7.5 % of observed malicious time unblocked, 10.5 s to the first
    quarantine, and 257 re-quarantines over the capture.
 
+## Test confirmation — one run, 22 September
+
+The Lead approved spending the seed-1 test split on a single confirmation run (KAN-52
+comment 11528): frozen model, threshold, `features-1`, seed 1, N = 2, lease = 300 s,
+recorded in `model/leakage_spec.json` before the run, **one run, no tuning and no retry
+afterwards**. `model/leakage_test_record.json` is what a reviewer would have to revert
+to allow a second one.
+
+| Capture | Role | Windows | Observed | Span | Anomalous windows | Activity segments |
+|---|---|---:|---:|---:|---:|---:|
+| CTU-Honeypot-Capture-7-1 | benign device, **declared label** | 9,770 | 13.57 h | 24.00 h | 3,380 (34.6 %) | 7,505 |
+| CTU-IoT-Malware-Capture-3-1 (Muhstik) | infected device | 25,655 | 35.63 h | 36.13 h | 10,571 of 25,651 malicious | 4 |
+
+**At the frozen operating point (N = 2, 300 s):** no false quarantine on 7-1, and
+**50.6 % of 3-1's observed malicious time went unblocked** (interval 47.7–60.0 %), with
+212 quarantine episodes and the same 10.5 s to the first one.
+
+| N | Lease | False quarantines on 7-1 | per observed device-hour | Benign blocked s per span hour | Containment leakage | Interval |
+|---:|---:|---:|---:|---:|---:|---|
+| 1 | 30 s | **1,866** | 137.5 | 2,331 | 51.9 % | 46.9–59.1 % |
+| 1 | 300 s | **277** | 20.4 | 3,450 | 50.0 % | 47.0–59.2 % |
+| **2** | **300 s** | **0** | **0.0** | **0.0** | **50.6 %** | **47.7–60.0 %** |
+| 3 | 300 s | 0 | 0.0 | 0.0 | 51.3 % | 48.9–61.2 % |
+| 5 | 300 s | 0 | 0.0 | 0.0 | 55.5 % | flagged¹ |
+
+### What the confirmation says
+
+1. **The validation result does not transfer.** The same frozen policy left 7.5 % of
+   malicious time unblocked on 8-1 and **50.6 % on 3-1**. The cause is upstream of the
+   policy: at the frozen threshold only **41.2 %** of 3-1's malicious windows are
+   anomalous at all, against 94.5 % on 8-1. N and the lease cannot contain what the
+   threshold does not flag.
+2. **The zero on the benign side is structural, not safety.** 34.6 % of 7-1's windows
+   are individually anomalous — 3,380 of them — but the capture is 7,505 separate
+   activity segments with 7,504 gap resets, so two anomalous windows almost never land
+   in a row. N = 2 therefore cannot fire. The same capture at N = 1 produces **1,866
+   false quarantines, 137.5 per observed device-hour**, and at a 300 s lease the device
+   is cut off for 3,450 of every 3,600 wall-clock seconds. Reading this zero as "no
+   false quarantines on unseen benign traffic" would be reading the gap structure, not
+   the detector.
+3. **The bound still applies, and it is weak.** Zero events in 24.0 device-hours of span
+   is consistent with a true rate up to about 0.13 per device-hour; on observed hours,
+   0.22. Neither number survives point 2.
+4. **7-1's benign label is declared, not measured** (ADR-0004). Every figure in this
+   section inherits that assumption.
+5. **Nothing here may be tuned.** The grid is shown because hiding measured cells is
+   worse than showing them, not because a better cell may now be selected. N, the
+   lease, the threshold and the model stay as they were frozen.
+
+¹ The N = 5 / 300 s cell is the one cell whose resamples did not straddle the
+measurement; its width is not quoted. The other fifteen reproduce.
+
+**Evidence.** Trimmed report
+[`model/frozen/kan52/test/leakage_report.trimmed.json`](../model/frozen/kan52/test/leakage_report.trimmed.json)
+`5a4fd035…`, figure `49ca6fc7…`, full run output `4f779cf1…` (outside Git), spec
+`dec64b5a…`, record `model/leakage_test_record.json`.
+
 ## Uncertainty, and where it stops
 
 Each capture is cut into 600 s blocks of wall-clock time; 200 resamples draw those
@@ -131,9 +188,9 @@ rests on a single honeypot device over five hours.
 - **Replay timing.** Every window is decided 0.5 s after it closes; real capture and
   inference latency belongs to KAN-42.
 - **Gaps reset the series** — the declared baseline. A max-gap variant is not measured.
-- **7-1 is not here.** The test split stays unscored; when it is used, its benign
-  label is assumed rather than published (ADR-0004), and any number from it must
-  say so.
+- **The test split is spent.** It was scored once, on 22 September, under the approval
+  recorded in the spec. 7-1's benign label is declared rather than published
+  (ADR-0004), and every number from it says so.
 
 ## Evidence
 
@@ -149,9 +206,12 @@ rerun on another machine differs only in its `environment` block.
 
 ## What is needed next
 
-1. Owner review of this result.
-2. A Lead decision on whether the seed-1 test split (7-1, 3-1) is spent on one
-   confirmation run. The runner refuses it until that approval is written into the
-   spec, and the run would be one-shot.
+1. Owner review of both results.
+2. **The confirmation's negative result has to reach the delivery inventory** (KAN-54)
+   and the presentation: the frozen operating point left half of an unseen malware
+   capture's malicious time unblocked, and its clean benign side came from a capture
+   whose traffic is too fragmented for N = 2 to fire.
 3. New benign devices (KAN-66 capture, KAN-65 evaluation), so the benign cost does not
-   rest on one honeypot.
+   rest on one honeypot or on one gap structure.
+4. The malware holdout, scored once under KAN-71, is still the untouched estimate. This
+   confirmation does not replace it and does not change its pins.
