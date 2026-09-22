@@ -4,6 +4,12 @@ Implemented: `sources.from_pcap.read_pcap` and shared `PacketNormalizer`.
 KAN-27 live adapter: see [LIVE.md](LIVE.md) for Linux capture, loss semantics and
 isolated validation. Feature extraction remains Onur's KAN-16.
 
+KAN-66 adds [`sources.benign_capture`](benign_capture.py), a bounded raw-PCAP
+collector for controlled, device-scoped benign **evaluation**. It writes evidence
+outside Git and does not load a model, change policy, or claim flow-level labels.
+Its protocol and acceptance boundary are in
+[`docs/KAN64_BENIGN_GENERALIZATION_PROTOCOL.md`](../docs/KAN64_BENIGN_GENERALIZATION_PROTOCOL.md).
+
 ```sh
 python -m sources.from_pcap capture.pcap --lan 10.203.1.0/24 --devices devices.json
 ```
