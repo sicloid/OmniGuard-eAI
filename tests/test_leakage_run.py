@@ -163,33 +163,39 @@ class CellTests(unittest.TestCase):
         self.assertEqual(metrics["benign_windows_inside_infected_capture"], 1)
         self.assertEqual(metrics["benign_windows_inside_infected_capture_flagged"], 1)
 
-    def test_an_interval_is_ordered_and_stays_inside_its_own_range(self):
+    def test_every_statistic_carries_its_measurement_spread_and_bias(self):
         rows = [row(5 * i, anomalous=i % 7 < 2, malicious=True) for i in range(120)]
+        measured = cell_metrics(rows, n=2, lease_seconds=30, spec=COMMITTED, infected=True)
         samples = resample_series(rows, block_seconds=600, resamples=8, seed=52)
-        interval = bootstrap_interval(samples, n=2, lease_seconds=30, spec=COMMITTED, infected=True)
-        low, high = interval["quarantines_per_observed_hour"]
-        self.assertLessEqual(low, high)
-        low, high = interval["containment_leakage"]
-        self.assertTrue(0 <= low <= high <= 1)
+        summary = bootstrap_interval(
+            samples, measured, n=2, lease_seconds=30, spec=COMMITTED, infected=True
+        )
+        rate = summary["quarantines_per_observed_hour"]
+        self.assertEqual(rate["measured"], measured["quarantines_per_observed_hour"])
+        self.assertLessEqual(rate["interval"][0], rate["interval"][1])
+        self.assertLessEqual(rate["resample_spread"][0], rate["resample_spread"][1])
+        leak = summary["containment_leakage"]
+        self.assertTrue(0 <= leak["interval"][0] <= leak["interval"][1] <= 1)
 
-    def test_a_uniform_capture_brackets_its_own_measurement(self):
-        """A resample of a capture that repeats itself must land where the capture did.
+    def test_the_interval_is_centred_on_the_measurement_not_on_the_resamples(self):
+        """A statistic the blocks cannot reproduce must not be bracketed away from it.
 
-        This is what the first declared method failed: joining blocks contiguously
-        dropped the silence between them, so the interval described a busier device.
+        The reflected interval keeps the measurement inside whenever the resample
+        spread is wider than the bias, which the percentile spread alone did not.
         """
         pattern = [row(5 * i, anomalous=i % 20 < 3, malicious=True) for i in range(720)]
         rows = [r for r in pattern if r[0] % 60 < 30]  # half the timeline is silence
         measured = cell_metrics(rows, n=2, lease_seconds=30, spec=COMMITTED, infected=True)
         samples = resample_series(rows, block_seconds=600, resamples=40, seed=52)
-        interval = bootstrap_interval(
-            samples, n=2, lease_seconds=30, spec=COMMITTED, infected=True
+        summary = bootstrap_interval(
+            samples, measured, n=2, lease_seconds=30, spec=COMMITTED, infected=True
         )
-        low, high = interval["containment_leakage"]
+        leak = summary["containment_leakage"]
         self.assertTrue(
-            low <= measured["containment_leakage"] <= high,
-            f"{measured['containment_leakage']} outside [{low}, {high}]",
+            leak["interval"][0] <= leak["measured"] <= leak["interval"][1],
+            f"{leak['measured']} outside {leak['interval']}",
         )
+        self.assertIn("bias", leak)
 
 
 def report_of(cells, *, benign="benign-1", infected="malware-1"):
@@ -211,14 +217,16 @@ def cell(n, lease, *, rate, leakage):
             "benign-1": {
                 "quarantines_per_observed_hour": rate,
                 "containment_leakage": None,
-                "bootstrap": {"quarantines_per_observed_hour": [0.0, rate + 1]},
+                "bootstrap": {
+                    "quarantines_per_observed_hour": {"interval": [0.0, rate + 1]},
+                },
             },
             "malware-1": {
                 "quarantines_per_observed_hour": 4.0,
                 "containment_leakage": leakage,
                 "bootstrap": {
-                    "quarantines_per_observed_hour": [3.0, 5.0],
-                    "containment_leakage": [max(0.0, leakage - 0.05), leakage + 0.05],
+                    "quarantines_per_observed_hour": {"interval": [3.0, 5.0]},
+                    "containment_leakage": {"interval": [max(0.0, leakage - 0.05), leakage + 0.05]},
                 },
             },
         },

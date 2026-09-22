@@ -61,7 +61,7 @@
     "block_seconds": 600,
     "resamples": 200,
     "seed": 52,
-    "interval": "percentile, 2.5 and 97.5",
+    "interval": "basic bootstrap: the 2.5 and 97.5 percentiles of the resamples reflected about the measurement, clipped to the range the statistic can take. Each statistic also carries the raw resample spread and the bias of the resample mean against the measurement, so a reader can see when the resampling cannot reproduce what the capture did.",
     "rebuild": "the capture is cut into consecutive blocks of `block_seconds` of wall-clock time; as many blocks as the capture holds are drawn with replacement and laid end to end, each keeping its windows, its inner gaps and the silence at its edges. The resample therefore has the capture's own span and density, and is replayed through DevicePolicy exactly as the observed series is.",
     "block_rule": "a block is a multiple of the window period and longer than the longest lease, so one quarantine episode fits inside a block and joins do not cut episodes the capture never cut",
     "reported_for": [
@@ -81,6 +81,11 @@
     "reason": "The first declared method drew fixed counts of windows and joined the blocks contiguously. That silently removed the silence between blocks: CTU-IoT-Malware-Capture-8-1 has 4,397 gaps and a median activity segment of 10 s, so the resampled device was busier and denser than the captured one, and the interval described a series the capture never produced. Blocks are now lengths of wall-clock time and keep their own silence. The point estimates do not use the bootstrap and are unchanged by this; only the intervals are.",
     "found": "the trial run's intervals did not contain their own point estimate in several cells, which a correct resampling scheme has no reason to do",
     "supersedes": "the first run of 22 September 2026, whose intervals are discarded and are not reported anywhere"
+  },
+  "revision_2": {
+    "date": "2026-09-22",
+    "reason": "With time blocks the benign rate brackets its measurement, but containment leakage still landed outside the percentile spread in 5 of 16 cells. Leakage depends on how episodes and malicious stretches line up over hours, which a 600 s block cannot reproduce, so the resample mean sits slightly off the measurement. Rather than widen blocks until the symptom disappears, every statistic now reports the measurement, the raw resample spread, the bias between them, and a basic bootstrap interval centred on the measurement. Point estimates are unaffected: they never used the bootstrap.",
+    "supersedes": "the second run of 22 September 2026, whose percentile spreads are kept in the report rather than discarded"
   },
   "benign_modes": {
     "requested": "idle, active, startup and update reported separately (KAN-52, 10 September V3 review)",

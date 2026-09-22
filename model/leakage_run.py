@@ -265,8 +265,38 @@ def cell_metrics(rows, *, n: int, lease_seconds: float, spec: dict, infected: bo
     return metrics
 
 
-def bootstrap_interval(series, *, n: int, lease_seconds: float, spec: dict, infected: bool) -> dict:
-    """Replay every resample of one capture and take a percentile interval."""
+def summarise(values, measured: float, *, digits: int, bounds=(0.0, None)) -> dict:
+    """Describe one statistic's resamples honestly, measurement included.
+
+    Three numbers, because a single pair of brackets would hide what it is made of:
+
+    * `resample_spread` is where the resampled runs landed;
+    * `bias` is how far their mean sits from the measurement. A resample cannot
+      reproduce structure longer than one block, so a statistic that depends on such
+      structure shows a bias here, and the spread alone would understate it;
+    * `interval` is the basic bootstrap interval, `2 * measured - spread` reversed,
+      which is the usual answer to that bias: it is centred on what was measured
+      rather than on what the resampling scheme happens to produce.
+    """
+    low, high = percentile(values, 0.025), percentile(values, 0.975)
+    interval = [2 * measured - high, 2 * measured - low]
+    floor, ceiling = bounds
+    if floor is not None:
+        interval = [max(floor, value) for value in interval]
+    if ceiling is not None:
+        interval = [min(ceiling, value) for value in interval]
+    return {
+        "measured": round(measured, digits),
+        "interval": [round(interval[0], digits), round(interval[1], digits)],
+        "resample_spread": [round(low, digits), round(high, digits)],
+        "bias": round(sum(values) / len(values) - measured, digits),
+    }
+
+
+def bootstrap_interval(
+    series, measured: dict, *, n: int, lease_seconds: float, spec: dict, infected: bool
+) -> dict:
+    """Replay every resample of one capture and summarise what they say."""
     observed_rates, span_rates, leakage = [], [], []
     for sample in series:
         rows = sample["rows"]
@@ -284,23 +314,20 @@ def bootstrap_interval(series, *, n: int, lease_seconds: float, spec: dict, infe
         if malicious_seconds:
             overlap = malicious_overlap_seconds(outcome["episodes"], [s for s, _, m in rows if m])
             leakage.append(1 - overlap / malicious_seconds)
-    interval = {
+    summary = {
         "resamples": len(series),
-        "quarantines_per_observed_hour": [
-            round(percentile(observed_rates, 0.025), 3),
-            round(percentile(observed_rates, 0.975), 3),
-        ],
-        "quarantines_per_span_hour": [
-            round(percentile(span_rates, 0.025), 3),
-            round(percentile(span_rates, 0.975), 3),
-        ],
+        "quarantines_per_observed_hour": summarise(
+            observed_rates, measured["quarantines_per_observed_hour"], digits=3
+        ),
+        "quarantines_per_span_hour": summarise(
+            span_rates, measured["quarantines_per_span_hour"], digits=3
+        ),
     }
     if infected and leakage:
-        interval["containment_leakage"] = [
-            round(percentile(leakage, 0.025), 4),
-            round(percentile(leakage, 0.975), 4),
-        ]
-    return interval
+        summary["containment_leakage"] = summarise(
+            leakage, measured["containment_leakage"], digits=4, bounds=(0.0, 1.0)
+        )
+    return summary
 
 
 def measure(
@@ -380,12 +407,14 @@ def measure(
         for lease in spec["grid"]["lease_seconds"]:
             captures = {}
             for group, entries in rows.items():
+                measured = cell_metrics(
+                    entries, n=n, lease_seconds=lease, spec=spec, infected=group in infected
+                )
                 captures[group] = {
-                    **cell_metrics(
-                        entries, n=n, lease_seconds=lease, spec=spec, infected=group in infected
-                    ),
+                    **measured,
                     "bootstrap": bootstrap_interval(
                         series[group],
+                        measured,
                         n=n,
                         lease_seconds=lease,
                         spec=spec,

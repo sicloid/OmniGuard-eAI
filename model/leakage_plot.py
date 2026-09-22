@@ -62,8 +62,10 @@ def points(report: dict) -> list[dict]:
                 "lease_seconds": cell["lease_seconds"],
                 "x": clean["quarantines_per_observed_hour"],
                 "y": attacked["containment_leakage"],
-                "x_interval": clean["bootstrap"]["quarantines_per_observed_hour"],
-                "y_interval": attacked["bootstrap"].get("containment_leakage"),
+                "x_interval": clean["bootstrap"]["quarantines_per_observed_hour"]["interval"],
+                "y_interval": (attacked["bootstrap"].get("containment_leakage") or {}).get(
+                    "interval"
+                ),
             }
         )
     return drawn
@@ -124,7 +126,7 @@ def render(report: dict) -> str:
         f'stroke="#94a3b8" stroke-width="1.5"/>'
     )
     out.append(
-        f'<text x="{LEFT + plot_width / 2}" y="{TOP + plot_height + 48}" font-size="12.5" '
+        f'<text x="{LEFT + plot_width / 2}" y="{TOP + plot_height + 42}" font-size="12.5" '
         f'fill="#0f172a" text-anchor="middle">false quarantines per observed benign '
         f"device-hour &#8594;</text>"
     )
@@ -193,7 +195,7 @@ def render(report: dict) -> str:
         )
     out.append(
         f'<text x="{legend_x}" y="{TOP + 262}" font-size="11" fill="#475569">'
-        "bars: 95% moving block</text>"
+        "bars: 95% basic block</text>"
     )
     out.append(
         f'<text x="{legend_x}" y="{TOP + 278}" font-size="11" fill="#475569">'
@@ -213,7 +215,7 @@ def render(report: dict) -> str:
     ]
     for index, line in enumerate(footnotes):
         out.append(
-            f'<text x="{LEFT}" y="{HEIGHT - 44 + index * 15}" font-size="10.5" fill="#64748b">'
+            f'<text x="{LEFT}" y="{HEIGHT - 38 + index * 14}" font-size="10.5" fill="#64748b">'
             f"{_escape(line)}</text>"
         )
     out.append("</svg>")
