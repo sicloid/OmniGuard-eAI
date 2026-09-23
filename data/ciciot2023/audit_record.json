@@ -2,7 +2,7 @@
   "schema": "ciciot2023-audit-1",
   "card": "KAN-13",
   "date": "2026-09-23",
-  "status": "one benign capture audited in full; the Mirai capture is not downloaded yet",
+  "status": "two benign captures audited in full; the Mirai capture is not downloaded. Work handed to the Lead on 23 September.",
   "tool": "data.audit",
   "what_changed_since_12_september": "The 12 September audit recorded cicresearch.ca as unreachable and therefore audited nothing. On 22 September the host answered from the shell with the proxy unset. The browser path still resets, and long transfers are throttled and dropped, so the download is resumable and still running.",
   "documentation": {
@@ -65,5 +65,23 @@
     "download and audit the Mirai capture, which is the one that can confirm or refute the LOCAL concern",
     "if a transfer test is wanted, declare per-device windowing before any window is scored",
     "record the remaining files’ hashes if they are downloaded"
-  ]
+  ],
+  "audited_second": {
+    "capture": "PCAP/Benign_Final/BenignTraffic1.pcap",
+    "role": "benign",
+    "complete_file": true,
+    "bytes": 2048002499,
+    "sha256": "7af057c6681e076151cc28e123a44ea6ff0e3b174d39d456ba7ccf1ac22d24c0",
+    "declared_lan": "192.168.137.0/24",
+    "distinct_source_macs_sampled": 66,
+    "span_seconds": 26092.71,
+    "ip_packets": 2901291,
+    "direction_shares_of_ip_packets": {
+      "EGRESS": 0.4996,
+      "INGRESS": 0.4171,
+      "LOCAL": 0.0766,
+      "OUTSIDE": 0.0067
+    },
+    "note": "a second, independent file gives the same answer as the first, so the egress share is not a sampling accident"
+  }
 }

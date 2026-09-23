@@ -3,7 +3,7 @@
   "card": "KAN-13",
   "decision": "ADR-0004 decision 2 — CICIoT2023 is a conditional external transfer candidate (KAN-23) only",
   "purpose": "Download the smallest set of raw CICIoT2023 files that lets data.audit answer the questions ADR-0004 decision 2 asks before any external transfer test: capture point, subnets, attacker and victim identity, direction, and label resolution. Fixed before any byte is downloaded.",
-  "status": "BenignTraffic.pcap downloaded in full and audited; the other four files are not downloaded",
+  "status": "two benign captures downloaded in full and audited; Mirai and the remaining two benign files are not downloaded. Handed to the Lead on 23 September.",
   "source": {
     "host": "cicresearch.ca",
     "path": "/IOTDataset/CIC_IOT_Dataset2023/",
@@ -49,8 +49,9 @@
     {
       "path": "PCAP/Benign_Final/BenignTraffic1.pcap",
       "role": "benign",
-      "bytes": null,
-      "sha256": null
+      "bytes": 2048002499,
+      "sha256": "7af057c6681e076151cc28e123a44ea6ff0e3b174d39d456ba7ccf1ac22d24c0",
+      "note": "downloaded through the browser; complete file"
     },
     {
       "path": "PCAP/Benign_Final/BenignTraffic2.pcap",
