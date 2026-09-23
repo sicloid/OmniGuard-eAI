@@ -4,6 +4,7 @@ import threading
 import unittest
 from pathlib import Path
 
+from lab.kan43_sealed_run import policy_events
 from lab.mqtt_wire_counter import MqttWireCounter
 from telemetry.accounting import (
     MQTT_APPLICATION,
@@ -375,6 +376,26 @@ class WireCounterTests(unittest.TestCase):
         report = self.counter.report()
         self.assertIn("IP/TCP headers", report["not_counted"])
         self.assertIn("TCP payload bytes", report["counted"])
+
+
+class SealedRunScheduleTests(unittest.TestCase):
+    """The sealed run's events come from the real policy; the schedule must reach N."""
+
+    def test_each_cycle_quarantines_and_expires_through_the_real_policy(self):
+        events = policy_events(3, 43, end=1_790_000_000.0)
+        transitions = [(e.previous_state.value, e.new_state.value) for e in events]
+        cycle = [("NORMAL", "SUSPICIOUS"), ("SUSPICIOUS", "QUARANTINED"), ("QUARANTINED", "NORMAL")]
+        self.assertEqual(transitions, cycle * 3)
+        self.assertTrue(all(e.expires_at for e in events[1::3]))
+
+    def test_no_timestamp_is_later_than_the_run_that_sends_it(self):
+        events = policy_events(20, 43, end=1_790_000_000.0)
+        self.assertLess(max(e.timestamp for e in events), 1_790_000_000.0)
+
+    def test_the_schedule_is_reproducible_from_its_seed(self):
+        first = policy_events(2, 43, end=1_790_000_000.0)
+        self.assertEqual(first, policy_events(2, 43, end=1_790_000_000.0))
+        self.assertNotEqual(first, policy_events(2, 44, end=1_790_000_000.0))
 
 
 if __name__ == "__main__":

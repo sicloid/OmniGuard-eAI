@@ -1,0 +1,258 @@
+{
+  "closed_at_unix": 1790169049.554048,
+  "config": {
+    "card": "KAN-43",
+    "code_sha256": {
+      "core/schema.py": "5422e0d47fe6da630416c4f21721c1b58aead6118856e31b70b29aeb05f795b4",
+      "gateway/event_bridge.py": "8198299a331a21c992114e8439dfcefcdc562255fcb9fd4ad203e214636afd3f",
+      "gateway/policy.py": "906a55dac8c6ac23109e8999c014ab58ebb7a41eba301941f6eabd49a3d52e2e",
+      "lab/kan43_sealed_run.py": "03ff45cff495618a06806bf1a1c46f0b2193789fbc5630bcc8a101e3adc55c36",
+      "lab/mqtt_wire_counter.py": "19dab5b2bcf51d8251ac99357e917726d6346dffe951ba2fc46397fcc9865af3",
+      "telemetry/accounting.py": "f4bdad0c1776cea421a9a5ea2e10de8f698503789ba44d9768e670ad6645de31",
+      "telemetry/canonical.py": "8010b72ab8ee0dceca323b51e27e34d50a929d3549266ebaddeb00d7886017d4",
+      "telemetry/envelope.py": "341763a59c3fdbeb918e9b475c3cbdd54412a338acc7b774e1cd21cd0fe9f987",
+      "telemetry/framing.py": "4d893e3fba354b96bef1b3f05284fe83de77afbaffc0038a1cfb2325d07b77ae",
+      "telemetry/handoff.py": "b869a36e1a27ed1d64e67185ef87ec80a807c7fc0963be3b67374279825dbe30",
+      "telemetry/identity.py": "06eb64635c7316d8d2cd3488c099463558d6b48afeb8cab4342d4d121b5096ac",
+      "telemetry/mqtt.py": "06229161cb426a46694f4320dadc40c598022f4e5863faeb31b51471ffafa635",
+      "telemetry/publisher.py": "0154de52a16848a51111a9795063c5bf4733cf35874c6ad9d8c7010a88a3db31",
+      "telemetry/spool.py": "63b470b29593fdcf6a8e063d79163869a3de744d2ce94b9a21b3347e1a868785",
+      "telemetry/uds.py": "2bef36f37d8c72a71e8b2297bb141afd10f8153025f30883e179d0027ae17c5b"
+    },
+    "mqtt": {
+      "broker": "mosquitto:1883",
+      "keepalive": 60,
+      "protocol": "3.1.1",
+      "qos": 1,
+      "retain": false
+    },
+    "policy": {
+      "lease_seconds": 300.0,
+      "max_lease": 300.0,
+      "n": 2,
+      "policy_config_version": "omniguard-policy-config/1"
+    },
+    "schedule": {
+      "cycles": 20,
+      "device_id": "camera",
+      "per_cycle": "N ANOMALOUS windows, then lease expiry, then rearm",
+      "seed": 43
+    }
+  },
+  "environment": {
+    "cpu_count": 20,
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "processor": null,
+    "python": "3.14.7",
+    "release": "6.6.87.1-microsoft-standard-WSL2",
+    "system": "Linux"
+  },
+  "manifest_format": "omniguard-experiment-manifest/2",
+  "measurements": {
+    "events": {
+      "adapter": {
+        "accepted": 47,
+        "connections": 47,
+        "frames": 47,
+        "invalid_events": 0,
+        "peer_verification": "VERIFIED",
+        "read_timeouts": 1,
+        "refused_by_sink": 0,
+        "undecodable_bodies": 0
+      },
+      "bridge": {
+        "accepted": 60,
+        "delivered": 47,
+        "failures": 13,
+        "last_failure": "BlockingIOError: [Errno 11] Resource temporarily unavailable",
+        "overflowed": 0,
+        "refused": 0,
+        "stopped_cleanly": true
+      },
+      "bridge_submit": {
+        "ACCEPTED": 60,
+        "OVERFLOWED": 0,
+        "REFUSED": 0
+      },
+      "handoff": {
+        "accepted": 47,
+        "last_failure": null,
+        "overflowed": 0,
+        "processed": 47,
+        "refused": 0,
+        "stopped_cleanly": true,
+        "worker_failures": 0
+      },
+      "produced_by_policy": 60,
+      "publisher": {
+        "drained": 0,
+        "dropped_unspoolable": 0,
+        "published": 47,
+        "queued_unacked": 0,
+        "rejected_device_id": 0,
+        "spooled": 0
+      },
+      "spool": {
+        "dropped_by_age": 0,
+        "dropped_by_bytes": 0,
+        "dropped_bytes": 0,
+        "dropped_events": 0,
+        "last_applied_eviction": 0,
+        "loss_scopes": 0,
+        "pending_at_close": 0,
+        "rejected_oversize": 0
+      },
+      "waits": {
+        "adapter_drained": true,
+        "bridge_drained": true
+      }
+    },
+    "ledger": {
+      "boundaries": {
+        "mqtt_application": {
+          "bytes_max": 518,
+          "bytes_mean": 504.4255319148936,
+          "bytes_min": 490,
+          "bytes_total": 23708,
+          "derived": false,
+          "observations": 47
+        },
+        "mqtt_publish_packet": {
+          "bytes_max": 525,
+          "bytes_mean": 511.4255319148936,
+          "bytes_min": 497,
+          "bytes_total": 24037,
+          "derived": true,
+          "observations": 47
+        },
+        "payload_json": {
+          "bytes_max": 318,
+          "bytes_mean": 304.6170212765957,
+          "bytes_min": 290,
+          "bytes_total": 14317,
+          "derived": false,
+          "observations": 47
+        },
+        "uds_frame": {
+          "bytes_max": 187,
+          "bytes_mean": 173.61702127659575,
+          "bytes_min": 159,
+          "bytes_total": 8160,
+          "derived": false,
+          "observations": 47
+        }
+      },
+      "events": {
+        "bodies_without_a_nested_payload": 0,
+        "broker_acknowledged": 47,
+        "offered_to_transport": 47,
+        "transport_failures": 0
+      },
+      "not_observed": [],
+      "note": "payload_json is the nested document's own size and is never sent alone; mqtt_application is what was offered to the client, not proof of leaving the host; mqtt_publish_packet is derived from MQTT 3.1.1 framing. The observed wire total is reported separately by lab/mqtt_wire_counter.py.",
+      "run_id": "kan43-1c4e0a5e734a443cad66f9e55013d077"
+    },
+    "measures": "KAN-43 sealed run: telemetry bytes per boundary, real gateway→broker chain",
+    "per_acknowledged_event": {
+      "mqtt_application": 504.4255319148936,
+      "mqtt_publish_packet": 511.4255319148936,
+      "payload_json": 304.6170212765957,
+      "uds_frame": 173.61702127659575,
+      "wire_from_broker_publish_phase": 4.0,
+      "wire_to_broker_publish_phase": 511.4255319148936
+    },
+    "per_second": "computed over the manifest window by verify.py, not here",
+    "reconciliation": {
+      "close_to_broker_counted": 2,
+      "close_to_broker_expected_disconnect": 2,
+      "publish_from_broker_counted": 188,
+      "publish_from_broker_expected_pubacks": 188,
+      "publish_from_broker_residue": 0,
+      "publish_to_broker_counted": 24037,
+      "publish_to_broker_derived": 24037,
+      "publish_to_broker_residue": 0,
+      "uds_bytes_counted_by_adapter": 8160,
+      "uds_bytes_written_by_gateway": 10322,
+      "uds_residue": -2162
+    },
+    "wire": {
+      "broker": "mosquitto:1883",
+      "connections": 1,
+      "counted": "TCP payload bytes on the MQTT connection",
+      "current_segment": "close",
+      "from_broker": {
+        "relay_recv_calls": 48,
+        "segments": {
+          "connect": 4,
+          "publish": 188
+        },
+        "total": 192
+      },
+      "listen": "127.0.0.1:0",
+      "not_counted": [
+        "IP/TCP headers",
+        "retransmissions",
+        "TLS record overhead"
+      ],
+      "to_broker": {
+        "relay_recv_calls": 49,
+        "segments": {
+          "close": 2,
+          "connect": 91,
+          "publish": 24037
+        },
+        "total": 24130
+      }
+    }
+  },
+  "notes": "R1 fields are not supplied because no dataset or model is read: byte volume depends on the StateEvents the policy emits, and detections are scripted. R2 boot_id/boot_started_at were read by this run from its own kernel (Docker Desktop's Linux VM); host_id, t0 and sink evidence do not apply.",
+  "outcome": null,
+  "provenance": {
+    "holdout_preconditions_unmet": [],
+    "not_supplied": {
+      "r1": [
+        "data_role",
+        "feature_schema_version",
+        "holdout_selection_sha256",
+        "label_rule_version",
+        "model_meta_sha256",
+        "model_sha256",
+        "pack_manifest_sha256",
+        "split_manifest_sha256",
+        "threshold_policy_sha256",
+        "windows_sha256"
+      ],
+      "r2": [
+        "host_id",
+        "monotonic_to_unix_offset",
+        "sink_evidence",
+        "t0_unix"
+      ]
+    },
+    "r1": {
+      "data_role": null,
+      "feature_schema_version": null,
+      "holdout_selection_sha256": null,
+      "label_rule_version": null,
+      "model_meta_sha256": null,
+      "model_sha256": null,
+      "pack_manifest_sha256": null,
+      "split_manifest_sha256": null,
+      "threshold_policy_sha256": null,
+      "windows_sha256": null
+    },
+    "r2": {
+      "boot_id": "881b9bac-c8a1-428a-8e63-e812eabcb56d",
+      "boot_started_at": 1790168384.0,
+      "host_id": null,
+      "monotonic_to_unix_offset": null,
+      "sink_evidence": null,
+      "t0_unix": null
+    },
+    "r2_observation_phase": null
+  },
+  "run_id": "kan43-1c4e0a5e734a443cad66f9e55013d077",
+  "started_at_unix": 1790169046.6559234,
+  "status": "completed"
+}

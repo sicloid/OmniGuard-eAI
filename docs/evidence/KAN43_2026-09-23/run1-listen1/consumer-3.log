@@ -1,0 +1,11 @@
+ledger restored from the database: 11 boots, 1 unordered
+{
+  "boots_recorded": 0,
+  "database_failures": 0,
+  "left_unacknowledged": 0,
+  "redelivered": 0,
+  "rejected": 0,
+  "stored": 0,
+  "unordered_boots": 0
+}
+runs excluded from ordering-dependent measurement: ['run-fixed-2']

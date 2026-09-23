@@ -1,8 +1,9 @@
 # KAN-43 — telemetry byte volume: what is counted, and where
 
-Owner: R3 (Gabriel). **Method only. No measured figures are recorded here yet** — this
-document fixes what will be counted before the run that counts it, and the run itself
-is listed under "What is still missing" at the end.
+Owner: R3 (Gabriel). The method below was committed before the run that uses it
+(`738b476`). The figures under "Results" come only from the two sealed runs in
+`docs/evidence/KAN43_2026-09-23/`, and `verify.py` there re-derives every one of them
+from the committed raw files.
 
 The card asks for actual bytes per run and per unit time, with the JSON payload, the
 UDS framing, MQTT and the total wire volume kept apart, and with duplicate/drop, spool
@@ -52,57 +53,29 @@ link-level figure needs a packet capture, and this card does not claim one.
 
 `mark()` separates phases. The connection handshake costs its bytes once while PUBLISH
 traffic repeats per event, so charging every event a share of the handshake would
-overstate the per-event cost. Connect and publish phases are counted apart and
+overstate the per-event cost. Connect, publish and close phases are counted apart and
 reported apart.
 
-### The derived figure, checked against the wire
+A mark is only exact at a protocol synchronisation point. The relay attributes bytes
+to the segment that is current when it reads them, so a mark set with a packet in
+flight could land it on either side. The relay counts before it forwards, so once the
+client has seen CONNACK — or the PUBACK for the last PUBLISH — every byte of the phase
+has been counted in both directions and nothing of the next has been sent. The sealed
+run marks exactly there. The only traffic such a mark cannot pin down is what neither
+side asked for, a keepalive PINGREQ/PINGRESP; it would show as a nonzero residue in
+the reconciliation below rather than being folded into a per-event cost.
 
-`lab/telemetry_volume_probe.py` publishes real events through the relay to a real
-broker so the derived PUBLISH size can be held against the socket. It is an
-instrument check and says so in its own output — there is no frozen manifest behind
-it, so **it is not the card's measurement run** and none of its numbers are results.
+`relay_recv_calls` in the relay's report is how many `recv()` calls the relay made. It
+is an artefact of the relay's own buffering — neither a packet count nor how the broker
+saw the connection segmented — and nothing is divided by it.
 
-On 21 September 2026, 20 events on the Compose broker: 11,176 bytes derived against
-**11,178 bytes counted** leaving the host in the publish phase. The two-byte
-difference is the DISCONNECT packet, which is sent after the mark and is not part of
-any event. PUBACKs came back at exactly 4 bytes each, and the connection handshake
-cost 91 bytes out and 4 in — paid once, and kept out of the per-event figure.
+`mqtt_publish_packet` stays labelled `derived` even where it matches the counted wire
+exactly: a different broker, client or keepalive setting can move the wire figure, and
+only the counter would notice.
 
-So `mqtt_publish_packet` is a derivation that has been shown to match the wire rather
-than an estimate standing in for it. It stays labelled `derived` regardless: the next
-run's broker, client or keepalive settings can move the wire figure, and only the
-counter would notice.
-
-### The whole chain, including the socket Windows cannot open
-
-`lab/Dockerfile.kan43` builds the probe's environment from the project's own
-hash-checked `requirements.lock`, and `--uds` drives the real chain instead of calling
-the publisher directly: the gateway's part writes framed StateEvents to a Unix socket,
-`CountingAdapter` reads them, the bounded handoff carries them to the worker, and the
-worker publishes. The UDS boundary is the one CPython cannot open on Windows, so its
-figure is measured in a container rather than estimated on the development machine.
-
-Same day, 20 events, Linux container on the Compose network, all four boundaries
-observed and `not_observed` empty:
-
-| Boundary | Bytes per event |
-|---|---:|
-| `uds_frame` | 185.30 |
-| `payload_json` | 317.30 |
-| `mqtt_application` | 551.85 |
-| `mqtt_publish_packet` (derived) | 558.85 |
-| wire, counted | 558.95 |
-
-The producer wrote **3,706 bytes** to the socket and the adapter counted **3,706** —
-the two sides were measured independently and agree exactly. 20 of 20 events were
-acknowledged and delivered to a subscriber, the handoff processed 20 with no overflow,
-and the peer was `VERIFIED` through real `SO_PEERCRED`.
-
-The spread is the point of the card. One event costs 185 bytes at the socket and 559
-on the wire: the UDS boundary carries only the six-field StateEvent, while MQTT
-carries the 0.1.0 payload inside a versioned envelope, under a topic, in a PUBLISH
-packet. A single "telemetry byte" figure would have silently picked one of these and
-been wrong about the other three by up to 3×.
+`lab/telemetry_volume_probe.py` remains as an instrument check against a real broker. It
+has no frozen manifest behind it, says so in its own output, and none of its numbers
+are results.
 
 ## Per run and per unit time
 
@@ -133,24 +106,76 @@ never averaged in as zero.
 
 ## How a run is sealed
 
-The measurement is bound to one run through the KAN-42 `ExperimentManifest`, which is
-the mechanism this repository already uses to declare a run before it happens:
-`freeze()` seals the configuration and provenance before the first byte moves, the
-volume summary is written into `measurements` at `close()`, and a run that dies leaves
-an `incomplete` manifest rather than none. There is no second spec file for this card:
-nothing here is selected by looking at the results, so there is no choice that needs
-to be pre-committed beyond the sealed run itself.
+The measurement is bound to one run through the KAN-42 `ExperimentManifest` (`/2`).
+`lab/kan43_sealed_run.py` calls `freeze()` before the first byte moves; the sealed
+`config` holds the event schedule, the policy block (`omniguard-policy-config/1`, the
+Lead's N=2 and 300 s lease) and the SHA-256 of every file on the measured path, and the
+figures are written into `measurements` at `close()`. There is no second spec file:
+nothing here is selected by looking at the results.
 
-**Format `/2` is required** — `ObservedFromR2` and the at-close observation phase.
-That contract arrives with PR #43, so the sealed run cannot be performed before it
-merges.
+The chain is the shipped one from the policy to the database. The real `DevicePolicy`
+emits the StateEvents from scripted detections — byte volume depends on the events,
+not on how a model scored a window — and the real `GatewayEventBridge` writes them to
+the socket one connection per event. Delivery completeness is the consumer's committed
+rows for the run id, exported from PostgreSQL after the run.
 
-## What is still missing
+## Results
 
-1. **The real run.** Compose broker, the real publisher and consumer, the relay in
-   between, a frozen manifest, and the resulting figures published here. No synthetic
-   or stub output substitutes for it.
-2. **The manifest binding**, once `/2` is on `main`.
-3. **Owner review** of the run and this document.
+Two sealed runs, 23 September 2026, Docker Desktop Linux engine, Compose broker and
+database. Each is 20 quarantine cycles (60 StateEvents) handed to the bridge at once.
 
-Until all three exist, this card is a method and a set of instruments, and it says so.
+| | run 1 (`listen(1)`) | run 2 (current code) |
+|---|---:|---:|
+| produced by the policy | 60 | 60 |
+| delivered over the UDS | 47 | 60 |
+| **lost at the UDS, counted** | **13** | 0 |
+| broker acknowledged | 47 | 60 |
+| committed rows (unique `event_id`, sequence 1..N) | 47 | 60 |
+| manifest window | 2.898 s | 2.878 s |
+
+**Run 1 found a loss.** `telemetry/uds.py` listened with a backlog of 1 while the gateway
+connects once per event; on Linux a `connect()` to a full AF_UNIX backlog fails at once
+with `EAGAIN`. The bridge counted 13 failures, the UDS reconciliation shows the same
+13 frames missing (−2,162 bytes), and nothing downstream claimed them. The backlog is
+now 64 with a regression test; run 2 is the same schedule on the fixed code. Run 1 is
+kept, not replaced. A burst larger than the backlog still loses events at this
+boundary, counted the same way.
+
+Bytes per acknowledged event, run 2:
+
+| Boundary | Bytes / event | min–max |
+|---|---:|---:|
+| `uds_frame` | 172.03 | 159–187 |
+| `payload_json` (never sent alone) | 303.03 | 290–318 |
+| `mqtt_application` | 501.88 | 489–517 |
+| `mqtt_publish_packet` (derived) | 508.88 | 496–524 |
+| wire to broker, publish phase (counted) | 508.88 | — |
+| wire from broker, publish phase (counted) | 4.00 | — |
+
+The connection handshake is 91 bytes out and 4 in, paid once per connection and kept
+out of the per-event figures; closing is one 2-byte DISCONNECT.
+
+Reconciliation, both runs: the publish phase to the broker counted **exactly** the
+derived PUBLISH total (30,533 = 30,533 in run 2), the broker returned exactly 4 bytes
+per acknowledged event, and in run 2 the adapter counted exactly the bytes the gateway
+wrote (10,322 = 10,322). No keepalive landed in either publish phase.
+
+Per unit time, over the manifest window, run 2: 3,586.9 B/s at the UDS and 10,727.2 B/s
+on the wire in both directions. **These are burst rates** — the whole schedule is
+handed over at once — and are not a deployment load; a deployment's rate is these
+per-event costs times its own event rate.
+
+One event costs 172 bytes at the socket and 509 on the wire: the UDS carries only the
+six-field StateEvent, MQTT carries the 0.1.0 payload inside a versioned envelope, under
+a topic, in a PUBLISH packet. A single "telemetry byte" figure would have silently
+picked one of these and been wrong about the others by up to 3×.
+
+## Limits
+
+- One Docker Desktop host (x86_64), not a Pi; the Pi's figures belong to KAN-46/53.
+- TCP payload bytes only: no IP/TCP headers, retransmissions or TLS.
+- One device and one policy schedule. Event sizes vary with the reason string and the
+  float representation of timestamps (the 159–187 byte spread at the UDS), not with
+  the schedule's length.
+- R1 provenance is `not_supplied`: no dataset or model is read.
+- Owner review of the runs and this document is still open.
