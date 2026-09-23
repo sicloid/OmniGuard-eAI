@@ -33,7 +33,9 @@ class DirectionCounts:
     """Bytes one way, split at the marks the caller set."""
 
     total: int = 0
-    reads: int = 0
+    # How many recv() calls this relay made. An artefact of the relay's own buffering:
+    # it is not a packet count and not how the broker saw the connection segmented.
+    relay_recv_calls: int = 0
     segments: dict[str, int] = field(default_factory=dict)
 
 
@@ -63,6 +65,17 @@ class MqttWireCounter:
         The connection handshake costs bytes once, while PUBLISH traffic repeats per
         event. Averaging the two together would quietly charge every event a share of
         a cost it did not cause, so the phases are counted apart and reported apart.
+
+        A mark is exact only at a protocol synchronisation point. Bytes are attributed
+        to the segment that is current when the relay reads them, so a mark set while a
+        packet is in flight can land that packet on either side, and one recv() can
+        span both. The relay counts before it forwards, so once the client has seen
+        the peer's reply to the last packet of a phase (CONNACK for CONNECT, PUBACK
+        for the last PUBLISH), every byte of that phase has been counted in both
+        directions and nothing of the next one has been sent. Marks belong there. The
+        only traffic a synchronised mark cannot pin down is what neither side asked
+        for — a keepalive PINGREQ/PINGRESP — so a sealed run reconciles each segment
+        against the derived packet sizes and reports any residue instead of hiding it.
         """
         if not isinstance(segment, str) or not segment.strip():
             raise ValueError("a segment name must be nonempty text")
@@ -72,7 +85,7 @@ class MqttWireCounter:
     def _count(self, direction: DirectionCounts, amount: int) -> None:
         with self._lock:
             direction.total += amount
-            direction.reads += 1
+            direction.relay_recv_calls += 1
             segment = self.counts.current_segment
             direction.segments[segment] = direction.segments.get(segment, 0) + amount
 
