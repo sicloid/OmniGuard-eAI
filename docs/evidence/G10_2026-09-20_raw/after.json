@@ -1,0 +1,27 @@
+{
+  "run_id": "g10-outage-84739b9f83f5429e8e945447685de614",
+  "drain": [
+    {
+      "event_id": "d4ae9c78-bcb4-5ac9-9a5b-bfeedb8d15b2",
+      "topic": "omniguard/state/v2/camera",
+      "broker_ack": true,
+      "spooled": false,
+      "rejected": false,
+      "reason": null,
+      "acknowledgement": "ACKED",
+      "dropped": false
+    },
+    {
+      "event_id": "f9db105b-4ac7-5700-9064-f56036c09e86",
+      "topic": "omniguard/state/v2/camera",
+      "broker_ack": true,
+      "spooled": false,
+      "rejected": false,
+      "reason": null,
+      "acknowledgement": "ACKED",
+      "dropped": false
+    }
+  ],
+  "consumer_exit": 0,
+  "spool_pending": 0
+}

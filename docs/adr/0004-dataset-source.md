@@ -200,6 +200,36 @@ lease değerleri, geliştirme pack'inin `windows_sha256`'i. Holdout **bir kez** 
 ve sonuç ne olursa olsun raporlanır. Sonrasında ayar yapılırsa bu holdout "tüketilmiş"
 sayılır; yeni bir iddia için yeni, dokunulmamış capture'lar gerekir.
 
+**Kayıt durumu (22 Eylül 2026): liste tamamlandı.** Skorlamadan önce istenen yedi kalemin
+tamamı kayıtlı:
+
+| Kalem | Değer | Kaynak |
+|---|---|---|
+| `feature_schema_version` | `features-1` | KAN-15/16 |
+| `model_sha256` | `d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b` | KAN-19 |
+| `model.meta.json` | `917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad` | KAN-19 |
+| `threshold.policy.json` | `4a9491b5ce0be6a5225ce8f0e0b4d72022e67a62ba38c6cf62aeb051acc7bcdb` (eşik 0,9798815486832) | KAN-19 |
+| Geliştirme pack'i `windows_sha256` | `4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625` | KAN-14 |
+| **N** | **2** | KAN-51; Lead kararı, 22 Eylül |
+| **lease** | **300 saniye** | KAN-51; Lead kararı, 22 Eylül |
+
+**Lead kararı** ([PR #44, birinci elden, 22 Eylül 2026](https://github.com/sicloid/OmniGuard-eAI/pull/44)):
+validation politikası N = 2, lease = 300 saniye olarak donduruldu. Kural yalnız önceden
+beyan edilen validation ızgarasına uygulandı: önce benign cihazda sıfır karantina veren
+en küçük N, ardından *beyan edilen ızgara hücreleri arasından* kötü amaçlı pencerelerle
+aralık örtüşmesi en az %90 olan en küçük lease. N = 2'de 30/60/120 saniye %90'ın altında
+kaldı, 300 saniye %92,5'e ulaştı. Bu, 300 saniyenin ızgara dışında genel bir minimum
+olduğunu ya da bir dağıtım tahmini olduğunu iddia etmez. Ölçüm ve düzeltme geçmişi:
+[docs/KAN51_N_LEASE.md](../KAN51_N_LEASE.md).
+
+İlk KAN-51 koşusu 30 saniye önermişti. R3 review'u bu sonucu taşıyan iki hata buldu:
+kapsama, aralık örtüşmesi yerine toplamları karşılaştırıyordu; lease süresi sessizlik
+sırasında bitmiyordu. İlk rapor `model/frozen/kan51/superseded/` altında saklanıyor.
+
+**Bu bir validation-politikası dondurmasıdır, holdout sonucu değildir.** Holdout, önceden
+belirlenmiş seçim (`data/holdout/selection.json`), indirme hash'leri, denetim ve tek
+seferlik skorlama sırasıyla yürütülene kadar mühürlü kalır.
+
 **c. İç holdout — benign tarafı: bugün yok.** IoT-23 yalnız üç benign senaryo yayınlıyor
 ve üçü de geliştirme verisinde. Dokunulmamış benign FPR IoT-23'ten ölçülemez. İki yol
 var, ikisi de ayrı onay ister:

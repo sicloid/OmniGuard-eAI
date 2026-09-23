@@ -1,0 +1,192 @@
+# Reproduce the OmniGuard prototype (KAN-55)
+
+This is the entry point for a clean checkout. Each command below has a narrower
+meaning than a passed G8/G10 gate. Record the Git commit and actual environment
+with every run; never substitute a synthetic fixture for a real-data result.
+
+## 1. Checkout and locked environment
+
+Use the repository's `.python-version` reference (3.14.7) and a fresh virtual
+environment. On CachyOS, `uv python install 3.14.7` and
+`uv venv --python 3.14.7 --seed .venv` avoid changing system Python. Then:
+
+```sh
+git rev-parse HEAD
+.venv/bin/python --version
+uv pip install --python .venv/bin/python --require-hashes -r requirements-ml.lock
+.venv/bin/python -m pip install -e . --no-deps --no-build-isolation
+.venv/bin/python -m pip check
+.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/ruff check .
+.venv/bin/ruff format --check .
+```
+
+The core-only install may use `requirements.lock`; model training and the real RF
+path require `requirements-ml.lock`. See [the environment contract](ENVIRONMENT.md).
+The `uv pip` command enforces the same lock hashes; if uv is unavailable, use
+`.venv/bin/python -m pip install --require-hashes -r requirements-ml.lock`.
+Test counts vary by commit and platform; skipped Linux-only tests on Windows do
+not prove the Linux socket path.
+
+## 2. Data, labels and split
+
+The current development experiments use the audited IoT-23 captures listed in
+[KAN-13's audit](../data/DATASET_AUDIT.md). The wider source policy in
+[ADR-0004](adr/0004-dataset-source.md) is a separate decision; do not infer that
+every CICIoT2023 capture is LOCAL from its description. Neither captures nor the
+large sample pack are in Git. Verify source hashes against the audit, then run:
+
+```sh
+.venv/bin/python -m data.samplepack.iot23 \
+  --captures ~/omniguard-data/iot23 \
+  --out ~/omniguard-data/samplepack
+sha256sum ~/omniguard-data/samplepack/windows.jsonl
+```
+
+The original KAN-18/19/21 pack has `windows_sha256`
+`4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625`.
+The later v2 pack records `window-label-1`; it does **not** rewrite the original
+pin. Do not call a newly produced pack equivalent until its manifest, capture
+set, transformations, label rule, exclusions and SHA-256 match. See
+[sample-pack rules](../data/samplepack/README.md) and
+[feature catalogue](../data/FEATURE_CATALOG.md).
+
+If the six audited captures are not all available, do not run the builder on a
+partial capture directory. The separately supplied v2 sample pack can be used
+for a training replay after checking both `windows.jsonl` against the window
+hash above and `manifest.json` against
+`8ea8c310d6b66a82515a693e5347da274a622146e5347e381f11c4f80821d2a7`.
+Record that this verifies the supplied pack's bytes, not a new extraction from
+the six original PCAPs. Point `--pack` below to that verified v2 file.
+
+## 3. Training and validation-only policy
+
+Run only against the matching audited pack. Outputs live outside Git and each
+runner refuses to overwrite a prior run directory. The test split is not used
+for threshold selection; preserve failed/no-threshold results.
+
+```sh
+.venv/bin/python -m model.baseline_run \
+  --pack ~/omniguard-data/samplepack/windows.jsonl \
+  --out ~/omniguard-data/runs/kan18 --seeds 1,2,3 --bootstrap 300
+.venv/bin/python -m model.policy_run \
+  --pack ~/omniguard-data/samplepack/windows.jsonl \
+  --out ~/omniguard-data/runs/kan19
+```
+
+The full procedures and measured limits are [KAN-18](KAN18_BASELINE.md),
+[KAN-19](KAN19_POLICY.md), [KAN-20](KAN20_ABLATION.md) and
+[KAN-21](KAN21_HOLDOUT.md). The frozen KAN-19 model hash is
+`d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b`;
+its metadata hash is
+`917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad`.
+`model.joblib` stays outside Git. Its hash, not just matching metadata text,
+must be verified before loading it.
+Training the same windows and selecting the same threshold does not imply an
+identical model binary; compare the actual output hash with the frozen hash
+before using a newly trained model for a gate or release.
+
+## 4. Isolated Linux traffic lab
+
+On the dedicated amd64 Linux Docker host, from the repository root:
+
+```sh
+bash lab/run_docker.sh
+bash lab/run_live_docker.sh
+bash lab/run_replay_docker.sh
+```
+
+These runners use disposable network-none containers. The A→B→C namespaces and
+nftables table exist only inside them; they do not mount the host Docker socket
+or advertise lab routes. The replay runner uses a benign prepared oracle; for
+real input follow [the replay/provenance contract](../lab/REPLAY.md). Results are
+retained in ignored `artifacts/`. The lab commands prove their own network,
+capture and replay mechanics, not a real-model G8 gate.
+
+## 5. Platform and telemetry
+
+On Linux with Docker Compose, from the repository root:
+
+```sh
+python3 platform/init_secrets.py
+docker compose -f platform/compose.yaml up -d --wait --wait-timeout 180
+python3 platform/migrate.py
+python3 platform/provision_roles.py
+python3 platform/smoke.py
+docker compose -f platform/compose.yaml ps
+```
+
+The initializer writes ignored credentials; never put them in Git or logs. The
+consumer command and database semantics are in [the platform runbook](../platform/README.md).
+KAN-41's provisioned Grafana dashboard is merged. `provision_roles.py` sets and
+verifies separate consumer and read-only credentials after migration; without it
+the datasource cannot authenticate. To populate the dashboard with clearly
+labelled fabricated records, run one `platform/consume.py` process and then
+`platform/seed_demo.py` as shown in [the platform runbook](../platform/README.md).
+Service health, MQTT pub/sub and those fabricated records do not prove that a
+real gateway StateEvent reached UDS→MQTT→PostgreSQL→Grafana. KAN-50 G10
+acceptance remains separate.
+
+## 6. G8 core gate
+
+The real-core implementation merged through [PR #41](https://github.com/sicloid/OmniGuard-eAI/pull/41).
+Its synthetic RF smoke is wiring evidence only. The PR now also contains Linux
+Docker runners for the **exact** frozen KAN-19 binary and a hash-pinned,
+transformed IoT-23 8-1 development PCAP slice. Local runs recorded independent
+TCP/UDP sink stop and restore, local service continuity, and kernel-TTL recovery
+after controller `SIGKILL`. The raw evidence and exact preparation commands are
+in [its G8 runbook](G8_RUNBOOK.md). The 8-1 capture belongs to development
+validation and the transformation changes destination-diversity features; this
+is an integration observation, not a new FPR or unseen-data result. Gabriel
+independently approved the exact head, hosted CI passed, and PR #41 merged;
+KAN-49 and the laptop-only KAN-35 demo are complete within this stated scope.
+
+## 7. G10 and results freeze
+
+KAN-50 requires one **real** gateway StateEvent through UDS, MQTT, PostgreSQL and
+Grafana, including duplicate/outage/recovery and completeness evidence. Compose
+smoke or a stub event is insufficient. KAN-54 freezes the exact commit, artifact,
+environment, feature/threshold/N/lease policy, split and run hashes, plus failed
+runs and clock/hardware mapping. The [KAN-54 freeze inventory](KAN54_FREEZE_INVENTORY.md)
+names the byte-pinned inputs already available and the experiments still missing;
+it is preparation, not a frozen result set. KAN-52's measured FPR/containment
+plot is still a prerequisite. Until the corresponding Jira acceptance evidence
+exists, report `G10/G13: not passed/frozen`.
+
+## 8. Pi path and laptop fallback
+
+Pi 5/ARM64 results require runs on the actual Pi with OS, Python, package/image
+digests, load, temperature/throttling, route and time mapping recorded. Tailscale
+is private management only; it must not advertise the isolated lab subnets.
+Use the [KAN-44 Pi management checklist](PI5_MANAGEMENT.md) to collect the
+actual device and route evidence before claiming a Pi run.
+macOS ARM64 or an aarch64 wheel existing does not validate the Pi. When the Pi is
+unavailable, use the laptop-only path after G8 and label results `Linux x86_64`;
+never copy a laptop number into the Pi column. KAN-44/46/53 remain open until
+hardware evidence is recorded.
+
+On the Pi, wrap each measurement command with the KAN-46 host guard, using a
+fresh run directory and a **declared before-run** load budget. Example (replace
+the sample command with the real measurement runner):
+
+```sh
+.venv/bin/python -m measure.pi_guard --out ~/omniguard-runs/pi-run-001 \
+  --max-load-per-core 0.5 -- .venv/bin/python -m stubs
+```
+
+The example executes only a stub and cannot become a Pi performance result.
+`before.json`, `after.json` and `verdict.json` remain even on failure. The guard
+invalidates the environment when a sensor is missing, the command fails, **pre-run**
+load or either temperature exceeds the declared ceiling, or `vcgencmd get_throttled`
+reports current, pre-existing historical, or newly occurring undervoltage/throttling.
+Sticky historical bits persist until reboot; a clean boot is required before a
+certifiable run. The after-run one-minute load includes the measured command, so it
+is recorded as context rather than treated as foreign workload. The host and boot ID
+must match across the two samples; elapsed time uses monotonic readings while UTC
+timestamps remain separate. This is a pre/post guard;
+short transients that neither sample nor sticky firmware bits catch need separate
+monitoring. A clean verdict does not validate the command's measurements, G8,
+G10 or ARM64 compatibility. Raspberry Pi documents the `get_throttled` bit
+meanings and [temperature interface](https://www.raspberrypi.com/documentation/computers/config_txt.html).
+
+For the live demonstration order and cleanup, see [the demo runbook](DEMO_RUNBOOK.md).

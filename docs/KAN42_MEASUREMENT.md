@@ -98,15 +98,42 @@ from a report is rejected rather than published as provenance.
 
 ## What R2 (Şükrü) supplies
 
-Fill `ProvenanceFromR2`. Same rule: unfilled fields are published as not supplied.
+Fill the machine/clock fields of `ProvenanceFromR2` before `freeze()`. The actual
+`t0_unix` and `sink_evidence` are unknown until replay and traffic observation;
+pass them as `ObservedFromR2(run_id=the_same_run_id, ...)` to `close()`. Format
+`omniguard-experiment-manifest/2` records this phase explicitly. Historical
+`/1` manifests must not be reinterpreted as though their R2 fields were observed
+after the run: `read_manifest()` rejects `/1` and requires an explicit migration.
+`close()` also rejects a `t0_unix` outside this run's recorded start/close window;
+the caller remains responsible for proving that the sink evidence belongs to the
+same run. Empty observations leave `r2_observation_phase` unset. Unfilled fields
+remain under `provenance.not_supplied.r2`.
 
 | Field | What it should be |
 |---|---|
 | `host_id` | Which machine produced the run |
 | `boot_id`, `boot_started_at` | Boot identity, so runs from different boots are not merged |
 | `monotonic_to_unix_offset` | The mapping between the two clock domains for this boot. **The harness will not compute this**: deriving it from a single pair of readings is exactly the wrong-domain arithmetic `clocks.py` refuses |
-| `t0_unix` | Replay/experiment start, as defined by ADR-0002 |
-| `sink_evidence` | Independent evidence of where traffic actually went — required because `Direction.EGRESS` alone cannot establish it (see the KAN-33 note of 14 September) |
+| `t0_unix` (at close) | Actual replay reference `send_begin_ns` mapped to Unix time using this run's recorded clock calibration; not a guessed pre-run timestamp |
+| `sink_evidence` (at close) | Independent evidence from this run of where traffic actually went — required because `Direction.EGRESS` alone cannot establish it (see the KAN-33 note of 14 September) |
+
+```python
+manifest.freeze()  # freezes run_id, config, R1 hashes and pre-run R2 context
+# Execute and measure this same run; retain its replay and sink logs.
+manifest.close(
+    measurements=recorder.summary(),
+    r2_observed=ObservedFromR2(
+        run_id=manifest.run_id,
+        t0_unix=actual_t0_unix,
+        sink_evidence=same_run_sink_evidence,
+    ),
+)
+```
+
+A foreign run ID is rejected before any file replacement. A failed/interrupted run
+keeps the opening `incomplete` manifest with both observations missing; missing is
+never reported as zero. The caller must still verify that the referenced sink
+record really belongs to this run; the manifest cannot prove that from a string.
 
 ## Cross-owner change in this PR
 

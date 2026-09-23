@@ -19,11 +19,16 @@ Takvimden önce bağımlılık/kanıt sırası gelir; eski 15 iş günü hedefi 
 | 6 | Şükrü + Onur | KAN-49 | Gerçek RF ile G8; telemetry kapalı; TCP/UDP; process crash; lokal service kontrolü |
 | 7 | Gabriel + Şükrü | KAN-34/50 | Docker/direct-netns UDS mount izinleri; gerçek event zinciri; duplicate/outage/recovery G10 |
 | 8 | Onur + Gabriel | KAN-19/20/21/51/52 | Validation seçimi, feature/policy ablation, benign kesinti ve grouped uncertainty |
-| 9 | Gabriel | KAN-44/45/46/53 | Pi gerçek donanım doğrulaması, kaynak ve termal koşul, x86'dan ayrı sonuç |
+| 9 | Şükrü (Pi) + Gabriel (harness/bütçe) | KAN-44/46/53 Şükrü; KAN-45 Gabriel | Pi gerçek donanım doğrulaması, kaynak ve termal koşul, x86'dan ayrı sonuç; Gabriel'in doğrudan Pi erişimi yok |
 | 10 | Ekip | KAN-54–60 | Sonuç/run manifest freeze, temiz checkout demo, sınırlamalar ve bilgi aktarımı |
 
 Aynı sıra numaralı işler bağımsız ilerleyebilir. Rol başına bir büyük aktif iş;
 stub bir bileşenin bağımsız gelişmesini sağlar ama gate kanıtı olmaz.
+20 Eylül sahiplik düzeltmesi: fiziksel Pi 5 Şükrü'dedir. KAN-44/46/53 Jira'da
+Şükrü'ye atanmıştır; Gabriel KAN-42 ölçüm harness'ı ve KAN-45 kontrollü bütçe
+işine uzaktan kod/review desteği verir, gerçek Pi ölçümünü çalıştırmaz. Cihaz
+kurulumu/erişimi 21 Eylül'den önce hazır değildir; x86_64 kontrol sonucu Pi
+kanıtı olarak kullanılamaz.
 R3'ün KAN-36/KAN-37 kodu PR #2 ile birleşti; kartlar Tamamlandı. Gabriel'in
 sıradaki planı KAN-38 ve UDS/framing ADR'sidir; V3 kayıt önerileri bu incelemeyle koordine edilir.
 

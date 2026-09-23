@@ -1,5 +1,15 @@
 # Development status — 2026-09-12
 
+## 20 September 2026 status update
+
+The dated history below is retained as a record of earlier review states. The
+real-model G8 Linux sink/kernel evidence received independent approval on the
+exact head, and PR #41 merged; KAN-49 and the Pi-free laptop demo KAN-35 are
+complete at that bounded development-validation scope. G10 correlation and
+completeness, the policy/holdout experiments, actual Pi 5 measurements, G13
+results freeze and final release remain open. Do not read the older G8 status
+or test counts below as the current gate decision.
+
 PRs #4–#15, #19 and #20 are merged after review and verification. PR #18
 remains a review candidate; #21 is blocked by uncommitted sample-pack source files.
 G1 is approved; Onur's direct PR #4 acceptance is in [G1_REVIEW](G1_REVIEW.md).
