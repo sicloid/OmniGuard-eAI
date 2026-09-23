@@ -30,6 +30,7 @@ ADR-0002 asks. See ADR-0003 sections 5.1 and 5.2.
 | `handoff.py` | bounded non-blocking queue; the worker owns the transport and spool |
 | `uds.py` | gateway socket bridge: frame to validated 0.1.0 StateEvent, then to the sink |
 | `consumer.py` | the receiving half: envelope to one idempotent PostgreSQL transaction, boot verdicts kept |
+| `accounting.py` | KAN-43 byte volume per boundary; wraps the transport instead of living on its path |
 
 `consumer.py` decides; `platform/consume.py` wires it to the broker and to psql, the
 same split `publisher.py` has with `mqtt.py`. Four properties are structural there:

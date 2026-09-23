@@ -23,6 +23,8 @@ the worker, and an exception from the publisher, disk errors included, is
 recorded as a worker failure and the worker continues.
 """
 
+from __future__ import annotations
+
 import queue
 import threading
 from dataclasses import dataclass, replace

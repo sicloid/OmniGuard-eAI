@@ -1063,6 +1063,31 @@ class UnixSocketServerTests(unittest.TestCase):
                 # point: only Linux may report this run as peer-verified.
                 self.assertIs(adapter.counters.peer_verification, PeerVerification.UNAVAILABLE)
 
+    def test_a_burst_of_connections_waits_in_the_backlog_instead_of_failing(self):
+        # The gateway connects once per event. Each client connects before the adapter
+        # has served the previous one; at listen(1) the second connect already fails.
+        burst = 16
+        with tempfile.TemporaryDirectory() as directory:
+            sink = RecordingSink()
+            adapter = self.adapter(directory, sink)
+            adapter.bind()
+            clients = []
+            try:
+                for _ in range(burst):
+                    client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                    client.settimeout(1.0)
+                    client.connect(os.fspath(adapter.path))
+                    client.sendall(framed(an_event_document()))
+                    client.close()
+                    clients.append(client)
+                for _ in range(burst):
+                    adapter.accept_once()
+            finally:
+                adapter.close()
+            self.assertEqual(len(clients), burst)
+            self.assertEqual(adapter.counters.accepted, burst)
+            self.assertEqual(len(sink.submitted), burst)
+
 
 if __name__ == "__main__":
     unittest.main()

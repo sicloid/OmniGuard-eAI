@@ -23,6 +23,8 @@ No clock is read here. Callers pass the UTC timestamp they already have, which
 keeps the event-time and monotonic domains from mixing.
 """
 
+from __future__ import annotations
+
 import hashlib
 import json
 import os

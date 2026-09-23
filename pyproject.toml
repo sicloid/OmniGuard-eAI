@@ -22,6 +22,9 @@ line-length = 100
 
 [tool.ruff.per-file-target-version]
 "measure/pi_guard.py" = "py311"
+# The host adapter and publisher may run under the Pi's system Python (3.13); at py314
+# the formatter strips `except (A, B):` to the PEP 758 form, which 3.13 cannot parse.
+"telemetry/*.py" = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

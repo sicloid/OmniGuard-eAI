@@ -40,6 +40,12 @@ from telemetry.outcomes import HandoffOutcome
 
 SOCKET_MODE = 0o600
 DEFAULT_TIMEOUT_SECONDS = 5.0
+# Connections the kernel may hold while one is being served. The gateway opens one
+# connection per event, and on Linux a connect() to a full AF_UNIX backlog does not
+# wait: with a timeout set it fails at once with EAGAIN. At a backlog of 1 a burst of
+# 60 events lost 13 at this boundary (KAN-43 sealed run, 23 September 2026). A burst
+# larger than this still loses events; the gateway counts them as bridge failures.
+LISTEN_BACKLOG = 64
 EVENT_FIELDS = (
     "device_id",
     "expires_at",
@@ -266,7 +272,7 @@ class UnixSocketAdapter:
             server.bind(os.fspath(self._path))
         finally:
             os.umask(previous)
-        server.listen(1)
+        server.listen(LISTEN_BACKLOG)
         server.settimeout(self._timeout)
         self._server = server
 
