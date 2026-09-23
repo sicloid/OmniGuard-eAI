@@ -194,7 +194,7 @@ class CountingTransport:
         """
         try:
             nested = json.loads(body)["payload"]
-        except ValueError, TypeError, KeyError:
+        except (ValueError, TypeError, KeyError):
             self._ledger.bodies_without_payload += 1
             return
         self._ledger.record_payload(nested)
