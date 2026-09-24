@@ -1,0 +1,86 @@
+{
+  "core_exit": 0,
+  "counters": {
+    "kernel_packet_drops": 0,
+    "pipeline_queue_overflows": null,
+    "telemetry_events_dropped": 0,
+    "telemetry_queue_overflows": 0
+  },
+  "counters_not_supplied": [
+    "pipeline_queue_overflows"
+  ],
+  "failed_stages": [],
+  "notes": {
+    "capture": "elapsed includes waiting for packets; its CPU is the cost",
+    "pipeline_queue_overflows": "g8_core has no pipeline queue; not applicable",
+    "policy": "nested calls of an already open stage are not timed twice"
+  },
+  "stages": {
+    "capture": {
+      "elapsed_seconds_max": 0.25140604099988195,
+      "elapsed_seconds_total": 23.590492482000172,
+      "measured_span_seconds_total": 23.72369142699563,
+      "measurement_overhead_seconds": 0.13319894499545626,
+      "passes": 892,
+      "peak_rss_bytes": 134713344,
+      "process_cpu_seconds": 0.22705107699999516,
+      "thread_cpu_seconds": 0.2033142579999968,
+      "unavailable": []
+    },
+    "enforcer": {
+      "elapsed_seconds_max": 0.010307042000022193,
+      "elapsed_seconds_total": 0.01561549900020509,
+      "measured_span_seconds_total": 0.015822611999965375,
+      "measurement_overhead_seconds": 0.00020711299976028386,
+      "passes": 2,
+      "peak_rss_bytes": 134713344,
+      "process_cpu_seconds": 0.0022387620000001718,
+      "thread_cpu_seconds": 0.0022122829999998705,
+      "unavailable": []
+    },
+    "exporter": {
+      "elapsed_seconds_max": 4.850099981013045e-05,
+      "elapsed_seconds_total": 8.833099968796887e-05,
+      "measured_span_seconds_total": 0.00039391700011037756,
+      "measurement_overhead_seconds": 0.0003055860004224087,
+      "passes": 2,
+      "peak_rss_bytes": 134713344,
+      "process_cpu_seconds": 9.89819999999142e-05,
+      "thread_cpu_seconds": 9.505500000017708e-05,
+      "unavailable": []
+    },
+    "features": {
+      "elapsed_seconds_max": 0.0004458509999949456,
+      "elapsed_seconds_total": 0.013664094001569538,
+      "measured_span_seconds_total": 0.09294607300171265,
+      "measurement_overhead_seconds": 0.07928197900014311,
+      "passes": 892,
+      "peak_rss_bytes": 134713344,
+      "process_cpu_seconds": 0.01764545999999889,
+      "thread_cpu_seconds": 0.016685914000003743,
+      "unavailable": []
+    },
+    "inference": {
+      "elapsed_seconds_max": 0.008900567000182491,
+      "elapsed_seconds_total": 0.040348596000058023,
+      "measured_span_seconds_total": 0.0412062049999804,
+      "measurement_overhead_seconds": 0.0008576089999223768,
+      "passes": 5,
+      "peak_rss_bytes": 134713344,
+      "process_cpu_seconds": 0.04065149599999973,
+      "thread_cpu_seconds": 0.040307223999999975,
+      "unavailable": []
+    },
+    "policy": {
+      "elapsed_seconds_max": 0.00014311099994301912,
+      "elapsed_seconds_total": 0.004971163999016426,
+      "measured_span_seconds_total": 0.07170066699632116,
+      "measurement_overhead_seconds": 0.06672950299730473,
+      "passes": 897,
+      "peak_rss_bytes": 134713344,
+      "process_cpu_seconds": 0.007694854000009244,
+      "thread_cpu_seconds": 0.007444027000001019,
+      "unavailable": []
+    }
+  }
+}
