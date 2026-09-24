@@ -88,8 +88,11 @@ class StageTimer:
 
     def __enter__(self) -> StageTimer:
         overhead_start = self._clock.monotonic()
-        self._cpu_start: CpuReading = read_cpu()
+        # Memory first: reading RSS costs real CPU (a /proc read on Linux), and a CPU
+        # reading taken before it would charge that cost to the stage. The closing
+        # readings mirror this — CPU right after the stage, memory after that.
         self._memory_start: MemoryReading = read_memory()
+        self._cpu_start: CpuReading = read_cpu()
         self._started = self._clock.monotonic()
         self._overhead = self._started - overhead_start
         return self
