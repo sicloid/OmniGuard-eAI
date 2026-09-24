@@ -1,0 +1,52 @@
+{
+  "adapter": {
+    "accepted": 2,
+    "connections": 2,
+    "frames": 2,
+    "incomplete_frames": 0,
+    "invalid_events": 0,
+    "malformed_frames": 0,
+    "oversized_frames": 0,
+    "peer_verification": "VERIFIED",
+    "read_timeouts": 57,
+    "refused_by_sink": 0,
+    "rejected_peers": 0,
+    "undecodable_bodies": 0
+  },
+  "handoff": {
+    "accepted": 2,
+    "last_failure": null,
+    "overflowed": 0,
+    "processed": 2,
+    "refused": 0,
+    "stopped_cleanly": true,
+    "worker_failures": 0
+  },
+  "mode": "serve",
+  "producer": {
+    "boot_id": "364dec22-68ac-4305-92d1-f35d71512647",
+    "boot_started_at": 1790230016.180214,
+    "producer_id": "g10-host"
+  },
+  "publisher": {
+    "drained": 0,
+    "dropped_unspoolable": 0,
+    "published": 2,
+    "queued_unacked": 0,
+    "rejected_device_id": 0,
+    "spooled": 0
+  },
+  "run_id": "g10-duplicate-20260924T060651Z",
+  "spool": {
+    "counters": {
+      "dropped_by_age": 0,
+      "dropped_by_bytes": 0,
+      "dropped_bytes": 0,
+      "dropped_events": 0,
+      "last_applied_eviction": 0,
+      "rejected_oversize": 0
+    },
+    "loss_scopes": [],
+    "pending": []
+  }
+}
