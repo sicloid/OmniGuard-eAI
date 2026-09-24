@@ -1,0 +1,226 @@
+{
+  "commit": "b528f0707f0993c8f5971944b98a7a2252e3a8b5",
+  "passed": true,
+  "scenarios": {
+    "duplicate": {
+      "checks": {
+        "consumer_clean": true,
+        "db_rows_are_the_acknowledged_ids": true,
+        "db_rows_belong_to_this_run": true,
+        "db_rows_equal_produced": true,
+        "duplicate_stored_nothing_new": true,
+        "duplicate_was_acknowledged_by_broker": true,
+        "event_1_kernel_matches_decision": true,
+        "event_1_row_fields_match": true,
+        "event_2_kernel_matches_decision": true,
+        "event_2_row_fields_match": true,
+        "every_decision_has_a_kernel_receipt": true,
+        "every_event_acknowledged_once": true,
+        "g8_kernel_drops_zero": true,
+        "g8_lab_exited_cleanly": true,
+        "g8_produced_events": true,
+        "g8_sinks_blocked_during_quarantine": true,
+        "gateway_bridge_accepted_every_event": true,
+        "gateway_bridge_delivered_every_event": true,
+        "grafana_returns_the_committed_rows": true,
+        "handoff_processed_every_event": true,
+        "host_accepted_every_frame": true,
+        "host_peer_verified": true,
+        "published_without_spooling": true
+      },
+      "completeness": {
+        "accepted_by_gateway_bridge": 2,
+        "accepted_by_host_adapter": 2,
+        "broker_acknowledged": 2,
+        "committed_rows": 2,
+        "consumer": {
+          "boots_recorded": 1,
+          "database_failures": 0,
+          "left_unacknowledged": 0,
+          "redelivered": 1,
+          "rejected": 0,
+          "stored": 2,
+          "unordered_boots": 0
+        },
+        "decided_by_gateway": 2,
+        "delivered_over_uds": 2,
+        "grafana_rows": 2,
+        "lost": 0,
+        "processed_by_handoff": 2,
+        "spooled_during_outage": 0
+      },
+      "correlation": [
+        {
+          "decision_to_receipt_ms": 0.103532,
+          "event_id": "6533e846-694e-55a6-a0ec-acefe918587f",
+          "ingest_minus_event_wall_seconds": 0.16,
+          "kernel_action": "APPLIED",
+          "kernel_readback_active": true,
+          "reason": "consecutive eligible anomalies",
+          "sequence": 1,
+          "transition": "NORMAL→QUARANTINED"
+        },
+        {
+          "decision_to_receipt_ms": 0.106799,
+          "event_id": "ea3dd1b2-0143-5714-9d95-a5b478844d67",
+          "ingest_minus_event_wall_seconds": 0.147,
+          "kernel_action": "ALREADY_RELEASED",
+          "kernel_readback_active": false,
+          "reason": "lease expired; not a clean bill",
+          "sequence": 2,
+          "transition": "QUARANTINED→NORMAL"
+        }
+      ],
+      "correlation_basis": "order and field equality within one run; there is no shared durable decision/application key in the 0.1.0 schema",
+      "passed": true,
+      "run_id": "g10-duplicate-20260924T060651Z"
+    },
+    "normal": {
+      "checks": {
+        "consumer_clean": true,
+        "consumer_stored_every_event": true,
+        "db_rows_are_the_acknowledged_ids": true,
+        "db_rows_belong_to_this_run": true,
+        "db_rows_equal_produced": true,
+        "event_1_kernel_matches_decision": true,
+        "event_1_row_fields_match": true,
+        "event_2_kernel_matches_decision": true,
+        "event_2_row_fields_match": true,
+        "every_decision_has_a_kernel_receipt": true,
+        "every_event_acknowledged_once": true,
+        "g8_kernel_drops_zero": true,
+        "g8_lab_exited_cleanly": true,
+        "g8_produced_events": true,
+        "g8_sinks_blocked_during_quarantine": true,
+        "gateway_bridge_accepted_every_event": true,
+        "gateway_bridge_delivered_every_event": true,
+        "grafana_returns_the_committed_rows": true,
+        "handoff_processed_every_event": true,
+        "host_accepted_every_frame": true,
+        "host_peer_verified": true,
+        "published_without_spooling": true
+      },
+      "completeness": {
+        "accepted_by_gateway_bridge": 2,
+        "accepted_by_host_adapter": 2,
+        "broker_acknowledged": 2,
+        "committed_rows": 2,
+        "consumer": {
+          "boots_recorded": 1,
+          "database_failures": 0,
+          "left_unacknowledged": 0,
+          "redelivered": 0,
+          "rejected": 0,
+          "stored": 2,
+          "unordered_boots": 0
+        },
+        "decided_by_gateway": 2,
+        "delivered_over_uds": 2,
+        "grafana_rows": 2,
+        "lost": 0,
+        "processed_by_handoff": 2,
+        "spooled_during_outage": 0
+      },
+      "correlation": [
+        {
+          "decision_to_receipt_ms": 0.097953,
+          "event_id": "8000c86f-6cf4-5baf-80a1-11a4a8c1b5a8",
+          "ingest_minus_event_wall_seconds": 0.244,
+          "kernel_action": "APPLIED",
+          "kernel_readback_active": true,
+          "reason": "consecutive eligible anomalies",
+          "sequence": 1,
+          "transition": "NORMAL→QUARANTINED"
+        },
+        {
+          "decision_to_receipt_ms": 0.110977,
+          "event_id": "caf8da95-f445-50a2-9898-154722f4ba24",
+          "ingest_minus_event_wall_seconds": 0.148,
+          "kernel_action": "ALREADY_RELEASED",
+          "kernel_readback_active": false,
+          "reason": "lease expired; not a clean bill",
+          "sequence": 2,
+          "transition": "QUARANTINED→NORMAL"
+        }
+      ],
+      "correlation_basis": "order and field equality within one run; there is no shared durable decision/application key in the 0.1.0 schema",
+      "passed": true,
+      "run_id": "g10-normal-20260924T060613Z"
+    },
+    "outage": {
+      "checks": {
+        "consumer_clean": true,
+        "consumer_stored_every_event": true,
+        "db_rows_are_the_acknowledged_ids": true,
+        "db_rows_belong_to_this_run": true,
+        "db_rows_equal_produced": true,
+        "drain_recovered_every_event": true,
+        "event_1_kernel_matches_decision": true,
+        "event_1_row_fields_match": true,
+        "event_2_kernel_matches_decision": true,
+        "event_2_row_fields_match": true,
+        "every_decision_has_a_kernel_receipt": true,
+        "every_event_acknowledged_once": true,
+        "g8_kernel_drops_zero": true,
+        "g8_lab_exited_cleanly": true,
+        "g8_produced_events": true,
+        "g8_sinks_blocked_during_quarantine": true,
+        "gateway_bridge_accepted_every_event": true,
+        "gateway_bridge_delivered_every_event": true,
+        "grafana_returns_the_committed_rows": true,
+        "handoff_processed_every_event": true,
+        "host_accepted_every_frame": true,
+        "host_peer_verified": true,
+        "outage_spooled_every_event": true,
+        "spool_lost_nothing": true
+      },
+      "completeness": {
+        "accepted_by_gateway_bridge": 2,
+        "accepted_by_host_adapter": 2,
+        "broker_acknowledged": 2,
+        "committed_rows": 2,
+        "consumer": {
+          "boots_recorded": 1,
+          "database_failures": 0,
+          "left_unacknowledged": 0,
+          "redelivered": 0,
+          "rejected": 0,
+          "stored": 2,
+          "unordered_boots": 0
+        },
+        "decided_by_gateway": 2,
+        "delivered_over_uds": 2,
+        "grafana_rows": 2,
+        "lost": 0,
+        "processed_by_handoff": 2,
+        "spooled_during_outage": 2
+      },
+      "correlation": [
+        {
+          "decision_to_receipt_ms": 0.090495,
+          "event_id": "1ea56704-f380-50c8-b1e3-407382dc5af6",
+          "ingest_minus_event_wall_seconds": 33.255,
+          "kernel_action": "APPLIED",
+          "kernel_readback_active": true,
+          "reason": "consecutive eligible anomalies",
+          "sequence": 1,
+          "transition": "NORMAL→QUARANTINED"
+        },
+        {
+          "decision_to_receipt_ms": 0.105646,
+          "event_id": "943b3a1a-df64-5ed4-a1fb-cd7007d2028f",
+          "ingest_minus_event_wall_seconds": 27.611,
+          "kernel_action": "RELEASED",
+          "kernel_readback_active": false,
+          "reason": "lease expired; not a clean bill",
+          "sequence": 2,
+          "transition": "QUARANTINED→NORMAL"
+        }
+      ],
+      "correlation_basis": "order and field equality within one run; there is no shared durable decision/application key in the 0.1.0 schema",
+      "passed": true,
+      "run_id": "g10-outage-20260924T060729Z"
+    }
+  },
+  "worktree_dirty": false
+}

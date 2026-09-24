@@ -33,3 +33,5 @@ model/frozen/kan51/*.json text eol=lf
 model/frozen/kan51/superseded/*.json text eol=lf
 # KAN-43 sealed-run evidence; verify.py checks these bytes against SHA256SUMS.
 docs/evidence/KAN43_2026-09-23/** text eol=lf
+# G10 gate evidence (KAN-50); verify rebuilds g10-report.json, SHA256SUMS pins the rest.
+docs/evidence/G10_2026-09-24/** text eol=lf

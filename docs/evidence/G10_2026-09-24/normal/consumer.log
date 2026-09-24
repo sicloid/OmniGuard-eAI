@@ -1,0 +1,13 @@
+ledger restored from the database: 16 boots, 1 unordered
+stored    omniguard/state/v2/camera boot=ORDERED
+stored    omniguard/state/v2/camera boot=KNOWN
+{
+  "boots_recorded": 1,
+  "database_failures": 0,
+  "left_unacknowledged": 0,
+  "redelivered": 0,
+  "rejected": 0,
+  "stored": 2,
+  "unordered_boots": 0
+}
+runs excluded from ordering-dependent measurement: ['run-fixed-2']

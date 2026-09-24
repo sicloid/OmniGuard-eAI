@@ -181,6 +181,23 @@ resource_metrics) follow their own cards and ADR decisions. G5/G8/G10 are
 pending: events now reach the database, but the chain that matters for G10 runs
 from a real detection, not from a probe.
 
+## G10 gate run — KAN-50
+
+`bash platform/run_g10.sh MODEL_DIR PREPARED_DIR OUT_DIR` runs the real G8 lab
+(pinned KAN-19 RF, IoT-23 slice; both outside Git, hashes checked first) with its
+StateEvents going through a Unix socket in a shared Docker volume to
+`platform/g10_host.py` — the shipped adapter, handoff and publisher — and on
+through MQTT, `platform/consume.py`, PostgreSQL and Grafana's datasource. It runs
+three scenarios, each with its own run id: `normal`, `duplicate` (one
+acknowledged envelope republished byte for byte) and `outage` (broker stopped
+before the G8 run, spool drained by a new host process). Set `PYTHON` to the
+interpreter that runs the consumer; `G10_SCENARIOS` selects a subset.
+
+`platform/g10_report.py OUT_DIR` judges the output: each decision paired with its
+kernel receipt and its committed row, every boundary counted, and a nonzero exit
+on any loss or mismatch. Evidence of the 24 September run:
+`docs/evidence/G10_2026-09-24/`.
+
 ## Role passwords and the Grafana dashboard — KAN-41
 
 ```sh
