@@ -8,8 +8,10 @@ Raspberry Pi are not produced here; KAN-46/53 measure that hardware.
 
 import json
 import tempfile
+import time
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from measure.clocks import ManualClock
 from measure.manifest import (
@@ -572,6 +574,31 @@ class HoldoutPolicyConfigTests(unittest.TestCase):
         )
         manifest.freeze()
         self.assertEqual(read_manifest(directory)["provenance"]["holdout_preconditions_unmet"], [])
+
+
+class StageCpuWindowTests(unittest.TestCase):
+    """A stage's thread CPU must not include the harness's own memory reading.
+
+    Found in the first KAN-42 sealed run (24 September 2026): the opening CPU reading
+    was taken before the RSS reading, so every pass charged the /proc read to the stage.
+    Sub-millisecond stages reported more thread CPU than elapsed time.
+    """
+
+    def test_a_slow_memory_reading_is_not_charged_to_an_empty_stage(self):
+        def burning_read_memory():
+            end = time.thread_time() + 0.02
+            while time.thread_time() < end:
+                pass
+            return read_memory()
+
+        recorder = RunRecorder()
+        with mock.patch("measure.stages.read_memory", burning_read_memory):
+            with recorder.stage("policy"):
+                pass
+        cpu = recorder.summary()["stages"]["policy"]["thread_cpu_seconds"]
+        if cpu is None:
+            self.skipTest("thread CPU is unavailable on this platform")
+        self.assertLess(cpu, 0.005, f"stage was charged {cpu:.4f}s of harness CPU")
 
 
 if __name__ == "__main__":
