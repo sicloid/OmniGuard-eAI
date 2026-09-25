@@ -31,3 +31,4 @@ docs/evidence/G10_2026-09-20_raw/* text eol=lf
 model/nlease_spec.json text eol=lf
 model/frozen/kan51/*.json text eol=lf
 model/frozen/kan51/superseded/*.json text eol=lf
+model/iforest_spec.json text eol=lf
