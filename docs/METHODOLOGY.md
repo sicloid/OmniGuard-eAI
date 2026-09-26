@@ -46,7 +46,7 @@ accepted. Nothing below should be read as that decision having been made.
 | Role | Data | May be used for | Status |
 |---|---|---|---|
 | Development | Six audited IoT-23 captures: benign 4-1, 5-1, 7-1; malware 3-1 (Muhstik), 8-1 (Hakai), 34-1 (Mirai) | Training, validation, threshold, ablation, N sweep, exploratory folds | In use by the current experiments. Every capture has already been on a test or validation side (KAN-18, KAN-21), so **nothing here is untouched** |
-| Untouched malware holdout | IoT-23 48-1 (Mirai), 20-1 (Torii), 36-1 (Okiru), selected by a pre-committed rule | Scoring **once**, after the freeze in §5 | Selected, downloaded, hashed, audited and packed (`data/holdout/`); `scored: false`. 48-1 is a seen family, 20-1 and 36-1 are unseen |
+| Untouched malware holdout | IoT-23 48-1 (Mirai), 20-1 (Torii), 36-1 (Okiru), selected by a pre-committed rule | **Spent.** Scored once on 25 September under KAN-71 | Window recall 0.0 %, 0.0 % and 1.53 %. Nothing may be tuned on it and no second run may be made; see §5 |
 | Untouched benign holdout | None exists. IoT-23 publishes three benign scenarios, all used | — | Until one exists, holdout reports say "untouched benign FPR: not measured" |
 | External transfer | CICIoT2023 (KAN-23) | A separate transfer test, never a substitute for the holdout | No locally audited capture set yet; see below |
 
@@ -169,10 +169,12 @@ second benign source (UNSW-IoTraffic) needs a separate decision.
   - threshold policy hash;
   - N and lease;
   - development pack hash.
-  - **Current state:** every one of them is now recorded — N = 2 and lease = 300 s were
-    frozen in decision 7b on 22 September — and the captures are downloaded, hashed and
-    audited. What remains is the Lead's decision to spend the single run. It is scored
-    once, the result is reported whatever it is, and tuning after that consumes it.
+  - **Current state: the run happened.** Every pin was recorded, the captures were
+    audited, and on 25 September the holdout was scored once under KAN-71. The result
+    is in `docs/KAN71_HOLDOUT_SCORE.md` and the one-shot record is committed, so the
+    runner now refuses a second run. **The frozen policy flagged 0 of 7,036 malicious
+    windows on 48-1, 0 of 17,278 on 36-1 and 253 of 16,545 on 20-1.** Nothing has been
+    or may be adjusted in response.
   - **One deviation is recorded** (`data/holdout/score_spec.json`): 48-1 ends with an
     8-byte record that is a complete PCAP record but too short for an Ethernet header.
     A final record too short for its link-layer header is now treated as a truncated
@@ -186,6 +188,12 @@ second benign source (UNSW-IoTraffic) needs a separate decision.
 - **It does not transfer between benign devices.** In KAN-21, three of the twelve folds
   that found a threshold gave 12.6 % or 63.1 % FPR on an unseen benign capture. In 6 of
   18 folds, no threshold met the budget at all.
+- **The threshold does not survive a change of capture, and this is now measured three
+  times.** On validation it flagged 94.5 % of malicious windows; on the seed-1 test
+  split, 41.2 %; on the untouched holdout, essentially none — including on 48-1, whose
+  family (Mirai) is present in the training data. A supervised threshold fitted to one
+  benign honeypot and three malware captures describes those captures, not the
+  behaviour they were meant to represent.
 - **Recall at 1 % sits on a score cliff** (KAN-20, merged in PR #35 on 19 September).
   - Near the top, the 200-tree forest scores in steps of about 0.005.
   - A 2,055-window validation set allows about 20 false positives.
@@ -323,15 +331,17 @@ These hold for every result, whatever the numbers:
 | "At N = 2 and a 300 s lease, no false quarantine was observed on the benign validation capture in 5.0 device-hours; a rate up to about 0.6 per device-hour is consistent with that." | "N = 2 removes false quarantines." |
 | "7.5 % of the infected capture's observed malicious window-time was not under quarantine at the frozen point; this is a policy decision, not a byte count." | "OmniGuard blocks 92.5 % of attack traffic." |
 | "On this grid a longer lease usually leaked less, but not always: at N = 1, 120 s leaked less than 300 s." | "A longer lease always contains more." |
+| "On three untouched IoT-23 captures the frozen detector flagged 0 %, 0 % and 1.5 % of malicious windows, including on a family present in training." | "The detector generalises to unseen malware." / any recall figure quoted without naming the data it came from |
 
 ## 11. Open items before this document is final
 
 1. **Lead review** of this document, and of ADR-0004's remaining open decisions. The ADR
    is still PROPOSED, so §2.1 stands as written: the source decision has not been made.
-2. **The holdout, scored once.** Everything the freeze requires is recorded and the
-   captures are audited and packed. When the Lead spends the run, its result gets its own
-   heading here, whatever it says, including "untouched benign FPR: not measured" unless
-   a benign holdout exists by then.
+2. **The holdout is spent, and the document now has to be read in that light.** It was
+   scored once on 25 September and the detector flagged almost nothing. Untouched benign
+   FPR remains unmeasured: the pack holds no benign device. Every generalisation claim
+   in this document should be read against that result rather than against the
+   validation figures.
 3. **The test split (7-1, 3-1).** KAN-52 measured validation only, which is the data the
    threshold and the N/lease pair were chosen on. Whether to spend the test split on one
    confirmation run is a Lead decision; `model/leakage_spec.json` refuses the role until
