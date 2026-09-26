@@ -1,0 +1,2678 @@
+{
+  "artifact": {
+    "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+    "model_id": "rf-iot23",
+    "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+    "model_version": "0.1.0-seed1-kan19",
+    "path": "operating",
+    "threshold": 0.9798815486832
+  },
+  "benign_captures": [
+    "CTU-Honeypot-Capture-7-1"
+  ],
+  "captures": [
+    "CTU-Honeypot-Capture-7-1",
+    "CTU-IoT-Malware-Capture-3-1"
+  ],
+  "card": "KAN-52",
+  "cells": [
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.6476,
+          "blocked_seconds": 55950.0,
+          "blocked_seconds_per_span_hour": 2331.4,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": -0.327,
+              "interval": [
+                134.995,
+                141.555
+              ],
+              "measured": 137.515,
+              "reproduced": true,
+              "resample_spread": [
+                133.475,
+                140.035
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": -0.192,
+              "interval": [
+                76.385,
+                79.843
+              ],
+              "measured": 77.755,
+              "reproduced": true,
+              "resample_spread": [
+                75.667,
+                79.125
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": true,
+          "detection_delay_seconds": null,
+          "first_episodes": [
+            {
+              "end": 1562164910.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562164880.5,
+              "window_ts": 1562164875.0
+            },
+            {
+              "end": 1562164965.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562164935.5,
+              "window_ts": 1562164930.0
+            },
+            {
+              "end": 1562165000.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562164970.5,
+              "window_ts": 1562164965.0
+            }
+          ],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 1866,
+          "quarantines_per_observed_hour": 137.515,
+          "quarantines_per_span_hour": 77.755,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4745,
+          "blocked_seconds": 61715.0,
+          "blocked_seconds_per_span_hour": 1708.3,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.005,
+              "interval": [
+                0.4686,
+                0.5909
+              ],
+              "measured": 0.5189,
+              "reproduced": true,
+              "resample_spread": [
+                0.4469,
+                0.5692
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.649,
+              "interval": [
+                49.046,
+                63.721
+              ],
+              "measured": 57.757,
+              "reproduced": true,
+              "resample_spread": [
+                51.793,
+                66.468
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.564,
+              "interval": [
+                48.321,
+                62.948
+              ],
+              "measured": 56.967,
+              "reproduced": true,
+              "resample_spread": [
+                50.986,
+                65.613
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5189,
+          "detected": true,
+          "detection_delay_seconds": 5.5,
+          "first_episodes": [
+            {
+              "end": 1526756295.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756265.5,
+              "window_ts": 1526756260.0
+            },
+            {
+              "end": 1526756325.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756295.5,
+              "window_ts": 1526756290.0
+            },
+            {
+              "end": 1526756355.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756325.5,
+              "window_ts": 1526756320.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 61709.0,
+          "quarantines": 2058,
+          "quarantines_per_observed_hour": 57.757,
+          "quarantines_per_span_hour": 56.967,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 30,
+      "n": 1
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.8296,
+          "blocked_seconds": 71675.0,
+          "blocked_seconds_per_span_hour": 2986.6,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": -0.256,
+              "interval": [
+                87.514,
+                89.169
+              ],
+              "measured": 88.066,
+              "reproduced": true,
+              "resample_spread": [
+                86.963,
+                88.618
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": -0.149,
+              "interval": [
+                49.507,
+                50.382
+              ],
+              "measured": 49.795,
+              "reproduced": true,
+              "resample_spread": [
+                49.208,
+                50.083
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": true,
+          "detection_delay_seconds": null,
+          "first_episodes": [
+            {
+              "end": 1562164940.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562164880.5,
+              "window_ts": 1562164875.0
+            },
+            {
+              "end": 1562165010.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562164950.5,
+              "window_ts": 1562164945.0
+            },
+            {
+              "end": 1562165070.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562165010.5,
+              "window_ts": 1562165005.0
+            }
+          ],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 1195,
+          "quarantines_per_observed_hour": 88.066,
+          "quarantines_per_span_hour": 49.795,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4766,
+          "blocked_seconds": 61985.0,
+          "blocked_seconds_per_span_hour": 1715.8,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0084,
+              "interval": [
+                0.4688,
+                0.593
+              ],
+              "measured": 0.517,
+              "reproduced": true,
+              "resample_spread": [
+                0.441,
+                0.5652
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.521,
+              "interval": [
+                24.426,
+                31.903
+              ],
+              "measured": 29.019,
+              "reproduced": true,
+              "resample_spread": [
+                26.135,
+                33.612
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.475,
+              "interval": [
+                24.092,
+                31.474
+              ],
+              "measured": 28.622,
+              "reproduced": true,
+              "resample_spread": [
+                25.77,
+                33.152
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.517,
+          "detected": true,
+          "detection_delay_seconds": 5.5,
+          "first_episodes": [
+            {
+              "end": 1526756325.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756265.5,
+              "window_ts": 1526756260.0
+            },
+            {
+              "end": 1526756385.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756325.5,
+              "window_ts": 1526756320.0
+            },
+            {
+              "end": 1526756445.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756385.5,
+              "window_ts": 1526756380.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 61949.0,
+          "quarantines": 1034,
+          "quarantines_per_observed_hour": 29.019,
+          "quarantines_per_span_hour": 28.622,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 60,
+      "n": 1
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.8713,
+          "blocked_seconds": 75275.0,
+          "blocked_seconds_per_span_hour": 3136.6,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.514,
+              "interval": [
+                45.417,
+                46.118
+              ],
+              "measured": 46.281,
+              "reproduced": false,
+              "resample_spread": [
+                46.444,
+                47.145
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.289,
+              "interval": [
+                25.711,
+                26.044
+              ],
+              "measured": 26.168,
+              "reproduced": false,
+              "resample_spread": [
+                26.292,
+                26.625
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": true,
+          "detection_delay_seconds": null,
+          "first_episodes": [
+            {
+              "end": 1562165000.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562164880.5,
+              "window_ts": 1562164875.0
+            },
+            {
+              "end": 1562165120.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562165000.5,
+              "window_ts": 1562164995.0
+            },
+            {
+              "end": 1562165265.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562165145.5,
+              "window_ts": 1562165140.0
+            }
+          ],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 628,
+          "quarantines_per_observed_hour": 46.281,
+          "quarantines_per_span_hour": 26.168,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4824,
+          "blocked_seconds": 62740.0,
+          "blocked_seconds_per_span_hour": 1736.7,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0084,
+              "interval": [
+                0.4649,
+                0.587
+              ],
+              "measured": 0.5109,
+              "reproduced": true,
+              "resample_spread": [
+                0.4348,
+                0.5569
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.291,
+              "interval": [
+                12.383,
+                16.025
+              ],
+              "measured": 14.678,
+              "reproduced": true,
+              "resample_spread": [
+                13.331,
+                16.973
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.268,
+              "interval": [
+                12.226,
+                15.903
+              ],
+              "measured": 14.477,
+              "reproduced": true,
+              "resample_spread": [
+                13.051,
+                16.728
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5109,
+          "detected": true,
+          "detection_delay_seconds": 5.5,
+          "first_episodes": [
+            {
+              "end": 1526756385.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756265.5,
+              "window_ts": 1526756260.0
+            },
+            {
+              "end": 1526756505.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756385.5,
+              "window_ts": 1526756380.0
+            },
+            {
+              "end": 1526756625.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756505.5,
+              "window_ts": 1526756500.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 62734.0,
+          "quarantines": 523,
+          "quarantines_per_observed_hour": 14.678,
+          "quarantines_per_span_hour": 14.477,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 120,
+      "n": 1
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.9584,
+          "blocked_seconds": 82800.0,
+          "blocked_seconds_per_span_hour": 3450.2,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": -0.084,
+              "interval": [
+                20.379,
+                20.618
+              ],
+              "measured": 20.414,
+              "reproduced": true,
+              "resample_spread": [
+                20.21,
+                20.449
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": -0.048,
+              "interval": [
+                11.542,
+                11.626
+              ],
+              "measured": 11.542,
+              "reproduced": false,
+              "resample_spread": [
+                11.458,
+                11.542
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": true,
+          "detection_delay_seconds": null,
+          "first_episodes": [
+            {
+              "end": 1562165180.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562164880.5,
+              "window_ts": 1562164875.0
+            },
+            {
+              "end": 1562165505.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562165205.5,
+              "window_ts": 1562165200.0
+            },
+            {
+              "end": 1562165805.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1562165505.5,
+              "window_ts": 1562165500.0
+            }
+          ],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 277,
+          "quarantines_per_observed_hour": 20.414,
+          "quarantines_per_span_hour": 11.542,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4941,
+          "blocked_seconds": 64255.0,
+          "blocked_seconds_per_span_hour": 1778.6,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0251,
+              "interval": [
+                0.4697,
+                0.5922
+              ],
+              "measured": 0.5004,
+              "reproduced": true,
+              "resample_spread": [
+                0.4086,
+                0.5311
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.306,
+              "interval": [
+                4.925,
+                6.413
+              ],
+              "measured": 6.034,
+              "reproduced": true,
+              "resample_spread": [
+                5.655,
+                7.143
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.294,
+              "interval": [
+                4.851,
+                6.317
+              ],
+              "measured": 5.951,
+              "reproduced": true,
+              "resample_spread": [
+                5.585,
+                7.051
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5004,
+          "detected": true,
+          "detection_delay_seconds": 5.5,
+          "first_episodes": [
+            {
+              "end": 1526756565.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756265.5,
+              "window_ts": 1526756260.0
+            },
+            {
+              "end": 1526756870.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756570.5,
+              "window_ts": 1526756565.0
+            },
+            {
+              "end": 1526757170.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756870.5,
+              "window_ts": 1526756865.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 64079.0,
+          "quarantines": 215,
+          "quarantines_per_observed_hour": 6.034,
+          "quarantines_per_span_hour": 5.951,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 300,
+      "n": 1
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.594,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": false,
+              "resample_spread": [
+                0.221,
+                1.103
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.336,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": false,
+              "resample_spread": [
+                0.125,
+                0.625
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4058,
+          "blocked_seconds": 52770.0,
+          "blocked_seconds_per_span_hour": 1460.7,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": 0.0032,
+              "interval": [
+                0.5385,
+                0.6432
+              ],
+              "measured": 0.5886,
+              "reproduced": true,
+              "resample_spread": [
+                0.534,
+                0.6387
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": -0.335,
+              "interval": [
+                42.763,
+                55.352
+              ],
+              "measured": 49.366,
+              "reproduced": true,
+              "resample_spread": [
+                43.38,
+                55.969
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": -0.394,
+              "interval": [
+                42.219,
+                54.661
+              ],
+              "measured": 48.69,
+              "reproduced": true,
+              "resample_spread": [
+                42.719,
+                55.161
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5886,
+          "detected": true,
+          "detection_delay_seconds": 10.5,
+          "first_episodes": [
+            {
+              "end": 1526756300.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756270.5,
+              "window_ts": 1526756265.0
+            },
+            {
+              "end": 1526756335.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756305.5,
+              "window_ts": 1526756300.0
+            },
+            {
+              "end": 1526756370.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756340.5,
+              "window_ts": 1526756335.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 52764.0,
+          "quarantines": 1759,
+          "quarantines_per_observed_hour": 49.366,
+          "quarantines_per_span_hour": 48.69,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 30,
+      "n": 2
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.594,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": false,
+              "resample_spread": [
+                0.221,
+                1.103
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.336,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": false,
+              "resample_spread": [
+                0.125,
+                0.625
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4399,
+          "blocked_seconds": 57215.0,
+          "blocked_seconds_per_span_hour": 1583.7,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0058,
+              "interval": [
+                0.5079,
+                0.6227
+              ],
+              "measured": 0.5539,
+              "reproduced": true,
+              "resample_spread": [
+                0.4851,
+                0.5999
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.379,
+              "interval": [
+                22.597,
+                29.488
+              ],
+              "measured": 26.774,
+              "reproduced": true,
+              "resample_spread": [
+                24.06,
+                30.951
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.339,
+              "interval": [
+                22.372,
+                29.09
+              ],
+              "measured": 26.407,
+              "reproduced": true,
+              "resample_spread": [
+                23.724,
+                30.442
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5539,
+          "detected": true,
+          "detection_delay_seconds": 10.5,
+          "first_episodes": [
+            {
+              "end": 1526756330.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756270.5,
+              "window_ts": 1526756265.0
+            },
+            {
+              "end": 1526756395.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756335.5,
+              "window_ts": 1526756330.0
+            },
+            {
+              "end": 1526756460.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756400.5,
+              "window_ts": 1526756395.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 57214.0,
+          "quarantines": 954,
+          "quarantines_per_observed_hour": 26.774,
+          "quarantines_per_span_hour": 26.407,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 60,
+      "n": 2
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.594,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": false,
+              "resample_spread": [
+                0.221,
+                1.103
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.336,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": false,
+              "resample_spread": [
+                0.125,
+                0.625
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4638,
+          "blocked_seconds": 60325.0,
+          "blocked_seconds_per_span_hour": 1669.8,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0146,
+              "interval": [
+                0.4884,
+                0.613
+              ],
+              "measured": 0.5301,
+              "reproduced": true,
+              "resample_spread": [
+                0.4472,
+                0.5718
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.46,
+              "interval": [
+                11.652,
+                15.335
+              ],
+              "measured": 14.117,
+              "reproduced": true,
+              "resample_spread": [
+                12.899,
+                16.582
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.436,
+              "interval": [
+                11.56,
+                15.155
+              ],
+              "measured": 13.923,
+              "reproduced": true,
+              "resample_spread": [
+                12.691,
+                16.286
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5301,
+          "detected": true,
+          "detection_delay_seconds": 10.5,
+          "first_episodes": [
+            {
+              "end": 1526756390.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756270.5,
+              "window_ts": 1526756265.0
+            },
+            {
+              "end": 1526756515.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756395.5,
+              "window_ts": 1526756390.0
+            },
+            {
+              "end": 1526756640.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756520.5,
+              "window_ts": 1526756515.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 60264.0,
+          "quarantines": 503,
+          "quarantines_per_observed_hour": 14.117,
+          "quarantines_per_span_hour": 13.923,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 120,
+      "n": 2
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.594,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": false,
+              "resample_spread": [
+                0.221,
+                1.103
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.336,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": false,
+              "resample_spread": [
+                0.125,
+                0.625
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.489,
+          "blocked_seconds": 63600.0,
+          "blocked_seconds_per_span_hour": 1760.5,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.028,
+              "interval": [
+                0.4765,
+                0.6003
+              ],
+              "measured": 0.5058,
+              "reproduced": true,
+              "resample_spread": [
+                0.4113,
+                0.5351
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.345,
+              "interval": [
+                4.813,
+                6.311
+              ],
+              "measured": 5.95,
+              "reproduced": true,
+              "resample_spread": [
+                5.589,
+                7.087
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.333,
+              "interval": [
+                4.713,
+                6.178
+              ],
+              "measured": 5.868,
+              "reproduced": true,
+              "resample_spread": [
+                5.558,
+                7.023
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5058,
+          "detected": true,
+          "detection_delay_seconds": 10.5,
+          "first_episodes": [
+            {
+              "end": 1526756570.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756270.5,
+              "window_ts": 1526756265.0
+            },
+            {
+              "end": 1526756875.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756575.5,
+              "window_ts": 1526756570.0
+            },
+            {
+              "end": 1526757180.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756880.5,
+              "window_ts": 1526756875.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 63379.0,
+          "quarantines": 212,
+          "quarantines_per_observed_hour": 5.95,
+          "quarantines_per_span_hour": 5.868,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 300,
+      "n": 2
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.3161,
+          "blocked_seconds": 41115.0,
+          "blocked_seconds_per_span_hour": 1138.1,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0019,
+              "interval": [
+                0.6446,
+                0.7289
+              ],
+              "measured": 0.6796,
+              "reproduced": true,
+              "resample_spread": [
+                0.6303,
+                0.7146
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.247,
+              "interval": [
+                32.586,
+                42.671
+              ],
+              "measured": 38.477,
+              "reproduced": true,
+              "resample_spread": [
+                34.283,
+                44.368
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.194,
+              "interval": [
+                32.158,
+                42.167
+              ],
+              "measured": 37.95,
+              "reproduced": true,
+              "resample_spread": [
+                33.733,
+                43.742
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.6796,
+          "detected": true,
+          "detection_delay_seconds": 15.5,
+          "first_episodes": [
+            {
+              "end": 1526756305.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756275.5,
+              "window_ts": 1526756270.0
+            },
+            {
+              "end": 1526756345.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756315.5,
+              "window_ts": 1526756310.0
+            },
+            {
+              "end": 1526756390.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756360.5,
+              "window_ts": 1526756355.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 41099.0,
+          "quarantines": 1371,
+          "quarantines_per_observed_hour": 38.477,
+          "quarantines_per_span_hour": 37.95,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 30,
+      "n": 3
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4041,
+          "blocked_seconds": 52560.0,
+          "blocked_seconds_per_span_hour": 1454.9,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0035,
+              "interval": [
+                0.5473,
+                0.6485
+              ],
+              "measured": 0.5905,
+              "reproduced": true,
+              "resample_spread": [
+                0.5325,
+                0.6337
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.235,
+              "interval": [
+                21.064,
+                27.138
+              ],
+              "measured": 24.585,
+              "reproduced": true,
+              "resample_spread": [
+                22.032,
+                28.106
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.2,
+              "interval": [
+                20.625,
+                26.819
+              ],
+              "measured": 24.248,
+              "reproduced": true,
+              "resample_spread": [
+                21.677,
+                27.871
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5905,
+          "detected": true,
+          "detection_delay_seconds": 15.5,
+          "first_episodes": [
+            {
+              "end": 1526756335.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756275.5,
+              "window_ts": 1526756270.0
+            },
+            {
+              "end": 1526756420.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756360.5,
+              "window_ts": 1526756355.0
+            },
+            {
+              "end": 1526756490.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756430.5,
+              "window_ts": 1526756425.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 52519.0,
+          "quarantines": 876,
+          "quarantines_per_observed_hour": 24.585,
+          "quarantines_per_span_hour": 24.248,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 60,
+      "n": 3
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4341,
+          "blocked_seconds": 56460.0,
+          "blocked_seconds_per_span_hour": 1562.8,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0198,
+              "interval": [
+                0.5292,
+                0.6412
+              ],
+              "measured": 0.5599,
+              "reproduced": true,
+              "resample_spread": [
+                0.4786,
+                0.5906
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.628,
+              "interval": [
+                10.795,
+                14.148
+              ],
+              "measured": 13.218,
+              "reproduced": true,
+              "resample_spread": [
+                12.288,
+                15.641
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.601,
+              "interval": [
+                10.564,
+                13.965
+              ],
+              "measured": 13.038,
+              "reproduced": true,
+              "resample_spread": [
+                12.111,
+                15.512
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5599,
+          "detected": true,
+          "detection_delay_seconds": 15.5,
+          "first_episodes": [
+            {
+              "end": 1526756395.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756275.5,
+              "window_ts": 1526756270.0
+            },
+            {
+              "end": 1526756545.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756425.5,
+              "window_ts": 1526756420.0
+            },
+            {
+              "end": 1526756675.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756555.5,
+              "window_ts": 1526756550.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 56444.0,
+          "quarantines": 471,
+          "quarantines_per_observed_hour": 13.218,
+          "quarantines_per_span_hour": 13.038,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 120,
+      "n": 3
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4816,
+          "blocked_seconds": 62630.0,
+          "blocked_seconds_per_span_hour": 1733.6,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0327,
+              "interval": [
+                0.4891,
+                0.6116
+              ],
+              "measured": 0.5134,
+              "reproduced": true,
+              "resample_spread": [
+                0.4152,
+                0.5377
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.4,
+              "interval": [
+                4.662,
+                6.171
+              ],
+              "measured": 5.866,
+              "reproduced": true,
+              "resample_spread": [
+                5.561,
+                7.07
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.387,
+              "interval": [
+                4.602,
+                6.068
+              ],
+              "measured": 5.785,
+              "reproduced": true,
+              "resample_spread": [
+                5.502,
+                6.968
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5134,
+          "detected": true,
+          "detection_delay_seconds": 15.5,
+          "first_episodes": [
+            {
+              "end": 1526756575.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756275.5,
+              "window_ts": 1526756270.0
+            },
+            {
+              "end": 1526756885.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756585.5,
+              "window_ts": 1526756580.0
+            },
+            {
+              "end": 1526757195.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756895.5,
+              "window_ts": 1526756890.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 62404.0,
+          "quarantines": 209,
+          "quarantines_per_observed_hour": 5.866,
+          "quarantines_per_span_hour": 5.785,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 300,
+      "n": 3
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.2151,
+          "blocked_seconds": 27980.0,
+          "blocked_seconds_per_span_hour": 774.5,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0037,
+              "interval": [
+                0.7601,
+                0.8186
+              ],
+              "measured": 0.7818,
+              "reproduced": true,
+              "resample_spread": [
+                0.745,
+                0.8035
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.476,
+              "interval": [
+                21.72,
+                28.766
+              ],
+              "measured": 26.184,
+              "reproduced": true,
+              "resample_spread": [
+                23.602,
+                30.648
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.434,
+              "interval": [
+                21.514,
+                28.426
+              ],
+              "measured": 25.826,
+              "reproduced": true,
+              "resample_spread": [
+                23.226,
+                30.138
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.7818,
+          "detected": true,
+          "detection_delay_seconds": 25.5,
+          "first_episodes": [
+            {
+              "end": 1526756315.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756285.5,
+              "window_ts": 1526756280.0
+            },
+            {
+              "end": 1526756365.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756335.5,
+              "window_ts": 1526756330.0
+            },
+            {
+              "end": 1526756415.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756385.5,
+              "window_ts": 1526756380.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 27979.5,
+          "quarantines": 933,
+          "quarantines_per_observed_hour": 26.184,
+          "quarantines_per_span_hour": 25.826,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 30,
+      "n": 5
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.2883,
+          "blocked_seconds": 37500.0,
+          "blocked_seconds_per_span_hour": 1038.0,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.01,
+              "interval": [
+                0.683,
+                0.7615
+              ],
+              "measured": 0.7077,
+              "reproduced": true,
+              "resample_spread": [
+                0.6539,
+                0.7324
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.62,
+              "interval": [
+                14.291,
+                18.984
+              ],
+              "measured": 17.54,
+              "reproduced": true,
+              "resample_spread": [
+                16.096,
+                20.789
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.588,
+              "interval": [
+                14.112,
+                18.729
+              ],
+              "measured": 17.3,
+              "reproduced": true,
+              "resample_spread": [
+                15.871,
+                20.488
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.7077,
+          "detected": true,
+          "detection_delay_seconds": 25.5,
+          "first_episodes": [
+            {
+              "end": 1526756345.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756285.5,
+              "window_ts": 1526756280.0
+            },
+            {
+              "end": 1526756430.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756370.5,
+              "window_ts": 1526756365.0
+            },
+            {
+              "end": 1526756525.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756465.5,
+              "window_ts": 1526756460.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 37484.5,
+          "quarantines": 625,
+          "quarantines_per_observed_hour": 17.54,
+          "quarantines_per_span_hour": 17.3,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 60,
+      "n": 5
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.3722,
+          "blocked_seconds": 48410.0,
+          "blocked_seconds_per_span_hour": 1340.0,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0143,
+              "interval": [
+                0.5936,
+                0.692
+              ],
+              "measured": 0.6231,
+              "reproduced": true,
+              "resample_spread": [
+                0.5542,
+                0.6526
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.428,
+              "interval": [
+                9.305,
+                12.234
+              ],
+              "measured": 11.338,
+              "reproduced": true,
+              "resample_spread": [
+                10.442,
+                13.371
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.407,
+              "interval": [
+                9.205,
+                12.053
+              ],
+              "measured": 11.183,
+              "reproduced": true,
+              "resample_spread": [
+                10.313,
+                13.161
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.6231,
+          "detected": true,
+          "detection_delay_seconds": 25.5,
+          "first_episodes": [
+            {
+              "end": 1526756405.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756285.5,
+              "window_ts": 1526756280.0
+            },
+            {
+              "end": 1526756585.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756465.5,
+              "window_ts": 1526756460.0
+            },
+            {
+              "end": 1526756765.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756645.5,
+              "window_ts": 1526756640.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 48334.0,
+          "quarantines": 404,
+          "quarantines_per_observed_hour": 11.338,
+          "quarantines_per_span_hour": 11.183,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 120,
+      "n": 5
+    },
+    {
+      "captures": {
+        "CTU-Honeypot-Capture-7-1": {
+          "blocked_fraction_of_span": 0.0,
+          "blocked_seconds": 0,
+          "blocked_seconds_per_span_hour": 0.0,
+          "bootstrap": {
+            "quarantines_per_observed_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.0,
+              "interval": [
+                0.0,
+                0.0
+              ],
+              "measured": 0.0,
+              "reproduced": true,
+              "resample_spread": [
+                0.0,
+                0.0
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": null,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "first_episodes": [],
+          "infected": false,
+          "malicious_seconds_blocked": 0.0,
+          "quarantines": 0,
+          "quarantines_per_observed_hour": 0.0,
+          "quarantines_per_span_hour": 0.0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 7504,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        },
+        "CTU-IoT-Malware-Capture-3-1": {
+          "benign_windows_inside_infected_capture": 4,
+          "benign_windows_inside_infected_capture_flagged": 0,
+          "blocked_fraction_of_span": 0.4387,
+          "blocked_seconds": 57050.0,
+          "blocked_seconds_per_span_hour": 1579.2,
+          "bootstrap": {
+            "containment_leakage": {
+              "bias": -0.0555,
+              "interval": [
+                0.5575,
+                0.6711
+              ],
+              "measured": 0.5552,
+              "reproduced": false,
+              "resample_spread": [
+                0.4393,
+                0.5529
+              ]
+            },
+            "quarantines_per_observed_hour": {
+              "bias": 0.681,
+              "interval": [
+                3.993,
+                5.308
+              ],
+              "measured": 5.36,
+              "reproduced": false,
+              "resample_spread": [
+                5.412,
+                6.727
+              ]
+            },
+            "quarantines_per_span_hour": {
+              "bias": 0.663,
+              "interval": [
+                3.938,
+                5.238
+              ],
+              "measured": 5.287,
+              "reproduced": false,
+              "resample_spread": [
+                5.336,
+                6.636
+              ]
+            },
+            "resamples": 200
+          },
+          "containment_leakage": 0.5552,
+          "detected": true,
+          "detection_delay_seconds": 25.5,
+          "first_episodes": [
+            {
+              "end": 1526756585.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756285.5,
+              "window_ts": 1526756280.0
+            },
+            {
+              "end": 1526756945.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756645.5,
+              "window_ts": 1526756640.0
+            },
+            {
+              "end": 1526757285.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1526756985.5,
+              "window_ts": 1526756980.0
+            }
+          ],
+          "infected": true,
+          "malicious_seconds_blocked": 57049.5,
+          "quarantines": 191,
+          "quarantines_per_observed_hour": 5.36,
+          "quarantines_per_span_hour": 5.287,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          }
+        }
+      },
+      "lease_seconds": 300,
+      "n": 5
+    }
+  ],
+  "environment": {
+    "machine": "arm64",
+    "python": "3.14.7",
+    "system": "Darwin"
+  },
+  "episodes_note": "Per-episode lists are dropped; each capture keeps its episode count and first three episodes. Produced by model.leakage_run.trimmed_report from the full report.",
+  "evaluated_split": "test",
+  "infected_captures": [
+    "CTU-IoT-Malware-Capture-3-1"
+  ],
+  "observed": {
+    "CTU-Honeypot-Capture-7-1": {
+      "activity": {
+        "gaps": 7504,
+        "longest_gap_seconds": 10.0,
+        "longest_segment_seconds": 30.0,
+        "median_segment_seconds": 5.0,
+        "segments": 7505,
+        "silent_seconds": 37545.0
+      },
+      "anomalous_windows": 3380,
+      "malicious_windows": 0,
+      "observed_fraction_of_span": 0.5654,
+      "observed_hours": 13.5694,
+      "observed_seconds": 48850,
+      "span_hours": 23.9986,
+      "span_seconds": 86395.0,
+      "windows": 9770
+    },
+    "CTU-IoT-Malware-Capture-3-1": {
+      "activity": {
+        "gaps": 3,
+        "longest_gap_seconds": 1270.0,
+        "longest_segment_seconds": 119750.0,
+        "median_segment_seconds": 5980.0,
+        "segments": 4,
+        "silent_seconds": 1780.0
+      },
+      "anomalous_windows": 10571,
+      "malicious_windows": 25651,
+      "observed_fraction_of_span": 0.9863,
+      "observed_hours": 35.6319,
+      "observed_seconds": 128275,
+      "span_hours": 36.1264,
+      "span_seconds": 130055.0,
+      "windows": 25655
+    }
+  },
+  "operating_point": {
+    "approval": "Lead, first-hand on PR #44, 22 September 2026; ADR-0004 decision 7b, merged as 8c0254a",
+    "lease_seconds": 300,
+    "n": 2
+  },
+  "pack": {
+    "feature_schema_version": "features-1",
+    "label_rule_version": "window-label-1",
+    "manifest_sha256": "8ea8c310d6b66a82515a693e5347da274a622146e5347e381f11c4f80821d2a7",
+    "manifest_version": 2,
+    "path": "windows.jsonl",
+    "windows_file": "windows.jsonl",
+    "windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625"
+  },
+  "spec": {
+    "benign_modes": {
+      "available": false,
+      "measured_instead": "per benign capture: windows, observed hours, wall-clock span, observed share of span, and the contiguous activity segments and silent gaps that make up that span",
+      "reason": "IoT-23 honeypot captures carry no mode or scenario label, and the pack's window labels are benign, malicious or unknown only. Splitting a capture into modes by reading its own traffic would be an invented label.",
+      "requested": "idle, active, startup and update reported separately (KAN-52, 10 September V3 review)",
+      "where_modes_come_from": "KAN-66 records controlled benign Pi scenarios with a declared mode and KAN-64/KAN-65 evaluate them. This card does not anticipate that result."
+    },
+    "card": "KAN-52",
+    "closure_evidence": [
+      "the committed trimmed report and its SHA-256",
+      "the committed headline plot and its SHA-256",
+      "the reproduction command and the full report's SHA-256",
+      "owner review"
+    ],
+    "data_roles": {
+      "holdout": "the ADR-0004 IoT-23 malware holdout is out of scope for this card. It is scored once under KAN-71, with its own spec and its own record.",
+      "primary": "validation",
+      "test": "seed-1 test split: benign CTU-Honeypot-Capture-7-1 and malware CTU-IoT-Malware-Capture-3-1. Scored only with a Lead approval recorded in this file and naming this card, at most once. Without that record the runner refuses the role. 7-1 carries no published label file, so its benign label is assumed (ADR-0004), and any number from it must say so.",
+      "test_approval": {
+        "approved_by": "\u015e\u00fckr\u00fc Bi\u00e7er (Lead/R2)",
+        "card": "KAN-52",
+        "conditions": [
+          "The frozen inputs below are written into this spec before the run and verified by the runner.",
+          "One run only: after the result is seen there is no tuning, no re-selection and no retry.",
+          "The report and the figure label the result as a test confirmation.",
+          "7-1's benign label is declared, not measured (ADR-0004), and every number from it says so.",
+          "The validation numbers stay labelled as the optimistic case.",
+          "This run is not a benign-device generalisation result and not a final security claim."
+        ],
+        "date": "2026-09-22",
+        "decision": "The seed-1 test split (7-1, 3-1) may be used once, for a confirmation run.",
+        "frozen_inputs": {
+          "feature_schema_version": "features-1",
+          "lease_seconds": 300,
+          "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+          "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+          "n": 2,
+          "seed": 1,
+          "threshold": 0.9798815486832
+        },
+        "record": "model/leakage_test_record.json, written by the only run and committed; a second run needs that commit reverted in review",
+        "reference": "KAN-52 comment 11528, 22 September 2026, 22:22 +03",
+        "single_run": true,
+        "tuning_or_retry_after": false
+      },
+      "train": "CTU-Honeypot-Capture-4-1 and CTU-IoT-Malware-Capture-34-1: not scored here. The model was fitted on them and any rate from them would be optimistic for a reason the plot cannot show.",
+      "validation": "seed-1 validation split: benign CTU-Honeypot-Capture-5-1 and malware CTU-IoT-Malware-Capture-8-1. The threshold and the N/lease pair were selected on these windows, so every validation number is the friendly case and is labelled as such."
+    },
+    "development_pack_windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+    "feature_schema_version": "features-1",
+    "frozen_policy": {
+      "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+      "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+      "note": "The KAN-19 artifact is loaded and both pinned hashes are verified. Nothing here retrains, re-thresholds or re-selects N or the lease; this card measures and plots what the frozen decisions cost.",
+      "operating_point": {
+        "approval": "Lead, first-hand on PR #44, 22 September 2026; ADR-0004 decision 7b, merged as 8c0254a",
+        "lease_seconds": 300,
+        "n": 2
+      },
+      "seed": 1,
+      "threshold": 0.9798815486832
+    },
+    "grid": {
+      "lease_seconds": [
+        30,
+        60,
+        120,
+        300
+      ],
+      "n": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "note": "The KAN-51 grid, unchanged, so the plot shows the same cells the decision was made from."
+    },
+    "leakage_meaning": {
+      "measured_here": "policy-level leakage: observed malicious window-time the device was not under quarantine, computed from the replayed policy decisions",
+      "not_measured_here": "kernel-level leakage: the L3 packets and bytes an independent sink receives before the quarantine ACK. That is KAN-33's fixture and KAN-49's G8 run, on Linux with real namespaces.",
+      "rule": "the two are reported side by side and never added together or substituted for one another"
+    },
+    "metrics": {
+      "also_reported": [
+        "per capture: windows, observed device-hours, wall-clock span hours, observed share of span",
+        "per capture: quarantine episodes, blocked seconds, policy rejection and reset counters",
+        "malware capture: delay from the first malicious window to the first quarantine decision",
+        "benign windows inside the infected capture, reported apart and never as a benign-device rate"
+      ],
+      "never": [
+        "pool a benign capture and an infected capture into one false-positive rate",
+        "derive a false-quarantine rate from the window FPR by raising it to the power N",
+        "present a resampled series as observed traffic",
+        "report a zero count as evidence that the risk is zero"
+      ],
+      "x_axis": "false quarantine episodes per observed benign device-hour, the same denominator the bootstrap interval uses so the point and its error bar mean one thing; the table also gives the wall-clock span rate and the blocked benign seconds per device-hour",
+      "y_axis": "containment leakage: the share of observed malicious window-time during which the device was NOT quarantined, measured as interval overlap (1 - model.nlease_run.malicious_overlap_seconds / malicious window seconds)"
+    },
+    "outputs": {
+      "plot": "kan52_headline.svg, committed",
+      "report": "leakage_report.json, the full run output, kept outside Git",
+      "trimmed": "leakage_report.trimmed.json, committed, with local paths reduced to file names and per-episode lists dropped"
+    },
+    "path": "leakage_spec.json",
+    "plot": {
+      "file": "kan52_headline.svg",
+      "form": "one point per grid cell: x = false quarantines per observed benign device-hour, y = containment leakage, each with its bootstrap interval as an error bar; N by colour, lease by marker size, the frozen operating point ringed and labelled",
+      "rule": "the plot shows only cells measured in that run; no cell is carried over from another run or from KAN-51",
+      "source": "written by model.leakage_plot from the report of the same run, never drawn by hand"
+    },
+    "purpose": "Measure, on real captures and with the frozen policy, what each (N, lease) pair costs a benign device and how much malicious time it leaves unblocked, and draw the headline trade-off from those measurements. Fixed before the run.",
+    "replay": {
+      "decision_delay_seconds": 0.5,
+      "engine": "model.nlease_run.replay_device: the KAN-51 replay through gateway.policy.DevicePolicy. This card adds measurement around it and changes no policy behaviour.",
+      "max_lease_seconds": 600,
+      "max_result_age": 2.5,
+      "window_seconds": 5
+    },
+    "revision": {
+      "date": "2026-09-22",
+      "found": "the trial run's intervals did not contain their own point estimate in several cells, which a correct resampling scheme has no reason to do",
+      "reason": "The first declared method drew fixed counts of windows and joined the blocks contiguously. That silently removed the silence between blocks: CTU-IoT-Malware-Capture-8-1 has 4,397 gaps and a median activity segment of 10 s, so the resampled device was busier and denser than the captured one, and the interval described a series the capture never produced. Blocks are now lengths of wall-clock time and keep their own silence. The point estimates do not use the bootstrap and are unchanged by this; only the intervals are.",
+      "supersedes": "the first run of 22 September 2026, whose intervals are discarded and are not reported anywhere"
+    },
+    "revision_2": {
+      "date": "2026-09-22",
+      "reason": "With time blocks the benign rate brackets its measurement, but containment leakage still landed outside the percentile spread in 5 of 16 cells. Leakage depends on how episodes and malicious stretches line up over hours, which a 600 s block cannot reproduce, so the resample mean sits slightly off the measurement. Rather than widen blocks until the symptom disappears, every statistic now reports the measurement, the raw resample spread, the bias between them, and a basic bootstrap interval centred on the measurement. Point estimates are unaffected: they never used the bootstrap.",
+      "supersedes": "the second run of 22 September 2026, whose percentile spreads are kept in the report rather than discarded"
+    },
+    "sha256": "dec64b5aa71e6eae058d75004f117d03984dbccfec68232a289684052d51d115",
+    "uncertainty": {
+      "block_rule": "a block is a multiple of the window period and longer than the longest lease, so one quarantine episode fits inside a block and joins do not cut episodes the capture never cut",
+      "block_seconds": 600,
+      "interval": "basic bootstrap: the 2.5 and 97.5 percentiles of the resamples reflected about the measurement, clipped to the range the statistic can take. Each statistic also carries the raw resample spread and the bias of the resample mean against the measurement, so a reader can see when the resampling cannot reproduce what the capture did.",
+      "limits": [
+        "One benign capture and one malware capture per role. This interval is temporal variability inside one device's traffic; it is not a device-to-device interval and cannot become one by resampling harder.",
+        "Consecutive windows are dependent, which is why blocks rather than single windows are drawn.",
+        "An interval whose lower end is zero says the observed traffic contains stretches with no quarantine; it does not say the true rate can be zero.",
+        "Blocks are drawn independently, so a pattern longer than one block, such as a daily cycle, is not preserved."
+      ],
+      "method": "block bootstrap over each capture's timeline, replayed through the same policy",
+      "rebuild": "the capture is cut into consecutive blocks of `block_seconds` of wall-clock time; as many blocks as the capture holds are drawn with replacement and laid end to end, each keeping its windows, its inner gaps and the silence at its edges. The resample therefore has the capture's own span and density, and is replayed through DevicePolicy exactly as the observed series is.",
+      "reported_for": [
+        "false quarantine episodes per observed device-hour",
+        "false quarantine episodes per wall-clock span hour",
+        "containment leakage"
+      ],
+      "resamples": 200,
+      "seed": 52
+    }
+  }
+}
