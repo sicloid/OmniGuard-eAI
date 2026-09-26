@@ -179,8 +179,8 @@ rests on a single honeypot device over five hours.
   is an observation, not a population estimate.
 - **Validation data.** The threshold and the N/lease pair were chosen on these same
   windows, so this is the friendly case. The untouched estimates are the ADR-0004
-  malware holdout, scored once under KAN-71, and, for benign devices, KAN-65 and
-  KAN-70. KAN-21 is not that estimate: it closed on 14 September as a
+  malware holdout, scored once under KAN-71 on 25 September, and, for benign devices,
+  KAN-65 and KAN-70. KAN-21 is not that estimate: it closed on 14 September as a
   leave-one-family-out experiment over the development captures, every one of which has
   been on a test side, so nothing in it is untouched.
 - **Policy intent, not packets.** Blocked seconds are what the policy decided. What
@@ -213,5 +213,8 @@ rerun on another machine differs only in its `environment` block.
    whose traffic is too fragmented for N = 2 to fire.
 3. New benign devices (KAN-66 capture, KAN-65 evaluation), so the benign cost does not
    rest on one honeypot or on one gap structure.
-4. The malware holdout, scored once under KAN-71, is still the untouched estimate. This
-   confirmation does not replace it and does not change its pins.
+4. **The malware holdout has since been scored** (KAN-71, 25 September) and it points
+   the same way, harder: on three untouched captures the frozen policy flagged 0 %,
+   0 % and 1.5 % of malicious windows, including on 48-1, whose family is in the
+   training data. Read together, validation (94.5 %), this confirmation (41.2 %) and
+   the holdout describe one trend, not three separate observations.
