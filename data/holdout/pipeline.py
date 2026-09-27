@@ -138,7 +138,7 @@ def audit(root: Path, spec: dict, selection_path: Path = SELECTION, *, log=print
     """Hashes first, then direction: each declared device must send outward."""
     from core.schema import Direction
     from data.audit import pcap_record_count, summarize_pcap
-    from data.samplepack.build import SHORT_LINK_HEADERS
+    from data.samplepack.build import SHORT_LINK_HEADERS, TRUNCATED_RECORD
     from sources.from_pcap import read_pcap
     from sources.packets import PacketError, PacketNormalizer
 
@@ -165,7 +165,7 @@ def audit(root: Path, spec: dict, selection_path: Path = SELECTION, *, log=print
                 raise
         except ValueError as exc:
             # A capture cut mid-record is used up to that point, as the builder does.
-            if "truncated" not in str(exc):
+            if str(exc) != TRUNCATED_RECORD:
                 raise
         results[scenario] = {
             "direction_counts": summary.direction_counts,
@@ -246,6 +246,23 @@ def capture_metrics(rows, frozen: dict) -> dict:
     }
 
 
+def _reserve_scoring(record: Path, spec: dict) -> None:
+    """Atomically consume the one-shot before the model sees the first window."""
+    reservation = {
+        "schema": spec["schema"],
+        "status": "scoring-started; holdout consumed even if this process fails",
+        "selection_sha256": _sha256(SELECTION),
+        "spec_sha256": _sha256(SPEC),
+    }
+    try:
+        with open(record, "x", encoding="utf-8") as handle:
+            json.dump(reservation, handle, indent=2, sort_keys=True, allow_nan=False)
+            handle.write("\n")
+    except FileExistsError as exc:
+        message = f"{record} exists: this holdout has been scored and is consumed"
+        raise HoldoutError(message) from exc
+
+
 def score(pack: Path, artifact_dir: Path, out_dir: Path, spec: dict, *, record: Path = RECORD):
     """The only scoring of this holdout. Refuses if a record already exists."""
     from core.features import FEATURE_ORDER, FEATURE_SCHEMA_VERSION
@@ -273,6 +290,10 @@ def score(pack: Path, artifact_dir: Path, out_dir: Path, spec: dict, *, record: 
         raise HoldoutError(f"artifact threshold {meta.threshold} is not {frozen['threshold']}")
 
     windows = read_windows(Path(pack))
+    # Reserve the one-shot before the first model score. Exclusive creation closes the
+    # concurrent-run race; a crash after this point consumes the holdout rather than
+    # silently permitting a second look at it.
+    _reserve_scoring(Path(record), spec)
     scores = rf_scores(artifact.model, windows)
     by_capture: dict[str, list] = {}
     for window, value in zip(windows, scores, strict=True):
@@ -314,8 +335,13 @@ def score(pack: Path, artifact_dir: Path, out_dir: Path, spec: dict, *, record: 
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=False)
     text = json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n"
-    (out_dir / REPORT_FILENAME).write_text(text, encoding="utf-8")
-    Path(record).write_text(text, encoding="utf-8")
+    report_path = out_dir / REPORT_FILENAME
+    report_partial = report_path.with_suffix(report_path.suffix + ".partial")
+    report_partial.write_text(text, encoding="utf-8")
+    report_partial.replace(report_path)
+    record_partial = Path(record).with_suffix(Path(record).suffix + ".partial")
+    record_partial.write_text(text, encoding="utf-8")
+    record_partial.replace(record)
     return report
 
 

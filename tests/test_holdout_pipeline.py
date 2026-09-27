@@ -10,6 +10,7 @@ from data.holdout.pipeline import (
     SELECTION,
     SPEC,
     HoldoutError,
+    _reserve_scoring,
     capture_metrics,
     download,
     load_spec,
@@ -117,6 +118,15 @@ class DownloadTests(unittest.TestCase):
 
 
 class OneShotTests(unittest.TestCase):
+    def test_reservation_is_atomic_and_a_failed_run_stays_consumed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            record = Path(tmp) / "score_record.json"
+            _reserve_scoring(record, load_spec(SPEC))
+            written = json.loads(record.read_text(encoding="utf-8"))
+            self.assertIn("consumed", written["status"])
+            with self.assertRaises(HoldoutError):
+                _reserve_scoring(record, load_spec(SPEC))
+
     def test_scoring_is_refused_once_a_record_exists(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
