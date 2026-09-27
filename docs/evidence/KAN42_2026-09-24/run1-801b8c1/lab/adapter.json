@@ -1,0 +1,1 @@
+{"accepted": 2, "connections": 2, "frames": 2, "incomplete_frames": 0, "invalid_events": 0, "malformed_frames": 0, "oversized_frames": 0, "peer_verification": "VERIFIED", "read_timeouts": 54, "refused_by_sink": 0, "rejected_peers": 0, "sink_accepted": 2, "undecodable_bodies": 0}
