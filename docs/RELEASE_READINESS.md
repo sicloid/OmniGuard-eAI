@@ -7,10 +7,10 @@ Do not create a release tag by treating a missing gate as a warning.
 | Gate | Required evidence | Current state |
 |---|---|---|
 | G8 / KAN-49 | Real pinned RF and audited development capture through extractor, policy and nftables; independent TCP/UDP sink stop, restore and SIGKILL/kernel expiry | Accepted at the [bounded development-validation scope](G8_RUNBOOK.md); PR #41 merged. |
-| G10 / KAN-50 | Real StateEvent through UDS, MQTT, PostgreSQL and Grafana, plus decision/application correlation, dedup, outage recovery and completeness/loss report | Local partial integration evidence exists; owner-reviewed full G10 remains open. |
-| G13 / KAN-54 | Exact frozen result set with run IDs, hashes, data role, failed/censored attempts, declared N/lease and plots | [Inventory](KAN54_FREEZE_INVENTORY.md) exists; KAN-52 headline experiment and other accepted measurements remain missing. |
+| G10 / KAN-50 | Real StateEvent through UDS, MQTT, PostgreSQL and Grafana, plus decision/application correlation, dedup, outage recovery and completeness/loss report | Accepted in the final-product integration branch at the bounded local evidence scope; retain owner review and the exact evidence links before release tagging. |
+| G13 / KAN-54 | Exact frozen result set with run IDs, hashes, data role, failed/censored attempts, declared N/lease and plots | KAN-52 validation plus test confirmation, KAN-71 malware holdout and KAN-42 measurements are inventoried; final freeze and independent review remain open. |
 | Pi / KAN-53 | Separate ARM64 evidence with environment and load; no laptop number copied into Pi results | [Real Pi lab](evidence/PI5_2026-09-22_constrained/README.md) passed functionally. Guard invalidated its timing; no accepted Pi performance estimate. |
-| Reproduction / KAN-55 | Clean checkout from locked environment through data, training, lab, platform, G8/G10 and fallback | [Reproduction map](REPRODUCE.md) is in review; G10 steps must be updated when its gate passes. |
+| Reproduction / KAN-55 | Clean checkout from locked environment through data, training, lab, platform, G8/G10 and fallback | [Reproduction map](REPRODUCE.md) is updated for the accepted bounded G8/G10 paths and remains in review for final release reproducibility. |
 | Demo / KAN-58 | Pi path, laptop fallback, fault handling and cleanup | [Runbook](DEMO_RUNBOOK.md) is in review; keep missing gates visible in the demo. |
 | Team / KAN-59 | Şükrü, Onur and Gabriel each explain every contract and trade-off; date, gaps and reviewed runs recorded | [Rehearsal script](TEAM_QA_REHEARSAL.md) prepared; actual three-person rehearsal has not been recorded. |
 
