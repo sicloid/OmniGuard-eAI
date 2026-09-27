@@ -1,0 +1,70 @@
+Local secrets ready in platform/.secrets (credentials not printed).
+ Container omniguard-mosquitto-1 Running 
+ Container omniguard-postgres-1 Running 
+ Container omniguard-grafana-1 Running 
+ Container omniguard-mosquitto-1 Waiting 
+ Container omniguard-postgres-1 Waiting 
+ Container omniguard-grafana-1 Waiting 
+ Container omniguard-postgres-1 Healthy 
+ Container omniguard-mosquitto-1 Healthy 
+ Container omniguard-grafana-1 Healthy 
+already applied: 001, 002
+applied now:     none
+PASS: schema is at the revision these migration files describe.
+provisioned: omniguard_consumer, omniguard_readonly
+PASS: both roles authenticate with the credentials in platform/.secrets.
+PASS: three healthy services; PostgreSQL SELECT 1; MQTT QoS1 pub/sub;
+anonymous/unauthorized-topic rejection; Grafana HTTP health and admin login.
+Grafana: http://127.0.0.1:3000/d/omniguard-state
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  3.577MB
+Step 1/13 : FROM python:3.14.7-slim-bookworm@sha256:d893452fcd120ea9a7233972c85ea868255bde289a636fe76ff090427fe8fac9
+ ---> d893452fcd12
+Step 2/13 : RUN apt-get update && apt-get install -y --no-install-recommends     bash iproute2 nftables conntrack iputils-ping util-linux procps     coreutils gawk grep libgomp1 && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> b791cd41a336
+Step 3/13 : COPY requirements-ml.lock /tmp/requirements-ml.lock
+ ---> Using cache
+ ---> 8887a98bf78e
+Step 4/13 : RUN pip install --no-cache-dir --require-hashes -r /tmp/requirements-ml.lock
+ ---> Using cache
+ ---> 499558f2a48c
+Step 5/13 : COPY core /opt/omniguard/core
+ ---> Using cache
+ ---> b0b4110bd02d
+Step 6/13 : COPY gateway /opt/omniguard/gateway
+ ---> Using cache
+ ---> 79f1e0fa45d8
+Step 7/13 : COPY model /opt/omniguard/model
+ ---> Using cache
+ ---> a07dccd222de
+Step 8/13 : COPY sources /opt/omniguard/sources
+ ---> Using cache
+ ---> c49e218cc926
+Step 9/13 : COPY telemetry /opt/omniguard/telemetry
+ ---> Using cache
+ ---> 109af7fd8174
+Step 10/13 : COPY lab /opt/omniguard/lab
+ ---> Using cache
+ ---> a76332748c7c
+Step 11/13 : ENV PYTHONPATH=/opt/omniguard
+ ---> Using cache
+ ---> 533c5770203c
+Step 12/13 : WORKDIR /opt/omniguard
+ ---> Using cache
+ ---> 825d3a5be089
+Step 13/13 : CMD ["python", "-m", "lab.g8_core", "--help"]
+ ---> Using cache
+ ---> 04164649fb5b
+Successfully built 04164649fb5b
+Successfully tagged omniguard-g8:local
+Created isolated og-a -> og-b -> og-c; no default routes
+{"sink": {"tcp": {"after": 174, "attempts_during_block": 24, "before": 100, "blocked": 0, "first_delivery_after_block_vs_release_seconds": 2.528164, "first_post_release_delivery_seconds": 2.528164}, "udp": {"after": 209, "attempts_during_block": 24, "before": 100, "blocked": 0, "first_delivery_after_block_vs_release_seconds": -0.009826, "first_post_release_delivery_seconds": 0.040507}}, "summary": {"capture_stats": {"kernel_drops": 0, "kernel_packets": 765, "outgoing_filtered": 0, "receive_buffer_bytes": 2097152, "received": 765, "timestamp_errors": 0, "truncated": 0}, "kernel_quarantined": false, "kind": "summary", "mono_ns": 3744272852283, "policy_rejections": {"duplicate": 0, "future": 0, "misaligned": 0, "stale": 0}, "policy_resets": {"gap": 0, "invalidated": 0, "model_change": 0}, "quarantines": 1, "reorder_stats": {"buffer_high_water": 4, "excess_lateness_seconds": 0.0, "max_inversion_seconds": 1.7404556274414062e-05, "reordered_packets": 39}, "windows": 3}, "synthetic_only_not_g8": true}
+Deleted only owned lab namespaces
+PASS: synthetic RF wiring, TCP/UDP independent sink stop/restore; NOT G8
+No ownership record; no changes made
+Synthetic-only evidence: /home/sicloid/Desktop/OmniGuard eAI/final-product/artifacts/g8-synthetic.NBwAbR5M
+PASS: sealed telemetry and end-to-end G10 evidence verified
