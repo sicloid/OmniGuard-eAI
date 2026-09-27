@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from core.features import FEATURE_ORDER, FEATURE_SCHEMA_VERSION
+from core.schema import Classification
 from data.samplepack.build import read_windows
 from model.artifact import load_model
 from model.baseline_run import _sha256
@@ -49,7 +50,9 @@ def run(pack: Path, manifest: Path, spec_path: Path, artifacts: list[Path], outp
                 lease_seconds=spec["policy"]["lease_seconds"],
                 spec=policy_spec,
             )
-            positives = sum(result.classification.value == "anomalous" for _, result, _ in entries)
+            positives = sum(
+                result.classification is Classification.ANOMALOUS for _, result, _ in entries
+            )
             malicious_starts = [start for start, _, _ in entries]
             overlap = malicious_overlap_seconds(outcome["episodes"], malicious_starts)
             first_detection = outcome["episodes"][0]["start"] if outcome["episodes"] else None
