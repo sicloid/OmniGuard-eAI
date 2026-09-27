@@ -1,0 +1,70 @@
+{
+  "card": "KAN-22",
+  "date": "2026-09-27",
+  "approval": "Lead Şükrü Biçer, 2026-09-27: validation-only offline KAN-22 comparison approved; no test/holdout scoring and no runtime adoption",
+  "evaluated_split": "validation",
+  "development_pack_windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+  "development_pack_manifest_sha256": "8ea8c310d6b66a82515a693e5347da274a622146e5347e381f11c4f80821d2a7",
+  "spec_sha256": "931f660dbbd7f655b16c7164310ca04ca2824dea682a81697080bdeb88b62bce",
+  "full_report_sha256": "d61897f401bb0c215d647fd645e2047a5b972dc23d7b0a2d2fad442e35a5d51d",
+  "environment": {
+    "python": "3.14.7",
+    "sklearn": "1.8.0",
+    "system": "Linux",
+    "machine": "x86_64"
+  },
+  "results": [
+    {
+      "seed": 1,
+      "isolation_forest": {
+        "threshold": 0.8338819565108417,
+        "validation_average_precision": 0.8110369196935315,
+        "recall": 0.0,
+        "benign_device_fpr": 0.0009813542688910696
+      },
+      "random_forest": {
+        "threshold": 0.9798815486832,
+        "validation_average_precision": 0.9975361820730115,
+        "recall": 0.9453142988717477,
+        "benign_device_fpr": 0.013738959764474975
+      }
+    },
+    {
+      "seed": 2,
+      "isolation_forest": {
+        "threshold": 0.8378406754048391,
+        "validation_average_precision": 0.982449371035955,
+        "recall": 0.0,
+        "benign_device_fpr": 0.0009813542688910696
+      },
+      "random_forest": {
+        "threshold": 0.995,
+        "validation_average_precision": 0.9950884418952705,
+        "recall": 0.26517484698452304,
+        "benign_device_fpr": 0.009813542688910697
+      }
+    },
+    {
+      "seed": 3,
+      "isolation_forest": {
+        "threshold": 0.4704868931499597,
+        "validation_average_precision": 0.9993751513903053,
+        "recall": 1.0,
+        "benign_device_fpr": 0.0054247697031729785
+      },
+      "random_forest": {
+        "threshold": 0.405,
+        "validation_average_precision": 0.9966510552147712,
+        "recall": 0.8592647460138007,
+        "benign_device_fpr": 0.006448311156601843
+      }
+    }
+  ],
+  "conclusion": "Isolation Forest is not a stable replacement candidate: validation recall is 0, 0 and 1 across the three capture-group seeds. Random Forest is also seed-sensitive. No model, threshold or runtime contract is adopted from this validation-only comparison.",
+  "not_measured": [
+    "development test split",
+    "ADR-0004 spent holdout",
+    "CICIoT2023 captures",
+    "deployment false-positive rate"
+  ]
+}
