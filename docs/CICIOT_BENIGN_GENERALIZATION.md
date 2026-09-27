@@ -20,3 +20,12 @@ device/domain shift. The holdout result is reported unchanged and must not be us
 to tune a replacement model. Replacement development may use only the declared
 CICIoT development devices; the ongoing Raspberry Pi capture supplies fresh
 post-selection benign evidence.
+
+## Existing KAN-67 candidate on development devices
+
+The previously trained regularized ExtraTrees candidate was then reproduced on the
+same 48 development devices. A preliminary development-only probe had already been
+seen, so this is explicitly reproducibility evidence rather than blind confirmation.
+The candidate reduced window FPR to 0.957%, false quarantines to 65, and false
+quarantines per observed device-hour to 0.192. It was not scored on the consumed
+CICIoT holdout. Runtime adoption remains gated on fresh Pi evidence and G8 regression.
