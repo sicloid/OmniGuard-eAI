@@ -37,11 +37,13 @@ class PiBenignPackTests(unittest.TestCase):
             pcap.write_bytes(b"pcap")
             (evidence / "manifest.json").write_text(json.dumps(manifest(pcap)))
             result = build(evidence, output)
+            source_manifest = json.loads((output / "source_manifest.json").read_text())
         self.assertEqual(result["totals"]["benign"], 3)
         self.assertEqual(mapping.call_args.kwargs["lan"], "192.168.4.0/24")
         spec = sample_pack.call_args.args[0][0]
         self.assertEqual(spec.devices, {"192.168.4.7": "aa:bb:cc:dd:ee:ff"})
         self.assertTrue(spec.group_by_device)
+        self.assertEqual(source_manifest["run_directory"], "evidence")
 
     def test_rejects_throttled_capture_before_reading_pcap(self):
         with tempfile.TemporaryDirectory() as directory:

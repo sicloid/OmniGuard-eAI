@@ -25,6 +25,7 @@ def build(evidence: Path, output: Path) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     manifest_path = evidence / "manifest.json"
     manifest = json.loads(manifest_path.read_text())
+    manifest["run_directory"] = evidence.name
     if manifest.get("schema") != "omniguard.benign-pi-capture/1":
         raise ValueError("unexpected Pi capture manifest schema")
     if manifest.get("duration_seconds", 0) < 3600:
