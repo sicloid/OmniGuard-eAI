@@ -160,10 +160,15 @@ digests, load, temperature/throttling, route and time mapping recorded. Tailscal
 is private management only; it must not advertise the isolated lab subnets.
 Use the [KAN-44 Pi management checklist](PI5_MANAGEMENT.md) to collect the
 actual device and route evidence before claiming a Pi run.
-macOS ARM64 or an aarch64 wheel existing does not validate the Pi. When the Pi is
-unavailable, use the laptop-only path after G8 and label results `Linux x86_64`;
-never copy a laptop number into the Pi column. KAN-44/46/53 remain open until
-hardware evidence is recorded.
+macOS ARM64 or an aarch64 wheel existing does not validate the Pi. A real Pi 5
+functional Docker run and its guard samples are now preserved in the
+[22 September ARM64 evidence](evidence/PI5_2026-09-22_constrained/README.md).
+The lab passed, but the guard invalidated its timing because the host started
+above its declared load limit. Keep the functional result and the invalid
+measurement visibly separate. KAN-44 private management and KAN-46 guard
+behavior are accepted; KAN-53 still needs its own review and G10 prerequisite.
+When the Pi is unavailable, use the laptop-only path after G8 and label results
+`Linux x86_64`; never copy a laptop number into the Pi column.
 
 On the Pi, wrap each measurement command with the KAN-46 host guard, using a
 fresh run directory and a **declared before-run** load budget. Example (replace
@@ -186,7 +191,12 @@ must match across the two samples; elapsed time uses monotonic readings while UT
 timestamps remain separate. This is a pre/post guard;
 short transients that neither sample nor sticky firmware bits catch need separate
 monitoring. A clean verdict does not validate the command's measurements, G8,
-G10 or ARM64 compatibility. Raspberry Pi documents the `get_throttled` bit
-meanings and [temperature interface](https://www.raspberrypi.com/documentation/computers/config_txt.html).
+G10 or ARM64 compatibility. A failed guard also does not erase the command's
+separately logged functional observations; it excludes that run from accepted
+performance statistics. Use the available Pi power setup and record the detected
+current, cooling method and over-current events as limitations. No specific PSU
+rating is a project acceptance criterion. Raspberry Pi documents the
+`get_throttled` bit meanings and
+[temperature interface](https://www.raspberrypi.com/documentation/computers/config_txt.html).
 
 For the live demonstration order and cleanup, see [the demo runbook](DEMO_RUNBOOK.md).

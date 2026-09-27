@@ -1,0 +1,16 @@
+{
+  "boot_id": "dd64ed6f-7714-4ea7-8f0b-24498e427270",
+  "cpu_count": 4,
+  "host_id": "omniguard",
+  "load_1m": 6.2333984375,
+  "machine": "aarch64",
+  "model": "Raspberry Pi 5 Model B Rev 1.0",
+  "power": {
+    "max_current": 3000,
+    "usb_max_current_enable": 0,
+    "usb_over_current_detected": 1
+  },
+  "temperature": "temp=43.3'C",
+  "throttled": "throttled=0x0",
+  "utc_ns": 1790071774059569600
+}

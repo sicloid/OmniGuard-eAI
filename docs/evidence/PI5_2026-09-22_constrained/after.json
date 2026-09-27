@@ -1,0 +1,12 @@
+{
+  "boot_id": "a2795127-0f2d-4b25-8d98-93399df65125",
+  "cpu_count": 4,
+  "host_id": "omniguard",
+  "load_1m": 3.2529296875,
+  "machine": "aarch64",
+  "model": "Raspberry Pi 5 Model B Rev 1.0",
+  "monotonic_ns": 53851901400,
+  "temperature_c": 69.7,
+  "throttled_bits": 0,
+  "utc_ns": 1790062755904694696
+}
