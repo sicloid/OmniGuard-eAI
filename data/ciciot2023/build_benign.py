@@ -12,8 +12,8 @@ LICENSE = "CIC dataset terms; research use under the owner's granted access"
 LAN = "192.168.137.0/24"
 
 
-def device_map(path: Path) -> tuple[dict[str, str], dict[str, list[str]]]:
-    summary = summarize_pcap(path, [LAN], top=0)
+def device_map(path: Path, *, lan: str = LAN) -> tuple[dict[str, str], dict[str, list[str]]]:
+    summary = summarize_pcap(path, [lan], top=0)
     owners: dict[str, set[str]] = {}
     for mac, addresses in summary.lan_source_mac_ip_bindings.items():
         for address in addresses:
