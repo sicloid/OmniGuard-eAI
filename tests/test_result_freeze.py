@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -67,6 +68,7 @@ class ResultFreezeTests(unittest.TestCase):
             saved = json.loads(output.read_text())
             self.assertEqual(saved["declaration"]["content"]["policy"], "N2-L300")
 
+    @unittest.skipIf(os.name == "nt", "Windows CI cannot create unprivileged symlinks")
     def test_refuses_symlink_evidence(self):
         with tempfile.TemporaryDirectory() as directory:
             root = self.repository(Path(directory))
