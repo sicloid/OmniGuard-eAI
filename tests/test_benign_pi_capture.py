@@ -13,6 +13,11 @@ class BenignPiCaptureScriptTests(unittest.TestCase):
             "throttled_after",
             "scenarios.tsv",
             "device wlan0; not gateway transit",
+            'CAPTURE_FILTER="host $DEVICE_IPV4"',
+            '"device_frames_ipv4"',
+            '"device_frames_ipv6"',
+            "reconnect-not-run",
+            "update-not-run",
         ):
             self.assertIn(token, script)
 

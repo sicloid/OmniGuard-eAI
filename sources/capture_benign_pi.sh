@@ -21,13 +21,19 @@ BOOT_ID=$(cat /proc/sys/kernel/random/boot_id)
 MODEL=$(tr -d '\0' </proc/device-tree/model)
 KERNEL=$(uname -srmo)
 ADDRESS=$(ip -brief address show "$IFACE" | tr -s ' ')
+DEVICE_IPV4=$(ip -o -4 address show dev "$IFACE" scope global | awk 'NR == 1 {sub(/\/.*/, "", $4); print $4}')
+if [[ -z "$DEVICE_IPV4" ]]; then
+    echo "interface has no global IPv4 address" >&2
+    exit 2
+fi
+CAPTURE_FILTER="host $DEVICE_IPV4"
 THROTTLED_BEFORE=$(vcgencmd get_throttled 2>/dev/null || true)
 TEMP_BEFORE=$(vcgencmd measure_temp 2>/dev/null || true)
 LOAD_BEFORE=$(cat /proc/loadavg)
 
 printf '%s\t%s\n' "$START_EPOCH" "idle-start" >"$OUT/scenarios.tsv"
-sudo timeout --signal=INT "$DURATION" tcpdump -i "$IFACE" -s 0 -U \
-    -w "$OUT/benign-pi5.pcap" 'ip or ip6' >"$OUT/tcpdump.log" 2>&1 &
+sudo timeout --preserve-status --signal=INT "$DURATION" tcpdump -i "$IFACE" -s 0 -U \
+    -w "$OUT/benign-pi5.pcap" "$CAPTURE_FILTER" >"$OUT/tcpdump.log" 2>&1 &
 CAPTURE_PID=$!
 
 (
@@ -45,6 +51,8 @@ CAPTURE_PID=$!
         https://speed.hetzner.de/100MB.bin -o /dev/null || true
     printf '%s\t%s\n' "$(date +%s)" "download-end"
     printf '%s\t%s\n' "$(date +%s)" "idle-remainder"
+    printf '%s\t%s\n' "$(date +%s)" "reconnect-not-run"
+    printf '%s\t%s\n' "$(date +%s)" "update-not-run"
 ) >>"$OUT/scenarios.tsv" 2>>"$OUT/activity-errors.log" &
 ACTIVITY_PID=$!
 
@@ -58,6 +66,9 @@ TEMP_AFTER=$(vcgencmd measure_temp 2>/dev/null || true)
 LOAD_AFTER=$(cat /proc/loadavg)
 PCAP_SHA256=$(sha256sum "$OUT/benign-pi5.pcap" | cut -d ' ' -f 1)
 PCAP_BYTES=$(stat -c %s "$OUT/benign-pi5.pcap")
+DEVICE_FRAMES_IPV4=$(sudo tcpdump -nr "$OUT/benign-pi5.pcap" 'ip' 2>/dev/null | wc -l)
+DEVICE_FRAMES_IPV6=$(sudo tcpdump -nr "$OUT/benign-pi5.pcap" 'ip6' 2>/dev/null | wc -l)
+DEVICE_FRAMES=$((DEVICE_FRAMES_IPV4 + DEVICE_FRAMES_IPV6))
 
 python3 - "$OUT/manifest.json" <<PY
 import json, pathlib
@@ -71,6 +82,8 @@ document = {
     "kernel": ${KERNEL@Q},
     "interface": ${IFACE@Q},
     "interface_address": ${ADDRESS@Q},
+    "device_ip": ${DEVICE_IPV4@Q},
+    "capture_filter": ${CAPTURE_FILTER@Q},
     "start_utc": ${START_UTC@Q},
     "end_utc": ${END_UTC@Q},
     "duration_seconds": $((END_EPOCH - START_EPOCH)),
@@ -78,6 +91,9 @@ document = {
     "pcap": "benign-pi5.pcap",
     "pcap_bytes": ${PCAP_BYTES},
     "pcap_sha256": ${PCAP_SHA256@Q},
+    "device_frames": ${DEVICE_FRAMES},
+    "device_frames_ipv4": ${DEVICE_FRAMES_IPV4},
+    "device_frames_ipv6": ${DEVICE_FRAMES_IPV6},
     "scenarios": "scenarios.tsv",
     "capture_point": "device wlan0; not gateway transit",
     "throttled_before": ${THROTTLED_BEFORE@Q},
