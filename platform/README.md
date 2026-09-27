@@ -169,17 +169,14 @@ Named volumes preserve state. Do not remove volumes or regenerate credentials to
 restart: PostgreSQL/Grafana initialize passwords only on first boot. Rotation
 needs coordinated service-side changes.
 
-## Remaining R3 work
+## Current R3 state
 
-KAN-41: a provisioned PostgreSQL datasource and dashboard. Grafana currently uses
-its default metadata database; HTTP health does not prove telemetry queries. Role
-passwords are still not provisioned, so `platform/consume.py` connects as the
-owner rather than as `omniguard_consumer`; the grants are in place and verified,
-but running under that identity waits on credential provisioning outside version
-control. Further tables (devices, detection_events, experiment_runs,
-resource_metrics) follow their own cards and ADR decisions. G5/G8/G10 are
-pending: events now reach the database, but the chain that matters for G10 runs
-from a real detection, not from a probe.
+KAN-41 provisions the PostgreSQL datasource and dashboard from Git. Role
+credentials are generated locally and applied by `provision_roles.py`; the
+consumer and Grafana use their restricted identities. KAN-50 supplies the sealed
+G10 path from a real G8 detection through UDS, MQTT, PostgreSQL and Grafana,
+including duplicate and broker-outage recovery scenarios. The current evidence
+and its verifier are under `docs/evidence/G10_2026-09-24/`.
 
 ## G10 gate run — KAN-50
 
