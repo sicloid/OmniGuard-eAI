@@ -30,9 +30,13 @@ def score(pack_dir: Path, spec_path: Path, artifacts: dict[str, Path], output: P
     if spec.get("spec_version") != "pi-benign-candidate-comparison/1":
         raise ValueError("unexpected Pi comparison spec")
     source = json.loads((pack_dir / "source_manifest.json").read_text(encoding="utf-8"))
+    provenance = json.loads((pack_dir / "pack_provenance.json").read_text(encoding="utf-8"))
+    if provenance.get("source_manifest_sha256") != _sha256(pack_dir / "source_manifest.json"):
+        raise ValueError("Pi source manifest differs from pack provenance")
     declared = spec["source"]
     checks = {
-        "run_directory": Path(source.get("run_directory", "")).name == declared["run_directory"],
+        "run_directory": Path(provenance.get("source_directory", "")).name
+        == declared["run_directory"],
         "device_ip": source.get("device_ip") == declared["device_ip"],
         "duration": source.get("duration_seconds", 0) >= declared["minimum_duration_seconds"],
         "tcpdump_exit": source.get("tcpdump_exit") == declared["required_tcpdump_exit"],

@@ -5,6 +5,7 @@ import hashlib
 import ipaddress
 import json
 import re
+import shutil
 from pathlib import Path
 
 from data.ciciot2023.build_benign import device_map
@@ -25,7 +26,6 @@ def build(evidence: Path, output: Path) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     manifest_path = evidence / "manifest.json"
     manifest = json.loads(manifest_path.read_text())
-    manifest["run_directory"] = evidence.name
     if manifest.get("schema") != "omniguard.benign-pi-capture/1":
         raise ValueError("unexpected Pi capture manifest schema")
     if manifest.get("duration_seconds", 0) < 3600:
@@ -66,8 +66,17 @@ def build(evidence: Path, output: Path) -> dict:
         group_by_device=True,
     )
     result = build_sample_pack([spec], output)
-    (output / "source_manifest.json").write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n"
+    shutil.copyfile(manifest_path, output / "source_manifest.json")
+    (output / "pack_provenance.json").write_text(
+        json.dumps(
+            {
+                "source_directory": evidence.name,
+                "source_manifest_sha256": _sha256(manifest_path),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
     )
     (output / "device_mapping.json").write_text(
         json.dumps(

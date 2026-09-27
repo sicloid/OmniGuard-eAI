@@ -35,15 +35,21 @@ class PiBenignPackTests(unittest.TestCase):
             evidence.mkdir()
             pcap = evidence / "capture.pcap"
             pcap.write_bytes(b"pcap")
-            (evidence / "manifest.json").write_text(json.dumps(manifest(pcap)))
+            source_bytes = json.dumps(manifest(pcap)).encode()
+            (evidence / "manifest.json").write_bytes(source_bytes)
             result = build(evidence, output)
-            source_manifest = json.loads((output / "source_manifest.json").read_text())
+            copied_source = (output / "source_manifest.json").read_bytes()
+            provenance = json.loads((output / "pack_provenance.json").read_text())
         self.assertEqual(result["totals"]["benign"], 3)
         self.assertEqual(mapping.call_args.kwargs["lan"], "192.168.4.0/24")
         spec = sample_pack.call_args.args[0][0]
         self.assertEqual(spec.devices, {"192.168.4.7": "aa:bb:cc:dd:ee:ff"})
         self.assertTrue(spec.group_by_device)
-        self.assertEqual(source_manifest["run_directory"], "evidence")
+        self.assertEqual(copied_source, source_bytes)
+        self.assertEqual(provenance["source_directory"], "evidence")
+        self.assertEqual(
+            provenance["source_manifest_sha256"], hashlib.sha256(source_bytes).hexdigest()
+        )
 
     def test_rejects_throttled_capture_before_reading_pcap(self):
         with tempfile.TemporaryDirectory() as directory:
