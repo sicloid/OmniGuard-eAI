@@ -1,5 +1,31 @@
 # Development status — 2026-09-12
 
+## 28 September 2026 update
+
+PR #57 is the current release candidate. Sixty downloaded CICIoT2023 PCAPs
+(116,007,104,493 bytes) were inventoried; four benign captures produced 322,393
+five-second windows across 59 stable device groups. The frozen KAN-19 model
+failed this external benign check at 19.55% development FPR and 21.97% one-shot
+holdout FPR. The existing regularized ExtraTrees candidate reduced development
+FPR to 0.957%, but on the separate folder-labelled CIC Backdoor EGRESS stress
+set its window recall was only 6.41%, versus 25.56% for KAN-19. No model is
+silently promoted from one favourable metric.
+
+The candidate passed orderly and controller-SIGKILL/kernel-TTL G8 regressions
+with its exact model and metadata hashes. The current suite passes 684 tests
+with three platform skips; Ruff and hosted Linux/Windows/macOS/platform checks
+pass. A full `./demo.sh` rehearsal passed platform health/access, synthetic
+isolated containment, cleanup and sealed G10 verification; the committed log
+is explicitly labelled synthetic wiring rather than G8 accuracy evidence.
+
+The fresh Raspberry Pi benign comparison remains in progress. It uses the
+available non-27 W supply and an externally powered fan fixed at 100%; this is
+a functional/generalization run, not a full-power Pi performance benchmark.
+The first full pilot PCAP retained 6,976 packets with zero kernel drops, but a
+manifest serialization bug rejected that attempt. The defect is fixed and a
+new one-hour run was declared before scoring. G13 freeze, exact-head review,
+the three-person Q&A record and the final release tag remain open.
+
 ## 22 September 2026 update
 
 PRs #43 and #44 are merged. The Lead froze validation policy N = 2 / lease =
