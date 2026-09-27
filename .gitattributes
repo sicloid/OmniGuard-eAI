@@ -50,3 +50,4 @@ model/leakage_test_record.json text eol=lf
 # KAN-42 sealed-run evidence; verify.py checks these bytes against SHA256SUMS.
 docs/evidence/KAN42_2026-09-24/** text eol=lf
 model/iforest_spec.json text eol=lf
+data/ciciot2023/*.json text eol=lf
