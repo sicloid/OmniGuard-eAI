@@ -1,0 +1,14 @@
+Linux 6.18.50+rpt-rpi-2712 aarch64 GNU/Linux
+Python 3.11.2
+nftables v1.0.6 (Lester Gooch #5)
+conntrack v1.4.7 (conntrack-tools)
+Created isolated og-a -> og-b -> og-c; no default routes
+Owned lab already exists; no changes made
+PASS: NftEnforcer apply/readback, fresh-process observation, kernel expiry and release
+{"first_state": "SUSPICIOUS", "kernel_after_release": false, "release_receipt": "RELEASED", "second_receipt": "APPLIED", "second_state": "QUARANTINED"}
+PASS: og-b StateEvent reached parent UDS with peer credentials and no IP/default route; evidence: /tmp/omniguard-uds.7gZYNY83
+PASS: UDP baseline=20 blocked_delta=0 restored=20; TCP baseline=2 blocked_delta=0 restored=36; kernel_expiry=PASS; evidence: /tmp/omniguard-smoke.26neRgAA
+Deleted only owned lab namespaces
+No ownership record; no changes made
+PASS: setup/teardown idempotence and namespace cleanup
+No ownership record; no changes made

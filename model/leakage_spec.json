@@ -1,0 +1,140 @@
+{
+  "card": "KAN-52",
+  "purpose": "Measure, on real captures and with the frozen policy, what each (N, lease) pair costs a benign device and how much malicious time it leaves unblocked, and draw the headline trade-off from those measurements. Fixed before the run.",
+  "feature_schema_version": "features-1",
+  "development_pack_windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+  "frozen_policy": {
+    "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+    "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+    "threshold": 0.9798815486832,
+    "seed": 1,
+    "operating_point": {
+      "n": 2,
+      "lease_seconds": 300,
+      "approval": "Lead, first-hand on PR #44, 22 September 2026; ADR-0004 decision 7b, merged as 8c0254a"
+    },
+    "note": "The KAN-19 artifact is loaded and both pinned hashes are verified. Nothing here retrains, re-thresholds or re-selects N or the lease; this card measures and plots what the frozen decisions cost."
+  },
+  "grid": {
+    "n": [1, 2, 3, 5],
+    "lease_seconds": [30, 60, 120, 300],
+    "note": "The KAN-51 grid, unchanged, so the plot shows the same cells the decision was made from."
+  },
+  "replay": {
+    "window_seconds": 5,
+    "decision_delay_seconds": 0.5,
+    "max_result_age": 2.5,
+    "max_lease_seconds": 600,
+    "engine": "model.nlease_run.replay_device: the KAN-51 replay through gateway.policy.DevicePolicy. This card adds measurement around it and changes no policy behaviour."
+  },
+  "data_roles": {
+    "primary": "validation",
+    "validation": "seed-1 validation split: benign CTU-Honeypot-Capture-5-1 and malware CTU-IoT-Malware-Capture-8-1. The threshold and the N/lease pair were selected on these windows, so every validation number is the friendly case and is labelled as such.",
+    "train": "CTU-Honeypot-Capture-4-1 and CTU-IoT-Malware-Capture-34-1: not scored here. The model was fitted on them and any rate from them would be optimistic for a reason the plot cannot show.",
+    "test": "seed-1 test split: benign CTU-Honeypot-Capture-7-1 and malware CTU-IoT-Malware-Capture-3-1. Scored only with a Lead approval recorded in this file and naming this card, at most once. Without that record the runner refuses the role. 7-1 carries no published label file, so its benign label is assumed (ADR-0004), and any number from it must say so.",
+    "holdout": "the ADR-0004 IoT-23 malware holdout is out of scope for this card. It is scored once under KAN-71, with its own spec and its own record.",
+    "test_approval": {
+      "card": "KAN-52",
+      "approved_by": "Şükrü Biçer (Lead/R2)",
+      "date": "2026-09-22",
+      "reference": "KAN-52 comment 11528, 22 September 2026, 22:22 +03",
+      "decision": "The seed-1 test split (7-1, 3-1) may be used once, for a confirmation run.",
+      "single_run": true,
+      "tuning_or_retry_after": false,
+      "conditions": [
+        "The frozen inputs below are written into this spec before the run and verified by the runner.",
+        "One run only: after the result is seen there is no tuning, no re-selection and no retry.",
+        "The report and the figure label the result as a test confirmation.",
+        "7-1's benign label is declared, not measured (ADR-0004), and every number from it says so.",
+        "The validation numbers stay labelled as the optimistic case.",
+        "This run is not a benign-device generalisation result and not a final security claim."
+      ],
+      "frozen_inputs": {
+        "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+        "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+        "threshold": 0.9798815486832,
+        "feature_schema_version": "features-1",
+        "seed": 1,
+        "n": 2,
+        "lease_seconds": 300
+      },
+      "record": "model/leakage_test_record.json, written by the only run and committed; a second run needs that commit reverted in review"
+    }
+  },
+  "metrics": {
+    "x_axis": "false quarantine episodes per observed benign device-hour, the same denominator the bootstrap interval uses so the point and its error bar mean one thing; the table also gives the wall-clock span rate and the blocked benign seconds per device-hour",
+    "y_axis": "containment leakage: the share of observed malicious window-time during which the device was NOT quarantined, measured as interval overlap (1 - model.nlease_run.malicious_overlap_seconds / malicious window seconds)",
+    "also_reported": [
+      "per capture: windows, observed device-hours, wall-clock span hours, observed share of span",
+      "per capture: quarantine episodes, blocked seconds, policy rejection and reset counters",
+      "malware capture: delay from the first malicious window to the first quarantine decision",
+      "benign windows inside the infected capture, reported apart and never as a benign-device rate"
+    ],
+    "never": [
+      "pool a benign capture and an infected capture into one false-positive rate",
+      "derive a false-quarantine rate from the window FPR by raising it to the power N",
+      "present a resampled series as observed traffic",
+      "report a zero count as evidence that the risk is zero"
+    ]
+  },
+  "leakage_meaning": {
+    "measured_here": "policy-level leakage: observed malicious window-time the device was not under quarantine, computed from the replayed policy decisions",
+    "not_measured_here": "kernel-level leakage: the L3 packets and bytes an independent sink receives before the quarantine ACK. That is KAN-33's fixture and KAN-49's G8 run, on Linux with real namespaces.",
+    "rule": "the two are reported side by side and never added together or substituted for one another"
+  },
+  "uncertainty": {
+    "method": "block bootstrap over each capture's timeline, replayed through the same policy",
+    "block_seconds": 600,
+    "resamples": 200,
+    "seed": 52,
+    "interval": "basic bootstrap: the 2.5 and 97.5 percentiles of the resamples reflected about the measurement, clipped to the range the statistic can take. Each statistic also carries the raw resample spread and the bias of the resample mean against the measurement, so a reader can see when the resampling cannot reproduce what the capture did.",
+    "rebuild": "the capture is cut into consecutive blocks of `block_seconds` of wall-clock time; as many blocks as the capture holds are drawn with replacement and laid end to end, each keeping its windows, its inner gaps and the silence at its edges. The resample therefore has the capture's own span and density, and is replayed through DevicePolicy exactly as the observed series is.",
+    "block_rule": "a block is a multiple of the window period and longer than the longest lease, so one quarantine episode fits inside a block and joins do not cut episodes the capture never cut",
+    "reported_for": [
+      "false quarantine episodes per observed device-hour",
+      "false quarantine episodes per wall-clock span hour",
+      "containment leakage"
+    ],
+    "limits": [
+      "One benign capture and one malware capture per role. This interval is temporal variability inside one device's traffic; it is not a device-to-device interval and cannot become one by resampling harder.",
+      "Consecutive windows are dependent, which is why blocks rather than single windows are drawn.",
+      "An interval whose lower end is zero says the observed traffic contains stretches with no quarantine; it does not say the true rate can be zero.",
+      "Blocks are drawn independently, so a pattern longer than one block, such as a daily cycle, is not preserved."
+    ]
+  },
+  "revision": {
+    "date": "2026-09-22",
+    "reason": "The first declared method drew fixed counts of windows and joined the blocks contiguously. That silently removed the silence between blocks: CTU-IoT-Malware-Capture-8-1 has 4,397 gaps and a median activity segment of 10 s, so the resampled device was busier and denser than the captured one, and the interval described a series the capture never produced. Blocks are now lengths of wall-clock time and keep their own silence. The point estimates do not use the bootstrap and are unchanged by this; only the intervals are.",
+    "found": "the trial run's intervals did not contain their own point estimate in several cells, which a correct resampling scheme has no reason to do",
+    "supersedes": "the first run of 22 September 2026, whose intervals are discarded and are not reported anywhere"
+  },
+  "revision_2": {
+    "date": "2026-09-22",
+    "reason": "With time blocks the benign rate brackets its measurement, but containment leakage still landed outside the percentile spread in 5 of 16 cells. Leakage depends on how episodes and malicious stretches line up over hours, which a 600 s block cannot reproduce, so the resample mean sits slightly off the measurement. Rather than widen blocks until the symptom disappears, every statistic now reports the measurement, the raw resample spread, the bias between them, and a basic bootstrap interval centred on the measurement. Point estimates are unaffected: they never used the bootstrap.",
+    "supersedes": "the second run of 22 September 2026, whose percentile spreads are kept in the report rather than discarded"
+  },
+  "benign_modes": {
+    "requested": "idle, active, startup and update reported separately (KAN-52, 10 September V3 review)",
+    "available": false,
+    "reason": "IoT-23 honeypot captures carry no mode or scenario label, and the pack's window labels are benign, malicious or unknown only. Splitting a capture into modes by reading its own traffic would be an invented label.",
+    "measured_instead": "per benign capture: windows, observed hours, wall-clock span, observed share of span, and the contiguous activity segments and silent gaps that make up that span",
+    "where_modes_come_from": "KAN-66 records controlled benign Pi scenarios with a declared mode and KAN-64/KAN-65 evaluate them. This card does not anticipate that result."
+  },
+  "plot": {
+    "file": "kan52_headline.svg",
+    "form": "one point per grid cell: x = false quarantines per observed benign device-hour, y = containment leakage, each with its bootstrap interval as an error bar; N by colour, lease by marker size, the frozen operating point ringed and labelled",
+    "source": "written by model.leakage_plot from the report of the same run, never drawn by hand",
+    "rule": "the plot shows only cells measured in that run; no cell is carried over from another run or from KAN-51"
+  },
+  "outputs": {
+    "report": "leakage_report.json, the full run output, kept outside Git",
+    "trimmed": "leakage_report.trimmed.json, committed, with local paths reduced to file names and per-episode lists dropped",
+    "plot": "kan52_headline.svg, committed"
+  },
+  "closure_evidence": [
+    "the committed trimmed report and its SHA-256",
+    "the committed headline plot and its SHA-256",
+    "the reproduction command and the full report's SHA-256",
+    "owner review"
+  ]
+}

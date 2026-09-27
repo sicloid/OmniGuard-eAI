@@ -1,5 +1,21 @@
 # Development status — 2026-09-12
 
+## 22 September 2026 update
+
+PRs #43 and #44 are merged. The Lead froze validation policy N = 2 / lease =
+300 s from the corrected KAN-51 grid; PR #46 recorded the decision in ADR-0004
+and merged. This is not a final holdout score. KAN-44 private Tailscale
+management and KAN-46's load/throttling guard behavior are accepted. A real
+Pi 5 ARM64 Docker lab run passed its network, UDS and cleanup checks, while
+the guard correctly marked its timing invalid for high pre-run load; the
+[raw samples and log](evidence/PI5_2026-09-22_constrained/README.md) are retained.
+The owner is proceeding with the available power setup, so no 27 W PSU is a
+gate. G10 correlation/completeness, KAN-52 headline experiment, G13 freeze,
+three-person Q&A rehearsal and release remain open. KAN-55 and KAN-58 have
+review candidates; KAN-53 is a bounded functional result awaiting review and
+its G10 prerequisite. The dated history below must not be read as current
+Jira or PR state.
+
 ## 20 September 2026 status update
 
 The dated history below is retained as a record of earlier review states. The

@@ -8,12 +8,12 @@ import dpkt
 from data.audit import summarize_pcap
 
 
-def eth_ip(src: str, dst: str, proto: int = 17) -> bytes:
+def eth_ip(src: str, dst: str, proto: int = 17, src_mac: bytes = b"\x02" * 6) -> bytes:
     udp = dpkt.udp.UDP(sport=1234, dport=53, data=b"x")
     udp.ulen = len(udp)
     ip = dpkt.ip.IP(src=socket.inet_aton(src), dst=socket.inet_aton(dst), p=proto, data=udp)
     ip.len = len(ip)
-    return bytes(dpkt.ethernet.Ethernet(src=b"\x02" * 6, dst=b"\x04" * 6, data=ip))
+    return bytes(dpkt.ethernet.Ethernet(src=src_mac, dst=b"\x04" * 6, data=ip))
 
 
 def arp() -> bytes:
@@ -49,6 +49,34 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(s.direction_counts, {"EGRESS": 1, "INGRESS": 1, "LOCAL": 1, "OUTSIDE": 1})
         self.assertEqual((s.first_ts, s.last_ts), (10.0, 13.0))
         self.assertEqual(s.protocols, {17: 4})
+        self.assertEqual(s.distinct_lan_ips, 2)
+        self.assertEqual(s.distinct_lan_source_macs, 1)
+        self.assertEqual(
+            s.lan_source_mac_ip_bindings,
+            {"02:02:02:02:02:02": ["192.168.1.2"]},
+        )
+
+    def test_records_observed_lan_source_mac_to_ip_bindings(self):
+        path = self.write(
+            [
+                (1.0, eth_ip("10.0.0.2", "8.8.8.8", src_mac=b"\x02" * 6)),
+                (2.0, eth_ip("10.0.0.3", "8.8.4.4", src_mac=b"\x02" * 6)),
+                (3.0, eth_ip("10.0.0.4", "1.1.1.1", src_mac=b"\x06" * 6)),
+                (4.0, eth_ip("9.9.9.9", "10.0.0.5", src_mac=b"\x08" * 6)),
+            ]
+        )
+
+        summary = summarize_pcap(path, ["10.0.0.0/24"])
+
+        self.assertEqual(summary.distinct_lan_ips, 4)
+        self.assertEqual(summary.distinct_lan_source_macs, 2)
+        self.assertEqual(
+            summary.lan_source_mac_ip_bindings,
+            {
+                "02:02:02:02:02:02": ["10.0.0.2", "10.0.0.3"],
+                "06:06:06:06:06:06": ["10.0.0.4"],
+            },
+        )
 
     def test_non_ip_frames_are_counted_but_not_classified(self):
         s = summarize_pcap(

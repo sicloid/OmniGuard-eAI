@@ -1,8 +1,11 @@
-# Pi 5 management boundary (KAN-44 preparation)
+# Pi 5 management boundary (KAN-44)
 
-This is an operator checklist for Şükrü's physical Pi 5. It is not a record of
-installation or a passed KAN-44 gate. Run it only when the device is accessible,
-and attach redacted command outputs and the date to KAN-44.
+This is the operator checklist for Şükrü's physical Pi 5. KAN-44 was accepted
+on 22 September 2026 after the node joined the private Tailnet, advertised no
+lab subnet routes, and a second authorized peer reached it by Tailscale IP and
+SSH. The dated, redacted access evidence is on the Jira card. The separate
+[ARM64 lab evidence](evidence/PI5_2026-09-22_constrained/README.md) records a
+functional run with invalid performance timing.
 
 1. Record the Pi identity and environment: `uname -srmo`, `/etc/os-release`,
    `python3 --version`, `tailscale version`, and the device-tree model string.

@@ -1,8 +1,10 @@
 # KAN-42 — measurement harness: what it does, and what it needs from whom
 
-Owner: Gabriel / R3. Status: harness landed, **run manifests cannot be completed yet**
-because two of their three provenance sections are filled by other roles. This page is
-the handover list so nobody has to read the code to find out what is expected of them.
+Owner: Gabriel / R3. Status: harness landed; **two sealed runs on the real G8 pipeline**
+(x86_64, not a Pi) are recorded in `docs/evidence/KAN42_2026-09-24/`, with R1
+provenance from the frozen model and R2 machine context read from the run's own kernel.
+This page is the handover list so nobody has to read the code to find out what is
+expected of them; the last section says what is still open.
 
 ## What is in `measure/`
 
@@ -188,13 +190,26 @@ standard library already provides. `resources.py` reads `/proc` on Linux and cal
 psapi through `ctypes` on Windows instead. If a future card needs per-CPU or per-cgroup
 detail this trade should be revisited deliberately, as a lock change with R2.
 
+## The sealed runs — 24 September 2026
+
+`bash measure/run_kan42.sh MODEL_DIR PREPARED_DIR OUT_DIR` runs Şükrü's
+`lab/container_g8_iot23_probe.sh` with one line substituted, so `lab/g8_core.py` runs
+unchanged under `measure/kan42_core.py`, which times the real objects' six stages.
+`measure/kan42_manifest.py` owns the `/2` manifest: it freezes configuration, code
+hashes, R1 provenance and R2 boot/clock context before the lab starts, and adds `t0` and
+the sink evidence at close. Evidence, tables and how to read them:
+`docs/evidence/KAN42_2026-09-24/README.md`.
+
+The first run found a defect in this harness: `StageTimer` read CPU before RSS on entry,
+so every pass was charged the `/proc` read and sub-millisecond stages reported more
+thread CPU than elapsed time. Memory is now read first (with a test); the second run
+is the same run on the fixed harness. Both are kept.
+
 ## What is still open before KAN-42 can close
 
-1. R1 and R2 fill the two provenance sections above.
-2. A real end-to-end run is recorded through the actual pipeline rather than the
-   synthetic exercises in the tests.
-3. Owner review.
-
-Until then the harness is usable and the manifests it writes are honest, but no
-measurement result is being claimed. `python -m stubs` still reports `g8_passed: false`
-and `g10_passed: false`.
+1. **Owner review** of the runs, the harness change and this document.
+2. **The Pi.** These are x86_64 Docker Desktop figures. The Pi 5 run is Şükrü's
+   (KAN-42 comment 11147). `measure/run_kan42.sh` has not been tried on ARM64 —
+   `lab/Dockerfile.g8` describes an amd64 lab — and nothing here goes in a Pi column.
+3. **R1's `label_rule_version`** is still unpublished, and `host_id` is not supplied;
+   both are listed under `provenance.not_supplied` in each manifest.
