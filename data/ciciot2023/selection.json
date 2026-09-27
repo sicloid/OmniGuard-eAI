@@ -3,7 +3,7 @@
   "card": "KAN-13",
   "decision": "ADR-0004 decision 2 — CICIoT2023 is a conditional external transfer candidate (KAN-23) only",
   "purpose": "Download the smallest set of raw CICIoT2023 files that lets data.audit answer the questions ADR-0004 decision 2 asks before any external transfer test: capture point, subnets, attacker and victim identity, direction, and label resolution. Fixed before any byte is downloaded.",
-  "status": "two benign captures downloaded in full and audited; Mirai and the remaining two benign files are not downloaded. Handed to the Lead on 23 September.",
+  "status": "the four selected benign captures and the first Mirai split are downloaded, hashed and audited in full. Mirai fails the EGRESS topology gate; no model has read these captures.",
   "source": {
     "host": "cicresearch.ca",
     "path": "/IOTDataset/CIC_IOT_Dataset2023/",
@@ -56,22 +56,22 @@
     {
       "path": "PCAP/Benign_Final/BenignTraffic2.pcap",
       "role": "benign",
-      "bytes": null,
-      "sha256": null
+      "bytes": 2048001991,
+      "sha256": "ddafc1c1d3432bdde55340423196ceee79bba47b48b14179ae48d561cca341b8"
     },
     {
       "path": "PCAP/Benign_Final/BenignTraffic3.pcap",
       "role": "benign",
-      "bytes": null,
-      "sha256": null
+      "bytes": 853841091,
+      "sha256": "af98016449742052bca87d7ac598cf6e4e4558c33480cdb665f93da7b60b6e11"
     },
     {
       "path": "PCAP/Mirai-udpplain/Mirai-udpplain.pcap",
       "role": "malware",
       "family": "Mirai",
       "note": "the first file of a 25-file folder; the rest are not taken",
-      "bytes": null,
-      "sha256": null
+      "bytes": 2048000451,
+      "sha256": "845a8c833c5841203b75d776a353526f55a7fbcd9ca3079b53848e85a62ed3a7"
     }
   ],
   "not_downloaded": {
@@ -96,5 +96,10 @@
       "label resolution: what the dataset can and cannot say about a single window"
     ],
     "rule": "a capture whose audit does not show EGRESS does not enter any test, and the audit result is reported whatever it says"
+  },
+  "download_deviation": {
+    "observed_on": "2026-09-27",
+    "finding": "The local downloader expanded beyond this frozen selection and the 25 GiB budget into additional Mirai and DDoS folder splits. Their presence does not amend this selection and does not authorize training or scoring.",
+    "handling": "Only the five predeclared PCAPs above are admitted to this audit. Additional files remain external raw data until separately selected, hashed, topology-audited and assigned a declared role."
   }
 }

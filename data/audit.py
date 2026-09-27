@@ -24,6 +24,9 @@ class CaptureSummary:
     protocols: dict[int, int]
     direction_counts: dict[str, int]
     top_pairs: list[tuple[str, str, int]]
+    distinct_lan_ips: int
+    distinct_lan_source_macs: int
+    lan_source_mac_ip_bindings: dict[str, list[str]]
 
 
 def _direction(src, dst, lans) -> str:
@@ -41,6 +44,8 @@ def summarize_pcap(path: Path, lan_cidrs: Sequence[str], top: int = 20) -> Captu
     protocols: Counter[int] = Counter()
     directions: Counter[str] = Counter()
     pairs: Counter[tuple[str, str]] = Counter()
+    lan_ips: set[str] = set()
+    lan_source_mac_ips: dict[str, set[str]] = {}
     with open(path, "rb") as stream:
         try:
             reader = dpkt.pcap.Reader(stream)
@@ -50,11 +55,19 @@ def summarize_pcap(path: Path, lan_cidrs: Sequence[str], top: int = 20) -> Captu
             packets += 1
             first = ts if first is None else first
             last = ts
-            ip = dpkt.ethernet.Ethernet(frame).data
+            ethernet = dpkt.ethernet.Ethernet(frame)
+            ip = ethernet.data
             if not isinstance(ip, dpkt.ip.IP | dpkt.ip6.IP6):
                 continue
             ip_packets += 1
             src, dst = ip_address(ip.src), ip_address(ip.dst)
+            if any(src in lan for lan in lans):
+                src_text = str(src)
+                lan_ips.add(src_text)
+                source_mac = ethernet.src.hex(":")
+                lan_source_mac_ips.setdefault(source_mac, set()).add(src_text)
+            if any(dst in lan for lan in lans):
+                lan_ips.add(str(dst))
             protocols[ip.p if isinstance(ip, dpkt.ip.IP) else ip.nxt] += 1
             directions[_direction(src, dst, lans)] += 1
             pairs[(str(src), str(dst))] += 1
@@ -66,6 +79,9 @@ def summarize_pcap(path: Path, lan_cidrs: Sequence[str], top: int = 20) -> Captu
         dict(protocols),
         dict(directions),
         [(src, dst, count) for (src, dst), count in pairs.most_common(top)],
+        len(lan_ips),
+        len(lan_source_mac_ips),
+        {mac: sorted(ips) for mac, ips in sorted(lan_source_mac_ips.items())},
     )
 
 

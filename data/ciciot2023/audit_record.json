@@ -2,9 +2,10 @@
   "schema": "ciciot2023-audit-1",
   "card": "KAN-13",
   "date": "2026-09-23",
-  "status": "two benign captures audited in full; the Mirai capture is not downloaded. Work handed to the Lead on 23 September.",
+  "updated": "2026-09-27",
+  "status": "all four selected benign captures and the first Mirai split audited in full; benign passes the direction gate, Mirai fails it, and no model has read any capture.",
   "tool": "data.audit",
-  "what_changed_since_12_september": "The 12 September audit recorded cicresearch.ca as unreachable and therefore audited nothing. On 22 September the host answered from the shell with the proxy unset. The browser path still resets, and long transfers are throttled and dropped, so the download is resumable and still running.",
+  "what_changed_since_12_september": "The 12 September audit recorded cicresearch.ca as unreachable and therefore audited nothing. On 22 September the host answered from the shell with the proxy unset. Long transfers are throttled and dropped, and the server rejects Range requests. On 27 September a systemd-inhibited download loop was still fetching additional, non-selected folder splits.",
   "documentation": {
     "files": [
       "Supplementary Materials/README.pdf",
@@ -62,9 +63,9 @@
     ]
   },
   "next": [
-    "download and audit the Mirai capture, which is the one that can confirm or refute the LOCAL concern",
-    "if a transfer test is wanted, declare per-device windowing before any window is scored",
-    "record the remaining files’ hashes if they are downloaded"
+    "use the benign captures only after the per-device MAC-to-IP grouping and capture-aware split contract is reviewed",
+    "do not use the selected Mirai capture for an egress transfer claim because 98.52 % of its IP packets are LOCAL",
+    "keep every additionally downloaded folder outside the experiment until it has a separately frozen selection and role"
   ],
   "audited_second": {
     "capture": "PCAP/Benign_Final/BenignTraffic1.pcap",
@@ -83,5 +84,87 @@
       "OUTSIDE": 0.0067
     },
     "note": "a second, independent file gives the same answer as the first, so the egress share is not a sampling accident"
+  },
+  "audited_third": {
+    "capture": "PCAP/Benign_Final/BenignTraffic2.pcap",
+    "role": "benign",
+    "complete_file": true,
+    "bytes": 2048001991,
+    "sha256": "ddafc1c1d3432bdde55340423196ceee79bba47b48b14179ae48d561cca341b8",
+    "declared_lan": "192.168.137.0/24",
+    "span_seconds": 28920.0,
+    "packets": 3138002,
+    "ip_packets": 3042158,
+    "distinct_lan_ips": 69,
+    "distinct_lan_source_macs": 67,
+    "direction_counts": {
+      "EGRESS": 1496019,
+      "INGRESS": 1232955,
+      "LOCAL": 294222,
+      "OUTSIDE": 18962
+    },
+    "direction_shares_of_ip_packets": {
+      "EGRESS": 0.4918,
+      "INGRESS": 0.4053,
+      "LOCAL": 0.0967,
+      "OUTSIDE": 0.0062
+    }
+  },
+  "audited_fourth": {
+    "capture": "PCAP/Benign_Final/BenignTraffic3.pcap",
+    "role": "benign",
+    "complete_file": true,
+    "bytes": 853841091,
+    "sha256": "af98016449742052bca87d7ac598cf6e4e4558c33480cdb665f93da7b60b6e11",
+    "declared_lan": "192.168.137.0/24",
+    "span_seconds": 12460.03,
+    "packets": 1311897,
+    "ip_packets": 1270861,
+    "distinct_lan_ips": 69,
+    "distinct_lan_source_macs": 65,
+    "direction_counts": {
+      "EGRESS": 638916,
+      "INGRESS": 523671,
+      "LOCAL": 101154,
+      "OUTSIDE": 7120
+    },
+    "direction_shares_of_ip_packets": {
+      "EGRESS": 0.5027,
+      "INGRESS": 0.4121,
+      "LOCAL": 0.0796,
+      "OUTSIDE": 0.0056
+    }
+  },
+  "audited_mirai": {
+    "capture": "PCAP/Mirai-udpplain/Mirai-udpplain.pcap",
+    "role": "malware",
+    "family": "Mirai",
+    "complete_file": true,
+    "bytes": 2048000451,
+    "sha256": "845a8c833c5841203b75d776a353526f55a7fbcd9ca3079b53848e85a62ed3a7",
+    "declared_lan": "192.168.137.0/24",
+    "span_seconds": 1945.98,
+    "packets": 3642269,
+    "ip_packets": 3624203,
+    "distinct_lan_ips": 67,
+    "distinct_lan_source_macs": 66,
+    "direction_counts": {
+      "EGRESS": 28251,
+      "INGRESS": 23683,
+      "LOCAL": 3570412,
+      "OUTSIDE": 1857
+    },
+    "direction_shares_of_ip_packets": {
+      "EGRESS": 0.0078,
+      "INGRESS": 0.0065,
+      "LOCAL": 0.9852,
+      "OUTSIDE": 0.0005
+    },
+    "gate": "rejected for the egress transfer test: LOCAL dominates and EGRESS is below one percent"
+  },
+  "conclusion": {
+    "benign": "All four selected benign splits are EGRESS-dominant at 47.6-50.3 percent and carry 65-68 observed LAN source MACs. They are suitable candidates for the new-device benign evaluation after a reviewed per-device grouping and capture-aware split is frozen.",
+    "malware": "The selected Mirai split is 98.52 percent LOCAL and therefore cannot support an OmniGuard gateway-egress detection claim.",
+    "model_use": "No capture was used for fitting, threshold selection, policy selection or scoring. The published CSV archive remains forbidden as a model input."
   }
 }
