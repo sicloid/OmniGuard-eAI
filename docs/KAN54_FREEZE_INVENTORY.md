@@ -62,3 +62,14 @@ model reproduction.
 KAN-54 remains `Yapılacaklar` until these inputs are accepted and a frozen
 manifest/plot set is produced. KAN-60 must use that exact frozen set, not a
 later hand-picked subset.
+
+## Freeze mechanism
+
+`python -m measure.result_freeze create` now builds the final inventory from an
+explicit declaration and one or more selected files/directories. It refuses a
+dirty repository, paths outside the repository, symlinks, an empty selection
+and an existing output. The manifest records the exact Git commit, declaration
+content/hash, and every selected file's relative path, byte length and SHA-256.
+`python -m measure.result_freeze verify` rechecks those bytes before the demo or
+release. The final command will be executed only after the Pi comparison and
+model decision are committed and the exact release candidate is clean.
