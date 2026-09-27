@@ -1,0 +1,33 @@
+{
+  "child_cpu_seconds": 5.253252,
+  "child_max_rss_kib": 170052,
+  "claim": "controlled compute budget; not router emulation",
+  "command": [
+    "python",
+    "-m",
+    "model.baseline_run",
+    "--pack",
+    "/data/windows.jsonl",
+    "--manifest",
+    "/data/manifest.json",
+    "--out",
+    "/tmp/baseline",
+    "--seeds",
+    "1",
+    "--bootstrap",
+    "10",
+    "--trees",
+    "64"
+  ],
+  "duration_ns": 10493302865,
+  "exit_code": 0,
+  "limits": {
+    "cgroup_version": 2,
+    "cpu_cores": 0.5,
+    "cpu_period_us": 100000,
+    "cpu_quota_us": 50000,
+    "memory_max_bytes": 268435456
+  },
+  "schema": "omniguard.compute-budget/1",
+  "started_utc_ns": 1790544676350478366
+}

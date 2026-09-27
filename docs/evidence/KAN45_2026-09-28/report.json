@@ -1,0 +1,22 @@
+{
+  "child_cpu_seconds": 0.260376,
+  "child_max_rss_kib": 26768,
+  "claim": "controlled compute budget; not router emulation",
+  "command": [
+    "python",
+    "-m",
+    "unittest",
+    "tests.test_compute_budget"
+  ],
+  "duration_ns": 485385427,
+  "exit_code": 0,
+  "limits": {
+    "cgroup_version": 2,
+    "cpu_cores": 0.5,
+    "cpu_period_us": 100000,
+    "cpu_quota_us": 50000,
+    "memory_max_bytes": 268435456
+  },
+  "schema": "omniguard.compute-budget/1",
+  "started_utc_ns": 1790544087593640113
+}
