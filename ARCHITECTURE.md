@@ -1,8 +1,9 @@
 # OmniGuard eAI — V3 mimari tasarımı
 
-10 Eylül 2026. Durum: mevcut V2 temeli üzerinde önerilen geliştirme tasarımı.
-Bu dosyanın varlığı yeni bileşenlerin uygulandığı veya yeni sözleşmelerin ekipçe
-onaylandığı anlamına gelmez. Gerçek durum: [STATUS](docs/STATUS.md).
+10 Eylül 2026; uygulama durumu 28 Eylül 2026'da güncellendi. Bu belge hedef
+mimariyle uygulanmış yarışma prototipini aynı yerde gösterir. Uygulama tablosu
+kanıt sınırını belirtir; önerilen yeni wire sözleşmeleri uygulanmış sayılmaz.
+Güncel deney ve release durumu: [STATUS](docs/STATUS.md).
 Gerekçe ve 2026 kaynakları: [değerlendirme](docs/architecture/REVIEW_2026.md).
 
 ## Amaç ve korunacak temel
@@ -23,16 +24,19 @@ Pi 5 ayrı ARM64 hedefidir. Managed cloud ve ONT firmware erişimi gerekmez.
 |---|---|
 | Beş runtime envelope, SCHEMA_VERSION 0.1.0 | Onaylı; önceki Linux PR'ında freeze kaydı var |
 | Classic PCAP normalizer, deterministic stubs | Uygulandı/test edildi |
-| Sabit IPv4 UDP netns karantina/release | Gerçek Linux smoke geçti; genel runtime değil |
-| Compose/MQTT/SQL/Grafana servis sağlığı | Çalışıyor; uygulama event zinciri değil |
-| Saf extractor, RF/eşik eğitim kodu, artifact loader, live adapter | PR #7/#11–15 ile uygulandı; gerçek veri/model sonuçları bekliyor |
-| State policy, bounded enforcer, observation health, uygulama sonucu | V3 tasarım/uygulama işi |
-| UDS bridge, consumer, event tabloları/dashboard | Bekliyor |
-| G5/G8/G10, gerçek leakage/FPR/Pi sonuçları | Geçilmedi |
+| IPv4 TCP/UDP netns karantina/release ve kernel timeout | Gerçek Linux G8 orderly/crash kanıtları geçti; ev router'ı üretim dağıtımı değil |
+| Compose/MQTT/SQL/Grafana ve olay zinciri | Sağlık, ACL, dedup, outage/recovery, correlation/completeness G10 kanıtıyla çalışıyor |
+| Saf extractor, RF/eşik eğitim kodu, artifact loader, live adapter | Uygulandı; offline/live parity, hash pinleri ve gerçek veri/model deneyleri var |
+| N state policy, bounded enforcer, restart/reconcile ve kernel TTL | Uygulandı; gerçek orderly ve SIGKILL G8 kanıtları var |
+| ObservationHealth / wire-level EnforcementResult | Hâlâ ayrı sürümlü sözleşme önerisi; yerel sayaç/receipt ile karıştırılmıyor |
+| UDS bridge, bounded handoff/spool, MQTT consumer, event tabloları/dashboard | Uygulandı; duplicate ve outage/recovery içeren mühürlü G10 kanıtı var |
+| G8/G10, leakage/FPR ve Pi | G8/G10 geçti; iç/dış veri deneyleri kayıtlı; yeni Pi benign koşusu sürüyor |
 
 ## Bileşenler ve yetki sınırları
 
-Aşağıdaki şema hedef akışı gösterir; bütün kutular bugün uygulanmış değildir.
+Aşağıdaki şema çalışan prototip akışını ve önerilen kayıt sınırlarını birlikte
+gösterir. `EnforcementResult` wire contract'ı yerine bugün yerel
+`EnforcerReceipt` ve bağımsız sink/kernel kanıtı kullanılır.
 
 ```mermaid
 flowchart TB
@@ -48,11 +52,10 @@ flowchart TB
     INTENT --> ENF["Dar yetkili enforcer"]
     ENF --> NFT["Owned nft set + timeout"]
     NFT -. "egress kısıtlar" .-> B
-    ENF --> ACK["EnforcementResult: uygulama sonucu"]
+    ENF --> ACK["Yerel EnforcerReceipt + kernel readback"]
   end
   INTENT -. "bounded local IPC" .-> UDS["UDS adapter / sınırlı spool"]
-  ACK -. "bounded local IPC" .-> UDS
-  UDS --> MQ[Mosquitto] --> DB["Consumer → PostgreSQL"] --> UI["Grafana: karar / uygulama / health"]
+  UDS --> MQ[Mosquitto] --> DB["Consumer → PostgreSQL"] --> UI["Grafana: karar / teslim görünümü"]
   C -. "bağımsız run kanıtı" .-> MEAS["Ölçüm harness / manifest"]
 ```
 
@@ -62,8 +65,10 @@ yetkisini alır. Başlangıç lab kurulumu ayrı root işidir. Enforcer namespac
 table ownership, sabit komut şablonu ve yetkili device binding doğrular. Modelden,
 MQTT mesajından veya kullanıcı metninden shell/nft kodu türetilmez.
 
-Bu yetki ayrımı henüz uygulanmadı. Mevcut `lab/run_docker.sh`, yönetilen benign
-smoke için NET_ADMIN/SYS_ADMIN kullanır; üretim gateway izolasyonu olarak sunulmaz.
+Model ve telemetry kodu doğrudan nft komutu üretmez; owned namespace/table/device
+kontrolleri enforcer sınırındadır. Bununla birlikte yarışma laboratuvarı tek
+privileged Docker kapsayıcısında NET_ADMIN/SYS_ADMIN kullanır. Bu, süreç başına
+üretim privilege separation veya ev router'ı dağıtımı olarak sunulmaz.
 
 ## Veri sözleşmeleri
 
