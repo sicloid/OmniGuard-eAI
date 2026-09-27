@@ -70,40 +70,43 @@ DEVICE_FRAMES_IPV4=$(sudo tcpdump -nr "$OUT/benign-pi5.pcap" 'ip' 2>/dev/null | 
 DEVICE_FRAMES_IPV6=$(sudo tcpdump -nr "$OUT/benign-pi5.pcap" 'ip6' 2>/dev/null | wc -l)
 DEVICE_FRAMES=$((DEVICE_FRAMES_IPV4 + DEVICE_FRAMES_IPV6))
 
+export MODEL BOOT_ID KERNEL IFACE ADDRESS DEVICE_IPV4 CAPTURE_FILTER
+export START_UTC END_UTC PCAP_SHA256 THROTTLED_BEFORE THROTTLED_AFTER
+export TEMP_BEFORE TEMP_AFTER LOAD_BEFORE LOAD_AFTER
 python3 - "$OUT/manifest.json" <<PY
-import json, pathlib
+import json, os, pathlib, sys
 document = {
     "schema": "omniguard.benign-pi-capture/1",
     "card": "KAN-66",
     "declared_label": "benign",
     "label_basis": "owner-controlled Raspberry Pi; scripted normal activity only",
-    "device": ${MODEL@Q},
-    "boot_id": ${BOOT_ID@Q},
-    "kernel": ${KERNEL@Q},
-    "interface": ${IFACE@Q},
-    "interface_address": ${ADDRESS@Q},
-    "device_ip": ${DEVICE_IPV4@Q},
-    "capture_filter": ${CAPTURE_FILTER@Q},
-    "start_utc": ${START_UTC@Q},
-    "end_utc": ${END_UTC@Q},
+    "device": os.environ["MODEL"],
+    "boot_id": os.environ["BOOT_ID"],
+    "kernel": os.environ["KERNEL"],
+    "interface": os.environ["IFACE"],
+    "interface_address": os.environ["ADDRESS"],
+    "device_ip": os.environ["DEVICE_IPV4"],
+    "capture_filter": os.environ["CAPTURE_FILTER"],
+    "start_utc": os.environ["START_UTC"],
+    "end_utc": os.environ["END_UTC"],
     "duration_seconds": $((END_EPOCH - START_EPOCH)),
     "tcpdump_exit": ${status},
     "pcap": "benign-pi5.pcap",
     "pcap_bytes": ${PCAP_BYTES},
-    "pcap_sha256": ${PCAP_SHA256@Q},
+    "pcap_sha256": os.environ["PCAP_SHA256"],
     "device_frames": ${DEVICE_FRAMES},
     "device_frames_ipv4": ${DEVICE_FRAMES_IPV4},
     "device_frames_ipv6": ${DEVICE_FRAMES_IPV6},
     "scenarios": "scenarios.tsv",
     "capture_point": "device wlan0; not gateway transit",
-    "throttled_before": ${THROTTLED_BEFORE@Q},
-    "throttled_after": ${THROTTLED_AFTER@Q},
-    "temperature_before": ${TEMP_BEFORE@Q},
-    "temperature_after": ${TEMP_AFTER@Q},
-    "load_before": ${LOAD_BEFORE@Q},
-    "load_after": ${LOAD_AFTER@Q},
+    "throttled_before": os.environ["THROTTLED_BEFORE"],
+    "throttled_after": os.environ["THROTTLED_AFTER"],
+    "temperature_before": os.environ["TEMP_BEFORE"],
+    "temperature_after": os.environ["TEMP_AFTER"],
+    "load_before": os.environ["LOAD_BEFORE"],
+    "load_after": os.environ["LOAD_AFTER"],
 }
-path = pathlib.Path(${OUT@Q}) / "manifest.json"
+path = pathlib.Path(sys.argv[1])
 path.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n")
 PY
 sha256sum "$OUT/manifest.json" "$OUT/scenarios.tsv" >"$OUT/SHA256SUMS"

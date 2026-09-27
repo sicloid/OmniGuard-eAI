@@ -3,7 +3,7 @@
   "card": "KAN-69",
   "declared_before_scoring": true,
   "source": {
-    "run_directory": "omniguard-benign-v2b-20260928",
+    "run_directory": "omniguard-benign-v3-20260928",
     "capture_host": "Raspberry Pi 5",
     "device_ip": "192.168.228.12",
     "role": "external benign deployment check",
