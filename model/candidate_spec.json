@@ -1,0 +1,12 @@
+{
+  "card": "KAN-67",
+  "version": "exploratory-candidates/1",
+  "purpose": "Train-only candidate fitting and validation-only selection; historical results are known, so this is exploratory development, not independent generalization proof.",
+  "windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625",
+  "seeds": [1, 2, 3],
+  "max_window_fpr": 0.01,
+  "candidates": ["rf200_reference", "rf64_regularized", "extra128_regularized", "hist100_regularized"],
+  "selection": "Highest worst-seed validation recall, then mean recall; candidate must meet FPR budget in every seed. This does not authorize runtime replacement.",
+  "runtime_adoption": false,
+  "holdout_scoring": false
+}
