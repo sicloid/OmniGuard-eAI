@@ -12,7 +12,7 @@ set its window recall was only 6.41%, versus 25.56% for KAN-19. No model is
 silently promoted from one favourable metric.
 
 The candidate passed orderly and controller-SIGKILL/kernel-TTL G8 regressions
-with its exact model and metadata hashes. The current suite passes 689 tests
+with its exact model and metadata hashes. The current suite passes 691 tests
 with three platform skips; Ruff and hosted Linux/Windows/macOS/platform checks
 pass. A full `./demo.sh` rehearsal passed platform health/access, synthetic
 isolated containment, cleanup and sealed G10 verification; the committed log
