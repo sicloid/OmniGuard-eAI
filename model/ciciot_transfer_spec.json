@@ -1,0 +1,41 @@
+{
+  "card": "KAN-23",
+  "version": "ciciot-egress-transfer/1",
+  "purpose": "Score IoT-23-trained models on a separately reported CICIoT2023 EGRESS attack stress pack without retraining or threshold selection.",
+  "pack": {
+    "windows_sha256": "a59787d9073522f6d89edf4698c7fd1fda72fd211333221c1323fb8f66aee691",
+    "manifest_sha256": "2fe9765618014d890f2124f1cd58923f8ac1f416038c7b619bae28ba5f064e68",
+    "label": "malicious",
+    "label_basis": "CICIoT2023 Backdoor_Malware folder-level declaration; not flow-level ground truth",
+    "windows": 2480
+  },
+  "policy": {
+    "n": 2,
+    "lease_seconds": 300,
+    "decision_delay_seconds": 0.5,
+    "max_result_age": 2.5,
+    "max_lease_seconds": 600
+  },
+  "models": [
+    {
+      "name": "KAN-19 Random Forest",
+      "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+      "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+      "threshold": 0.9798815486832
+    },
+    {
+      "name": "KAN-67 regularized ExtraTrees candidate",
+      "model_sha256": "5c8909d717e79ca30b667140894ef0a1661835cf298437b956fbe5e95b5f843a",
+      "metadata_sha256": "3e0246b0c899d88eefe8fe99d348ad628b36bec95b9e7e003b3a942134e12c29",
+      "threshold": 0.6963136347603625
+    }
+  ],
+  "report": [
+    "window recall",
+    "detected devices and device recall",
+    "malicious-time blocked fraction",
+    "detection delay per device",
+    "policy reset and rejection counters"
+  ],
+  "exclusions": "SYN/UDP flood captures are predominantly LOCAL and are not relabelled as EGRESS. Results remain separate from IoT-23 and are not deployment prevalence estimates."
+}
