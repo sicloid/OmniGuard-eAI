@@ -37,7 +37,8 @@ model binary and capture remain outside Git. KAN-50 still needs
 decision-to-application correlation, an end-to-end completeness/loss report,
 and owner acceptance. G10 is not declared a closed gate.
 See the [G8 runbook](docs/G8_RUNBOOK.md), [reproduction map](docs/REPRODUCE.md),
-and [current status](docs/STATUS.md) for scope and remaining work.
+[Pi benign capture boundary](docs/KAN66_PI_BENIGN.md), and
+[current status](docs/STATUS.md) for scope and remaining work.
 
 ## Run locally
 

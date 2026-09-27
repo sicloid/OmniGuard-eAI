@@ -5,6 +5,9 @@ Durum: koşu öncesi protokol. Sahip: Şükrü/R2 (protokol ve capture), Onur/R1
 sonucundan önce sabitler. KAN-19 modeli, eşik veya politika parametreleri bu
 belgeye bakılarak değiştirilemez.
 
+Sahip kontrollü Raspberry Pi capture koşulları ve sınırlı güç sınırı
+[KAN-66 belgesinde](KAN66_PI_BENIGN.md) ayrıca kayıtlıdır.
+
 ## Araştırma sorusu
 
 Donmuş KAN-19 çalışma modeli, eğitimde görülmeyen normal cihaz trafiğinde yanlış
