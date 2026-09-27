@@ -5,12 +5,14 @@ import unittest
 from argparse import Namespace
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from sources.benign_capture import (
     CapturePlanError,
+    CaptureStats,
+    _check_loss,
     _ethernet_ip_addresses,
-    _kernel_timestamp,
+    _kernel_timestamp_ns,
     _validate_args,
     _write_global_header,
     _write_record,
@@ -27,6 +29,25 @@ def ethernet_ipv4(source="192.168.1.2", destination="8.8.8.8"):
     )
 
 
+def ethernet_ipv6(source="2001:db8::2", destination="2001:4860:4860::8888"):
+    return (
+        b"\x00" * 12
+        + struct.pack("!H", 0x86DD)
+        + b"\x60\x00\x00\x00\x00\x00\x3b\x40"
+        + ipaddress.IPv6Address(source).packed
+        + ipaddress.IPv6Address(destination).packed
+    )
+
+
+def vlan(frame, tags=(0x8100,)):
+    payload_type = frame[12:14]
+    payload = frame[14:]
+    header = frame[:12]
+    for index, tag in enumerate(tags):
+        header += struct.pack("!HH", tag, index)
+    return header + payload_type + payload
+
+
 class BenignCaptureTests(unittest.TestCase):
     def args(self, out):
         return Namespace(
@@ -41,15 +62,38 @@ class BenignCaptureTests(unittest.TestCase):
     def test_extracts_ipv4_addresses_from_ethernet(self):
         self.assertEqual(_ethernet_ip_addresses(ethernet_ipv4()), ("192.168.1.2", "8.8.8.8"))
 
+    def test_extracts_ipv6_and_stacked_vlan_addresses(self):
+        self.assertEqual(
+            _ethernet_ip_addresses(ethernet_ipv6()),
+            ("2001:db8::2", "2001:4860:4860::8888"),
+        )
+        self.assertEqual(
+            _ethernet_ip_addresses(vlan(ethernet_ipv4(), (0x88A8, 0x8100))),
+            ("192.168.1.2", "8.8.8.8"),
+        )
+        self.assertIsNone(_ethernet_ip_addresses(b"\x00" * 12 + struct.pack("!H", 0x8100)))
+
     def test_rejects_truncated_and_non_ip_frames(self):
         self.assertIsNone(_ethernet_ip_addresses(b"\x00" * 13))
         self.assertIsNone(_ethernet_ip_addresses(b"\x00" * 12 + struct.pack("!H", 0x0806)))
 
     def test_reads_the_linux_time64_timestamp_shape(self):
         ancillary = [(socket.SOL_SOCKET, 64, struct.pack("=qq", 3, 250_000_000))]
-        self.assertEqual(_kernel_timestamp(ancillary), 3.25)
+        self.assertEqual(_kernel_timestamp_ns(ancillary), 3_250_000_000)
         with self.assertRaisesRegex(CapturePlanError, "missing"):
-            _kernel_timestamp([])
+            _kernel_timestamp_ns([])
+        with self.assertRaisesRegex(CapturePlanError, "invalid"):
+            _kernel_timestamp_ns([(socket.SOL_SOCKET, 64, struct.pack("=qq", 3, 1_000_000_000))])
+
+    def test_packet_socket_drop_is_a_hard_failure(self):
+        sock = Mock()
+        sock.getsockopt.return_value = struct.pack("=II", 9, 1)
+        stats = CaptureStats()
+
+        with self.assertRaisesRegex(CapturePlanError, "dropped"):
+            _check_loss(sock, stats)
+
+        self.assertEqual((stats.kernel_packets, stats.kernel_drops), (9, 1))
 
     def test_writes_classic_pcap_headers(self):
         with TemporaryDirectory() as temporary:

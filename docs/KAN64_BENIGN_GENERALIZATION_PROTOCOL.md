@@ -19,6 +19,9 @@ mevcut modelin cihaz/ortam kısayoluna duyarlılığını görünür kılmaktır
 - Politika: `N=2`, `lease=300 s`; kararlar `DevicePolicy` üzerinden replay edilir.
 - Çıktı: pencere FPR, false quarantine/device-hour, benign blocked seconds/device-hour,
   policy reset/rejection sayıları, karar gecikmesi ve her censor/invalid nedeni.
+- Fırsat ölçümleri: pencere ve aktivite segmenti sayısı, wall-clock ve gözlenen süre,
+  gap sayısı ve toplam sessiz süre, gap'siz ardışık pencere çifti, anormal pencere
+  sayısı ve en uzun ardışık anormal pencere dizisi.
 
 Bu ilk çalışma deployment FPR tahmini veya dokunulmamış holdout değildir. Mevcut
 modeli yeni veriye göre ayarlamak, bu değerlendirme tamamlanmadan yasaktır.
@@ -50,6 +53,28 @@ yerine başka normal trafik koyup aynı isimle raporlanmaz.
    olarak saklanır. Başarılı tekrar eski kaydı silmez.
 5. Paketler sadece raw-PCAP'ten aynı offline extractor ile pencereye dönüştürülür.
    Live/offline parity ayrı testle korunur.
+6. Offline normalizer'ın tek bir frame'i reddetmesi capture'ı `invalid` yapar. Frame
+   sessizce atlanmaz. Bu protokol için bozuk kaydın son kayıt olduğu gerekçesiyle
+   sapma verilemez; sapma gerekiyorsa koşudan önce ayrı review gerekir.
+7. Manifest `device_frames_ipv4` ve `device_frames_ipv6` değerlerini ayrı tutar.
+   Bir protokol ailesinin yokluğu sıfır olarak kaydedilir, bilinmiyor sayılmaz.
+
+## Süre, çözünürlük ve belirsizlik
+
+300 saniyelik ilk koşu yalnız collector pilotu/duman testidir. En fazla 60 adet
+5 saniyelik pencere üretir; sıfır hata gözlense bile rule-of-three üst sınırı yaklaşık
+%5 pencere FPR ve 36 yanlış karantina/cihaz-saat olur. Bu koşu FPR bütçesinin altında
+kalındığına veya sahada yanlış karantina olmadığına kanıt değildir.
+
+- Pencere FPR'sini %1'in altında sınırlamaya aday bir senaryo en az 300 geçerli
+  pencere içermelidir. Sıfır gözlemde üst sınır yine her zaman raporlanır.
+- Yanlış karantinayı 1/cihaz-saatin altında sınırlamaya aday birleşik benign gözlem
+  en az 3 cihaz-saat olmalıdır. Daha kısa kayıtlar pilot olarak raporlanır.
+- En uzun ardışık anormal pencere dizisi `N`'den küçükse sıfır yanlış karantina
+  güvenlik sonucu olarak sunulmaz; politika tetikleme fırsatı oluşmadığı yazılır.
+- Belirsizlik gerekiyorsa bootstrap sabit pencere sayısı yerine gerçek zaman blokları
+  kullanır ve blok uzunluğu en uzun lease olan 300 saniyeden büyüktür. Yeterli blok
+  yoksa aralık uydurulmaz; yalnız ölçüm ve analitik üst sınır verilir.
 
 ## Kabul kriteri
 
@@ -62,7 +87,8 @@ yeniden eğitim ve holdout için ayrı bağımlı kartlardır.
 ## Pi 5 ilk koşu planı
 
 Pi'de `wlan0` bağlıdır; `eth0` down durumundadır. İlk koşu `idle` olmalıdır.
-Önce IP/LAN bilgisi kaydedilir, sonra 300 saniyelik bounded capture başlatılır.
-Bu capture zamanlaması Pi performans benchmark'ı değildir. Ham capture kişisel ağ
+Önce IP/LAN bilgisi kaydedilir, sonra 300 saniyelik bounded collector pilotu başlatılır.
+Pilot kabul edilirse ölçüm senaryoları yukarıdaki asgari gözlem kurallarına göre daha
+uzun ve ayrı koşular olarak alınır. Bu capture zamanlaması Pi performans benchmark'ı değildir. Ham capture kişisel ağ
 metadatası taşıyabileceği için yalnız ignored `artifacts/` veya Pi yerel evidence
 dizininde tutulur.

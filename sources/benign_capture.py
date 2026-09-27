@@ -29,6 +29,7 @@ ETH_P_IPV6 = 0x86DD
 VLAN_TYPES = frozenset({0x8100, 0x88A8, 0x9100})
 SCENARIOS = ("idle", "dns_https", "file_download", "reconnect", "update")
 MAX_DURATION_SECONDS = 3600
+LOSS_CHECK_INTERVAL_FRAMES = 1024
 
 
 class CapturePlanError(ValueError):
@@ -39,6 +40,8 @@ class CapturePlanError(ValueError):
 class CaptureStats:
     received_frames: int = 0
     device_frames: int = 0
+    device_frames_ipv4: int = 0
+    device_frames_ipv6: int = 0
     written_frames: int = 0
     outgoing_frames: int = 0
     non_ip_or_unparseable: int = 0
@@ -46,7 +49,7 @@ class CaptureStats:
     kernel_drops: int = 0
 
 
-def _kernel_timestamp(ancillary) -> float:
+def _kernel_timestamp_ns(ancillary) -> int:
     """Read the Linux time64 SO_TIMESTAMPNS_NEW ancillary value locally.
 
     The Pi capture tool deliberately does not import ``sources.live`` because the
@@ -63,7 +66,7 @@ def _kernel_timestamp(ancillary) -> float:
     seconds, nanos = struct.unpack("=qq", stamps[0])
     if seconds < 0 or not 0 <= nanos < 1_000_000_000:
         raise CapturePlanError("invalid kernel timestamp value")
-    return seconds + nanos / 1_000_000_000
+    return seconds * 1_000_000_000 + nanos
 
 
 def _ethernet_ip_addresses(frame: bytes) -> tuple[str, str] | None:
@@ -231,7 +234,8 @@ def collect(args) -> dict:
                     _check_loss(sock, stats)
                     continue
                 stats.received_frames += 1
-                _check_loss(sock, stats)
+                if stats.received_frames % LOSS_CHECK_INTERVAL_FRAMES == 0:
+                    _check_loss(sock, stats)
                 if flags & (socket.MSG_TRUNC | socket.MSG_CTRUNC):
                     raise CapturePlanError("truncated frame or timestamp control data")
                 addresses = _ethernet_ip_addresses(frame)
@@ -241,9 +245,13 @@ def collect(args) -> dict:
                 if str(args.device_ip) not in addresses:
                     continue
                 stats.device_frames += 1
+                if ipaddress.ip_address(addresses[0]).version == 4:
+                    stats.device_frames_ipv4 += 1
+                else:
+                    stats.device_frames_ipv6 += 1
                 if address[2] == PACKET_OUTGOING:
                     stats.outgoing_frames += 1
-                _write_record(handle, frame, round(_kernel_timestamp(ancillary) * 1_000_000_000))
+                _write_record(handle, frame, _kernel_timestamp_ns(ancillary))
                 stats.written_frames += 1
         _check_loss(sock, stats)
         if stats.written_frames == 0:
