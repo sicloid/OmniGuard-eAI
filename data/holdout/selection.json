@@ -1,7 +1,7 @@
 {
   "schema": "iot23-holdout-selection-1",
   "decision": "ADR-0004 decision 7b (docs/adr/0004-dataset-source.md)",
-  "status": "selected; not downloaded; no SHA-256 yet; never scored",
+  "status": "downloaded; SHA-256 recorded; not audited; never scored",
   "approval": {
     "by": "Şükrü Biçer (Lead/R2)",
     "date": "2026-09-14",
@@ -228,8 +228,8 @@
       "label_path": "bro/conn.log.labeled",
       "label_bytes": 531738215,
       "download_bytes": 1754705511,
-      "pcap_sha256": null,
-      "label_sha256": null
+      "pcap_sha256": "538cd72e9583bf7be30501f6d9de6694498118e9300f7835e63c7f6ce693ad3c",
+      "label_sha256": "9f69946243df93c199876c0783cb4b5fb188e6d2325c593858f2db8fb5fa847f"
     },
     {
       "role": "unseen_family",
@@ -240,8 +240,8 @@
       "label_path": "bro/conn.log.labeled",
       "label_bytes": 419604,
       "download_bytes": 4477005,
-      "pcap_sha256": null,
-      "label_sha256": null
+      "pcap_sha256": "4d0a00c33a4bf11228158baddd47c38f702731ea8d75ef1201061fc8bbd878b9",
+      "label_sha256": "ef48ad72f65efd13d517223e61e4d877ba53a082ddb8159324b18d3f310d0711"
     },
     {
       "role": "unseen_family",
@@ -252,8 +252,8 @@
       "label_path": "bro/conn.log.labeled",
       "label_bytes": 1787852355,
       "download_bytes": 2827397474,
-      "pcap_sha256": null,
-      "label_sha256": null
+      "pcap_sha256": "f58eeae6db19b8e4d8c5c0cb624f44ae23fd94e62fc16a86b26dd0d63fb87ed9",
+      "label_sha256": "cec2d4d3736a025694b0b272498ca9b672fd8d37d76e290b93c810e4df73dc63"
     }
   ],
   "download_bytes_total": 4586579990,

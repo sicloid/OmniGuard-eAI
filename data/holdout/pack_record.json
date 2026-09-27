@@ -1,0 +1,47 @@
+{
+  "builder": "data.samplepack.build (window-label-1, manifest v2)",
+  "captures": {
+    "CTU-IoT-Malware-Capture-20-1": {
+      "truncated_tail": false,
+      "windows": {
+        "benign": 134,
+        "dropped_truncated_tail": 0,
+        "malicious": 16545,
+        "malicious_with_unmatched_packets": 0,
+        "unknown": 0,
+        "without_egress": 0
+      }
+    },
+    "CTU-IoT-Malware-Capture-36-1": {
+      "truncated_tail": false,
+      "windows": {
+        "benign": 0,
+        "dropped_truncated_tail": 0,
+        "malicious": 17278,
+        "malicious_with_unmatched_packets": 0,
+        "unknown": 0,
+        "without_egress": 0
+      }
+    },
+    "CTU-IoT-Malware-Capture-48-1": {
+      "truncated_tail": true,
+      "windows": {
+        "benign": 0,
+        "dropped_truncated_tail": 1,
+        "malicious": 7036,
+        "malicious_with_unmatched_packets": 5,
+        "unknown": 0,
+        "without_egress": 0
+      }
+    }
+  },
+  "manifest_sha256": "c65558cf8f17a46548d1c6f84bc8610a6eb96e3064675226e658747b3dd207fb",
+  "scored": false,
+  "step": "pack",
+  "totals": {
+    "benign": 134,
+    "malicious": 40859,
+    "unknown": 0
+  },
+  "windows_sha256": "7205c961ee559567f09faa78b0ff51170243b1a1835e8432c8fc9dd417ca53ec"
+}

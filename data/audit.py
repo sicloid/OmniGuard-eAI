@@ -34,6 +34,36 @@ def _direction(src, dst, lans) -> str:
     )
 
 
+def pcap_record_count(path: Path) -> int:
+    """Count classic-PCAP records by walking record headers only, without reading frames.
+
+    Used to tell a malformed *final* record, which is how a capture cut at its last packet
+    looks, from a malformed record in the middle of a file. A trailing partial header is
+    not a record and is not counted.
+    """
+    import struct
+
+    with open(path, "rb") as stream:
+        header = stream.read(24)
+        if len(header) < 24:
+            return 0
+        magic = header[:4]
+        if magic in (b"\xd4\xc3\xb2\xa1", b"\x4d\x3c\xb2\xa1"):
+            endian = "<"
+        elif magic in (b"\xa1\xb2\xc3\xd4", b"\xa1\xb2\x3c\x4d"):
+            endian = ">"
+        else:
+            raise ValueError(f"{Path(path).name}: not a classic PCAP")
+        count = 0
+        while True:
+            record = stream.read(16)
+            if len(record) < 16:
+                return count
+            (caplen,) = struct.unpack(endian + "I", record[8:12])
+            stream.seek(caplen, 1)
+            count += 1
+
+
 def summarize_pcap(path: Path, lan_cidrs: Sequence[str], top: int = 20) -> CaptureSummary:
     lans = [ip_network(cidr) for cidr in lan_cidrs]
     packets = ip_packets = 0
@@ -50,7 +80,14 @@ def summarize_pcap(path: Path, lan_cidrs: Sequence[str], top: int = 20) -> Captu
             packets += 1
             first = ts if first is None else first
             last = ts
-            ip = dpkt.ethernet.Ethernet(frame).data
+            try:
+                ip = dpkt.ethernet.Ethernet(frame).data
+            except dpkt.NeedData:
+                # Only the final record may be short: a capture cut at its last packet.
+                # Anywhere else a short frame is corruption and must not be skipped.
+                if packets == pcap_record_count(path):
+                    break
+                raise
             if not isinstance(ip, dpkt.ip.IP | dpkt.ip6.IP6):
                 continue
             ip_packets += 1
