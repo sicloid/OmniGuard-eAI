@@ -29,6 +29,12 @@ The accepted run must:
   and throttling observations;
 - contain only owner-controlled benign activity.
 
+The host pack keeps the Pi `manifest.json` byte-for-byte as
+`source_manifest.json`. `pack_provenance.json` separately records the source
+directory and the SHA-256 of those original bytes. The scorer verifies that
+binding before loading either model, so host-side normalization cannot silently
+rewrite device provenance.
+
 The first full pilot retained 6,976 packets with zero kernel drops, but its
 manifest failed because a temperature value containing an apostrophe was
 embedded as Python source. That run is excluded. Manifest serialization now

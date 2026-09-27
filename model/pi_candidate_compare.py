@@ -121,7 +121,32 @@ def score(pack_dir: Path, spec_path: Path, artifacts: dict[str, Path], output: P
         "spec_sha256": _sha256(spec_path),
         "pack_windows_sha256": _sha256(windows_path),
         "source_manifest_sha256": _sha256(pack_dir / "source_manifest.json"),
+        "pack_provenance_sha256": _sha256(pack_dir / "pack_provenance.json"),
         "source_acceptance": checks,
+        "source_capture": {
+            key: source.get(key)
+            for key in (
+                "boot_id",
+                "device",
+                "device_ip",
+                "interface",
+                "capture_filter",
+                "start_utc",
+                "end_utc",
+                "duration_seconds",
+                "pcap_bytes",
+                "pcap_sha256",
+                "device_frames",
+                "device_frames_ipv4",
+                "device_frames_ipv6",
+                "throttled_before",
+                "throttled_after",
+                "temperature_before",
+                "temperature_after",
+                "load_before",
+                "load_after",
+            )
+        },
         "environment": {
             "python": platform.python_version(),
             "system": platform.system(),
