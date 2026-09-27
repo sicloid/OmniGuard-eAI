@@ -8,10 +8,14 @@ unlimited host run a controlled-compute result.
 import argparse
 import hashlib
 import json
-import resource
 import subprocess
 import time
 from pathlib import Path
+
+try:
+    import resource
+except ImportError:  # Windows imports the contract but cannot run Linux cgroups.
+    resource = None
 
 
 def _read(path: Path) -> str:
@@ -42,6 +46,8 @@ def read_limits(root: Path = Path("/sys/fs/cgroup")) -> dict[str, object]:
 
 
 def run(command: list[str], output: Path, root: Path = Path("/sys/fs/cgroup")) -> int:
+    if resource is None:
+        raise RuntimeError("controlled cgroup benchmark requires Linux resource accounting")
     limits = read_limits(root)
     started_utc_ns = time.time_ns()
     started = time.monotonic_ns()

@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -27,6 +28,7 @@ class ComputeBudgetTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "finite"):
                 read_limits(root)
 
+    @unittest.skipUnless(os.name == "posix", "Linux resource accounting only")
     def test_run_seals_result_and_names_scope(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
