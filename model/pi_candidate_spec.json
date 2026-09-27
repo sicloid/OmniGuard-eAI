@@ -5,7 +5,7 @@
   "source": {
     "run_directory": "omniguard-benign-v2b-20260928",
     "capture_host": "Raspberry Pi 5",
-    "device_ip": "192.168.1.106",
+    "device_ip": "192.168.228.12",
     "role": "external benign deployment check",
     "minimum_duration_seconds": 3600,
     "required_tcpdump_exit": 0,
