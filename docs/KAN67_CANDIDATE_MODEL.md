@@ -26,3 +26,16 @@ hide the weakness of an apparently reasonable model. The table is therefore a
 candidate-screening result, not a claim that the system generalizes to new
 benign devices. Report the validation split, seed count, FPR budget and
 holdout limitation whenever these numbers are shown.
+
+## 28 September domain-augmentation check
+
+The downloaded CICIoT2023 benign corpus was also used in a separately frozen
+development experiment. Thirty-nine CIC development devices were added only to
+training and nine other development devices were used for a separate domain-FPR
+budget. The protected 11-device CIC holdout, IoT-23 test and Pi were excluded.
+
+The best augmented family, ExtraTrees-256, achieved 82.74% worst-seed IoT-23
+validation recall with at most 1% FPR on each benign validation source. This is
+worse than the existing candidate's 99.16% worst-seed recall, so augmentation
+was rejected as a runtime replacement. The full negative result is retained in
+[`KAN69_DOMAIN_AUGMENTED_2026-09-28`](evidence/KAN69_DOMAIN_AUGMENTED_2026-09-28/README.md).
