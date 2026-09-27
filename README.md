@@ -1,5 +1,9 @@
 # OmniGuard eAI
 
+OmniGuard is a local IoT botnet detection and reversible containment prototype.
+For the final product path, live demo commands and evidence boundary, see
+[`docs/FINAL_PRODUCT.md`](docs/FINAL_PRODUCT.md) or run `./demo.sh` on Linux.
+
 Payload-independent IoT malware detection and reversible outbound containment
 research prototype. Local Random Forest inference, isolated Linux namespaces,
 nftables/conntrack, and self-hosted Mosquitto → PostgreSQL → Grafana telemetry.
