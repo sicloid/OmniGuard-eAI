@@ -29,3 +29,27 @@ seen, so this is explicitly reproducibility evidence rather than blind confirmat
 The candidate reduced window FPR to 0.957%, false quarantines to 65, and false
 quarantines per observed device-hour to 0.192. It was not scored on the consumed
 CICIoT holdout. Runtime adoption remains gated on fresh Pi evidence and G8 regression.
+
+## Source audit and adoption decision
+
+CICIoT2023 replaces the previously proposed UNSW-IoTraffic source for this project
+because the team now has owner-authorized raw PCAP access and the user explicitly
+requested that the downloaded corpus be used. This is a documented source change,
+not deletion of the original requirement.
+
+- Source: UNB/CIC IoT Dataset 2023; research use under the access granted by the owner.
+- Raw inventory: 60 PCAPs, 116,007,104,493 bytes, each SHA-256 pinned.
+- Accepted benign input: four `Benign_Final` PCAPs totaling 6,997,844,681 bytes.
+- Shared extractor input: raw PCAP only; prepared CSV features are not used.
+- Identity: observed Ethernet source MAC. Ambiguous IP/MAC ownership is excluded.
+- Direction: 4,760,725 EGRESS packets after the shared LAN/on-link rules; 484,688
+  multicast, broadcast, link-local or unspecified packets were policy-excluded.
+- Labels: folder-level declared benign assumption, stated in every capture manifest;
+  there is no flow-level benign ground truth.
+- Split: 59 stable devices, allocated before scoring; no aggregate is mixed with
+  IoT-23 as if the sources represented one population.
+
+The downloaded attack PCAPs stay inventoried but are not admitted merely from their
+folder names. Selected Mirai traffic is predominantly LOCAL under the project's
+EGRESS semantics, so relabelling it as outbound botnet evidence would invalidate the
+feature contract.
