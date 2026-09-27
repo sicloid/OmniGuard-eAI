@@ -1,0 +1,14 @@
+All checks passed!
+.........................................................................................................................................................................................................s......................................................................................................................................................................................................................................................................................................Pi environment: invalid (not_aarch64, not_pi5, before_throttling_missing, before_temperature_missing, before_load_missing, after_throttling_missing, after_temperature_missing, after_load_missing)
+Evidence: /tmp/tmp0p2e_gng/run
+Pi environment: invalid (command_failed)
+Evidence: /tmp/tmp6xli0ggc/run
+{"run_id": "b6745ed5-8762-41ce-bee4-3534aea02948", "manifest": "/tmp/tmp0oaffvhw/runs/b6745ed5-8762-41ce-bee4-3534aea02948/manifest.json", "status": "failed"}
+.....{"run_id": "33f95953-9eb0-4f5d-a3bc-3db7ca56b750", "manifest": "/tmp/tmpybxc6lv0/runs/33f95953-9eb0-4f5d-a3bc-3db7ca56b750/manifest.json", "status": "complete"}
+{"run_id": "da10ad1f-58f0-499d-8c41-4d34834742e8", "manifest": "/tmp/tmpybxc6lv0/runs/da10ad1f-58f0-499d-8c41-4d34834742e8/manifest.json", "status": "complete"}
+................................................................................................s.s........................................................................................
+----------------------------------------------------------------------
+Ran 688 tests in 10.469s
+
+OK (skipped=3)
+PASS: sealed telemetry and end-to-end G10 evidence verified
