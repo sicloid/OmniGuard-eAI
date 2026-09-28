@@ -54,6 +54,7 @@ docs/evidence/KAN47_2026-09-28/** text eol=lf
 docs/evidence/KAN66_PI_2026-09-28/** text eol=lf
 docs/evidence/G13_2026-09-28/** text eol=lf
 docs/evidence/G13_2026-09-28-review-fix/** text eol=lf
+docs/evidence/G13_2026-09-28-final/** text eol=lf
 model/iforest_spec.json text eol=lf
 data/ciciot2023/*.json text eol=lf
 # KAN-45 runtime-budget evidence; verify.py checks these bytes against SHA256SUMS.

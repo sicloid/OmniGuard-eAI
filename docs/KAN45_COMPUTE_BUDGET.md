@@ -43,3 +43,15 @@ under one controlled budget while incurring sustained CPU throttling and
 reaching the memory ceiling. It is not the frozen 200-tree training run,
 gateway runtime, a throughput capacity result, Pi performance, or router
 emulation.
+
+## Gateway runtime follow-up
+
+The separate sealed G8 follow-up runs the real gateway path with identical
+inputs, once without a declared limit and once at 0.5 CPU / 256 MiB. In the
+budgeted run the kernel throttled 29 of 281 periods for 7.943 s aggregate time;
+five inference windows, one quarantine episode and containment behavior stayed
+within the observed unbudgeted run spread. This small, paced run demonstrates
+headroom for that workload only; it is not a capacity boundary.
+
+The complete before/after manifests, stage measurements, raw logs, checksums
+and verifier are in `docs/evidence/KAN45_2026-09-28_runtime/`.
