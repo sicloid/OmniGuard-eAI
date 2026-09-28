@@ -68,6 +68,21 @@ class ResultFreezeTests(unittest.TestCase):
             saved = json.loads(output.read_text())
             self.assertEqual(saved["declaration"]["content"]["policy"], "N2-L300")
 
+    def test_exclusive_create_refuses_an_existing_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.repository(Path(directory))
+            output = Path(directory) / "freeze.json"
+            output.write_text("occupied\n")
+            with self.assertRaises(FileExistsError):
+                create(
+                    root,
+                    [Path("evidence")],
+                    Path("declaration.json"),
+                    output,
+                    frozen_at_utc="2026-09-28T00:00:00Z",
+                )
+            self.assertEqual(output.read_text(), "occupied\n")
+
     @unittest.skipIf(os.name == "nt", "Windows CI cannot create unprivileged symlinks")
     def test_refuses_symlink_evidence(self):
         with tempfile.TemporaryDirectory() as directory:

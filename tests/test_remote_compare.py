@@ -1,6 +1,7 @@
 import unittest
+from unittest import mock
 
-from measure.remote_compare import percentile
+from measure.remote_compare import _package_version, percentile
 
 
 class RemoteCompareTests(unittest.TestCase):
@@ -11,6 +12,13 @@ class RemoteCompareTests(unittest.TestCase):
     def test_empty_latency_is_invalid(self):
         with self.assertRaisesRegex(ValueError, "at least one"):
             percentile([], 0.5)
+
+    def test_missing_optional_package_is_recorded_as_unavailable(self):
+        with mock.patch(
+            "measure.remote_compare.importlib.metadata.version",
+            side_effect=__import__("importlib.metadata").metadata.PackageNotFoundError,
+        ):
+            self.assertIsNone(_package_version("not-installed"))
 
 
 if __name__ == "__main__":

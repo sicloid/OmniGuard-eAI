@@ -2,7 +2,9 @@
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
+import platform
 import time
 import urllib.request
 from pathlib import Path
@@ -39,6 +41,13 @@ def expected(result) -> dict:
         "classification": result.classification.value,
         "threshold": result.threshold,
     }
+
+
+def _package_version(name: str) -> str | None:
+    try:
+        return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
 
 
 def run(args) -> dict:
@@ -80,6 +89,15 @@ def run(args) -> dict:
         "model_sha256": args.model_sha256,
         "metadata_sha256": args.metadata_sha256,
         "pack_sha256": hashlib.sha256(args.pack.read_bytes()).hexdigest(),
+        "environment": {
+            "client_host": platform.node(),
+            "server_host": args.server_host,
+            "client_server_cpu_scope": args.client_server_cpu_scope,
+            "url": args.url,
+            "python": platform.python_version(),
+            "fastapi": _package_version("fastapi"),
+            "uvicorn": _package_version("uvicorn"),
+        },
         "local_latency_ns": {
             "p50": percentile(local_ns, 0.50),
             "p95": percentile(local_ns, 0.95),
@@ -90,6 +108,8 @@ def run(args) -> dict:
         },
     }
     args.out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    digest = hashlib.sha256(args.out.read_bytes()).hexdigest()
+    args.out.with_suffix(args.out.suffix + ".sha256").write_text(f"{digest}  {args.out.name}\n")
     if errors:
         raise RuntimeError(f"{len(errors)} remote comparison requests failed")
     return report
@@ -102,6 +122,8 @@ def main() -> None:
     parser.add_argument("--metadata-sha256", required=True)
     parser.add_argument("--pack", type=Path, required=True)
     parser.add_argument("--url", default="http://127.0.0.1:8047/v1/predict")
+    parser.add_argument("--server-host", required=True)
+    parser.add_argument("--client-server-cpu-scope", required=True)
     parser.add_argument("--requests", type=int, default=100)
     parser.add_argument("--timeout", type=float, default=5.0)
     parser.add_argument("--out", type=Path, required=True)

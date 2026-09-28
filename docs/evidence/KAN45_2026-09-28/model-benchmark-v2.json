@@ -1,0 +1,73 @@
+{
+  "cgroup_observation": {
+    "cpu_stat_delta": {
+      "burst_usec": 0,
+      "core_sched.force_idle_usec": 0,
+      "nice_usec": 0,
+      "nr_bursts": 0,
+      "nr_periods": 53,
+      "nr_throttled": 53,
+      "system_usec": 299594,
+      "throttled_usec": 7509832,
+      "usage_usec": 2648388,
+      "user_usec": 2348793
+    },
+    "memory_events": {
+      "high": 0,
+      "low": 0,
+      "max": 393,
+      "oom": 0,
+      "oom_group_kill": 0,
+      "oom_kill": 0,
+      "sock_throttled": 0
+    },
+    "memory_peak_bytes": 268435456
+  },
+  "child_cpu_seconds": 2.647038,
+  "child_max_rss_kib": 190016,
+  "claim": "controlled compute budget; not router emulation",
+  "command": [
+    "python",
+    "-m",
+    "model.baseline_run",
+    "--pack",
+    "/data/windows.jsonl",
+    "--manifest",
+    "/data/manifest.json",
+    "--out",
+    "/tmp/baseline",
+    "--seeds",
+    "1",
+    "--bootstrap",
+    "10",
+    "--trees",
+    "64"
+  ],
+  "duration_ns": 5296657452,
+  "exit_code": 0,
+  "limits": {
+    "cgroup_version": 2,
+    "cpu_cores": 0.5,
+    "cpu_period_us": 100000,
+    "cpu_quota_us": 50000,
+    "memory_max_bytes": 268435456
+  },
+  "provenance": {
+    "container_image_digest": "sha256:04164649fb5b20b238e88fe0be1f8926469d8ad932599d2f6adaaed813aa3406",
+    "inputs": [
+      {
+        "bytes": 12955222,
+        "path": "/data/windows.jsonl",
+        "sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625"
+      },
+      {
+        "bytes": 7919,
+        "path": "/data/manifest.json",
+        "sha256": "8ea8c310d6b66a82515a693e5347da274a622146e5347e381f11c4f80821d2a7"
+      }
+    ],
+    "workload_scope": "single-seed 64-tree training/validation workload; not gateway runtime"
+  },
+  "schema": "omniguard.compute-budget/2",
+  "started_utc_ns": 1790582329687914311
+}

@@ -19,10 +19,14 @@ WAN or managed-cloud estimate.
 ## Recorded localhost comparison — 28 September 2026
 
 One hundred requests used the pinned KAN-19 model and the sealed sample-pack
-vectors. All 100 HTTP results exactly matched local inference. Local latency was
-5.99 ms p50 / 7.57 ms p95; FastAPI localhost latency was 7.18 ms p50 / 8.77 ms
-p95. The raw report pins the model, metadata and pack in
-`docs/evidence/KAN47_2026-09-28/comparison.json`.
+vectors. All 100 HTTP results exactly matched local inference. The
+review-complete v2 run measured 6.47 ms p50 / 8.40 ms p95 locally and 7.73 ms
+p50 / 9.94 ms p95 through FastAPI on localhost. Client and server shared the
+same host CPU without cgroup isolation. The report records the URL, host roles,
+Python 3.14.7, FastAPI 0.117.1 and Uvicorn 0.37.0, as well as the model,
+metadata and pack hashes. It and its SHA-256 sidecar are in
+`docs/evidence/KAN47_2026-09-28/comparison-v2.json`; v1 is retained for audit
+history and is superseded for reporting.
 
 These figures isolate one local service-process comparison. They do not include
 WAN latency, TLS, multiple clients or managed-cloud behavior and do not justify

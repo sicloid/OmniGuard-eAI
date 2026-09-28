@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import tempfile
@@ -12,6 +13,11 @@ class ComputeBudgetTests(unittest.TestCase):
         (root / "cgroup.controllers").write_text("cpu memory pids\n")
         (root / "cpu.max").write_text(cpu + "\n")
         (root / "memory.max").write_text(memory + "\n")
+        (root / "cpu.stat").write_text(
+            "usage_usec 100\nnr_periods 10\nnr_throttled 2\nthrottled_usec 50\n"
+        )
+        (root / "memory.peak").write_text("1048576\n")
+        (root / "memory.events").write_text("low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\n")
 
     def test_finite_limits_are_reported(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -34,12 +40,27 @@ class ComputeBudgetTests(unittest.TestCase):
             root = Path(directory)
             self.cgroup(root)
             output = root / "report.json"
-            status = run(["sh", "-c", "exit 0"], output, root)
+            source = root / "input.jsonl"
+            source.write_text("{}\n")
+            status = run(
+                ["sh", "-c", "exit 0"],
+                output,
+                root,
+                inputs=[source],
+                container_image_digest="sha256:test",
+                workload_scope="test fixture",
+            )
             report = json.loads(output.read_text())
             digest = output.with_suffix(".json.sha256").read_text()
         self.assertEqual(status, 0)
         self.assertEqual(report["claim"], "controlled compute budget; not router emulation")
-        self.assertIn(report["schema"], "omniguard.compute-budget/1")
+        self.assertEqual(report["schema"], "omniguard.compute-budget/2")
+        self.assertEqual(report["cgroup_observation"]["memory_peak_bytes"], 1048576)
+        self.assertEqual(report["provenance"]["container_image_digest"], "sha256:test")
+        self.assertEqual(
+            report["provenance"]["inputs"][0]["sha256"],
+            hashlib.sha256(b"{}\n").hexdigest(),
+        )
         self.assertIn(output.name, digest)
 
 

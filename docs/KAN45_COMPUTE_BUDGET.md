@@ -26,10 +26,20 @@ Raspberry Pi or home-router performance.
 
 The sealed IoT-23 sample pack (`windows_sha256` `4b97fb95…6625`) was used for a
 single-seed 64-tree training/validation workload inside Docker cgroup v2 with
-0.5 CPU and 256 MiB memory. The command exited zero in 10.493 s wall time,
-used 5.253 s child CPU and reached 170,052 KiB peak child RSS. Raw values and
-their sidecar hash are in `docs/evidence/KAN45_2026-09-28/model-benchmark.json`.
+0.5 CPU and 256 MiB memory. The review-complete v2 command exited zero in
+5.297 s wall time, used 2.647 s child CPU and reached 190,016 KiB peak child
+RSS. The cgroup reached its 256 MiB limit without an OOM: `memory.peak` was
+268,435,456 bytes, `memory.events.max` increased by 393, and both `oom` and
+`oom_kill` remained zero. Every one of 53 observed CPU periods was throttled,
+with 7.510 s of aggregate throttled time.
 
-This small run demonstrates sensitivity under one controlled budget. It is not
-the frozen 200-tree training run, a throughput capacity result, Pi performance,
-or router emulation.
+The v2 report embeds the exact input hashes, workload scope and container image
+ID (`sha256:04164649…3406`). Raw values and their sidecar hash are in
+`docs/evidence/KAN45_2026-09-28/model-benchmark-v2.json`. The earlier v1 file is
+retained for audit history and is superseded for reporting.
+
+This small run demonstrates that the training/validation workload completes
+under one controlled budget while incurring sustained CPU throttling and
+reaching the memory ceiling. It is not the frozen 200-tree training run,
+gateway runtime, a throughput capacity result, Pi performance, or router
+emulation.

@@ -88,7 +88,11 @@ def create(
         ],
     }
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n")
+    try:
+        with output.open("x", encoding="utf-8") as handle:
+            handle.write(json.dumps(document, indent=2, sort_keys=True) + "\n")
+    except FileExistsError as exc:
+        raise FileExistsError(f"freeze manifest already exists: {output}") from exc
     output.with_suffix(output.suffix + ".sha256").write_text(f"{_sha256(output)}  {output.name}\n")
     return document
 
