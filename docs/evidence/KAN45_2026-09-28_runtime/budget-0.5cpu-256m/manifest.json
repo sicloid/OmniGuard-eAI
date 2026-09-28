@@ -1,0 +1,286 @@
+{
+  "closed_at_unix": 1790577423.6062958,
+  "config": {
+    "calibration": {
+      "half_width_ns": 356,
+      "monotonic_after_ns": 70982732483,
+      "monotonic_before_ns": 70982731771,
+      "utc_ns": 1790577395175714112
+    },
+    "card": "KAN-42",
+    "cgroup": {
+      "budgeted": true,
+      "cpu_cores": 0.5,
+      "cpu_max": "50000 100000",
+      "memory_max_bytes": 268435456
+    },
+    "code_sha256": {
+      "core/features.py": "c89d4c7b86e7f76ed968bf87d4cb56d01d4d7a99fc78f9a525068e289934910e",
+      "gateway/controller.py": "09982cd4b625b1f640e14c8d65292392146a6639c636643a8ed2ff3a5a04d9c6",
+      "gateway/detector.py": "849c8e7515790dcf7bfae961ed633a28b45c676e28d34ea32acb6e4bedaa8db6",
+      "gateway/enforcer.py": "69dee28982d2af97eca4f72a3148fbb1033f2d33125d34eb29cf6ae2ab2bdd2b",
+      "gateway/event_bridge.py": "8198299a331a21c992114e8439dfcefcdc562255fcb9fd4ad203e214636afd3f",
+      "gateway/pipeline.py": "65f012a748dca536e8496f0f50b45b6dbdafefc3abebc0087c344de399f96898",
+      "gateway/policy.py": "906a55dac8c6ac23109e8999c014ab58ebb7a41eba301941f6eabd49a3d52e2e",
+      "gateway/real_detector.py": "8ba4536332aec9d0664b32c0c62f16b4d4c43397db6e52ca222e2713782d2806",
+      "gateway/runtime.py": "94e956e46d73583e9b135eeaaad32b8e305bbf922855fdc13a06384007b6a423",
+      "lab/container_g8_iot23_probe.sh": "2b1535cf672e10d218bff0a3e625cc26210dfe755a3ef6d5de8f02e829a01c61",
+      "lab/g8_core.py": "59114b7e82353b10f9f528293c60861ac5d77cf8c1cf2c11e9e81aac276a4875",
+      "lab/replay.py": "6e7cea1699b43fca3528020735c6e8e8eee4b6ee702a8ceb427e07bd0a454323",
+      "measure/clocks.py": "e4de9c2934c5a711b1d3654e75fcd236587b9d91887f3b34ac334f1a9f1af822",
+      "measure/container_kan42.sh": "5edf28d1aa2742cebc63ea0389b4d34e1936b4a40f307eaad7fca18bbb062e99",
+      "measure/kan42_core.py": "b11ccf17ed64f1e6b9a4c49a7c06f1fd0a56aca51197d2f2bafbece4e040aa58",
+      "measure/kan42_manifest.py": "d9f4e05cc9f79025c028581f4676e10449779c3c8ca1dc5fbc38c58845999742",
+      "measure/manifest.py": "f711c14ce42bdd206152e8b9c8f44db7de524ea22ff3d30964f4ab4b2931eca3",
+      "measure/resources.py": "a70a9361a0e0c79970c64ade27a5c78e383d8a7768acb8e4c744f5c74896d808",
+      "measure/stages.py": "2e30fac8d0895c58e14790db3316077b9c57a72617504fae1d719e2620ad599b",
+      "sources/live.py": "8d2aa0ea44028ff9a5cb8bd0cca35040a66f6b5aad3a342df3e78a83146be780",
+      "sources/reorder.py": "b142cf9903f6d8c091500e6e6a4a54996ad35944bea1a57d396f724332f1ce94"
+    },
+    "core_seconds": 24,
+    "input_sha256": {
+      "model.joblib": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+      "model.meta.json": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad"
+    },
+    "pipeline": "lab/container_g8_iot23_probe.sh with lab.g8_core run by measure.kan42_core",
+    "policy": {
+      "lease_seconds": 6.0,
+      "max_lease": 60.0,
+      "n": 1,
+      "policy_config_version": "omniguard-policy-config/1"
+    }
+  },
+  "environment": {
+    "cpu_count": 20,
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "processor": null,
+    "python": "3.14.7",
+    "release": "6.6.87.1-microsoft-standard-WSL2",
+    "system": "Linux"
+  },
+  "manifest_format": "omniguard-experiment-manifest/2",
+  "measurements": {
+    "cgroup": {
+      "after": {
+        "cpu_stat": {
+          "burst_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 283,
+          "nr_throttled": 30,
+          "system_usec": 592637,
+          "throttled_usec": 7944572,
+          "usage_usec": 2817113,
+          "user_usec": 2224476
+        },
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "memory_peak_bytes": 187695104
+      },
+      "before": {
+        "cpu_stat": {
+          "burst_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 2,
+          "nr_throttled": 1,
+          "system_usec": 22052,
+          "throttled_usec": 1311,
+          "usage_usec": 79390,
+          "user_usec": 57337
+        },
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "memory_peak_bytes": 14258176
+      },
+      "during_lab": {
+        "cpu": {
+          "nr_periods": 281,
+          "nr_throttled": 29,
+          "throttled_usec": 7943261,
+          "usage_usec": 2737723
+        },
+        "memory_events": {
+          "high": 0,
+          "low": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_group_kill": 0,
+          "oom_kill": 0
+        },
+        "memory_peak_bytes": 187695104
+      }
+    },
+    "core_jsonl_sha256": "8f97e87b9c374b60c8247c21e26617940aaf9a6aa72f73bdfecd8ff12c8b5af3",
+    "core_summary": {
+      "capture_stats": {
+        "kernel_drops": 0,
+        "kernel_packets": 920,
+        "outgoing_filtered": 0,
+        "receive_buffer_bytes": 425984,
+        "received": 920,
+        "timestamp_errors": 0,
+        "truncated": 0
+      },
+      "kernel_quarantined": false,
+      "kind": "summary",
+      "mono_ns": 98923019879,
+      "policy_rejections": {
+        "duplicate": 0,
+        "future": 0,
+        "misaligned": 0,
+        "stale": 0
+      },
+      "policy_resets": {
+        "gap": 0,
+        "invalidated": 0,
+        "model_change": 0
+      },
+      "quarantines": 1,
+      "reorder_stats": {
+        "buffer_high_water": 4,
+        "excess_lateness_seconds": 0.0,
+        "max_inversion_seconds": 0.0,
+        "reordered_packets": 0
+      },
+      "windows": 5
+    },
+    "lab_exit": "0",
+    "stages": {
+      "core_exit": 0,
+      "counters": {
+        "kernel_packet_drops": 0,
+        "pipeline_queue_overflows": null,
+        "telemetry_events_dropped": 0,
+        "telemetry_queue_overflows": 0
+      },
+      "counters_not_supplied": [
+        "pipeline_queue_overflows"
+      ],
+      "failed_stages": [],
+      "notes": {
+        "capture": "elapsed includes waiting for packets; its CPU is the cost",
+        "pipeline_queue_overflows": "g8_core has no pipeline queue; not applicable",
+        "policy": "nested calls of an already open stage are not timed twice"
+      },
+      "stages": {
+        "capture": {
+          "elapsed_seconds_max": 0.2509297929999974,
+          "elapsed_seconds_total": 23.568798016000287,
+          "measured_span_seconds_total": 23.71167422300016,
+          "measurement_overhead_seconds": 0.14287620699987258,
+          "passes": 932,
+          "peak_rss_bytes": 136974336,
+          "process_cpu_seconds": 0.23807882000000014,
+          "thread_cpu_seconds": 0.21638764300000224,
+          "unavailable": []
+        },
+        "enforcer": {
+          "elapsed_seconds_max": 0.00996843299999739,
+          "elapsed_seconds_total": 0.015787927999994622,
+          "measured_span_seconds_total": 0.0159905579999986,
+          "measurement_overhead_seconds": 0.00020263000000397824,
+          "passes": 2,
+          "peak_rss_bytes": 136974336,
+          "process_cpu_seconds": 0.0021102670000001655,
+          "thread_cpu_seconds": 0.002123484999999925,
+          "unavailable": []
+        },
+        "exporter": {
+          "elapsed_seconds_max": 6.987700000138375e-05,
+          "elapsed_seconds_total": 0.00011459600000307546,
+          "measured_span_seconds_total": 0.0006533229999945434,
+          "measurement_overhead_seconds": 0.0005387269999914679,
+          "passes": 2,
+          "peak_rss_bytes": 136974336,
+          "process_cpu_seconds": 0.0001265319999999015,
+          "thread_cpu_seconds": 0.0001227459999999514,
+          "unavailable": []
+        },
+        "features": {
+          "elapsed_seconds_max": 0.0004911019999980226,
+          "elapsed_seconds_total": 0.013610632000037981,
+          "measured_span_seconds_total": 0.09734319700000071,
+          "measurement_overhead_seconds": 0.08373256499996273,
+          "passes": 932,
+          "peak_rss_bytes": 136974336,
+          "process_cpu_seconds": 0.01770932200000286,
+          "thread_cpu_seconds": 0.016706565000001783,
+          "unavailable": []
+        },
+        "inference": {
+          "elapsed_seconds_max": 0.0082936920000094,
+          "elapsed_seconds_total": 0.03653307999999811,
+          "measured_span_seconds_total": 0.03728636599998936,
+          "measurement_overhead_seconds": 0.0007532859999912489,
+          "passes": 5,
+          "peak_rss_bytes": 136974336,
+          "process_cpu_seconds": 0.03679954800000007,
+          "thread_cpu_seconds": 0.03652418199999996,
+          "unavailable": []
+        },
+        "policy": {
+          "elapsed_seconds_max": 0.00012763400000892489,
+          "elapsed_seconds_total": 0.005206942000143044,
+          "measured_span_seconds_total": 0.07556823100030385,
+          "measurement_overhead_seconds": 0.07036128900016081,
+          "passes": 937,
+          "peak_rss_bytes": 136974336,
+          "process_cpu_seconds": 0.00817475999999795,
+          "thread_cpu_seconds": 0.007788011999992905,
+          "unavailable": []
+        }
+      }
+    },
+    "stages_sha256": "7289db3e793e01297ef85e551096b81bcd73e42cc611ef69b40f35ababbe61a4"
+  },
+  "notes": "x86_64 Docker Desktop Linux VM, not a Raspberry Pi result. R2 machine context and the calibration were read by this run from its own kernel, following the method of lab/replay.py; host_id is not supplied (a container hostname names the container). label_rule_version is not yet published by R1.",
+  "outcome": null,
+  "provenance": {
+    "holdout_preconditions_unmet": [],
+    "not_supplied": {
+      "r1": [
+        "holdout_selection_sha256",
+        "label_rule_version"
+      ],
+      "r2": [
+        "host_id"
+      ]
+    },
+    "r1": {
+      "data_role": "development",
+      "feature_schema_version": "features-1",
+      "holdout_selection_sha256": null,
+      "label_rule_version": null,
+      "model_meta_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+      "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+      "pack_manifest_sha256": "65c7184c3cb8602105684f80b415e4fd17e4e5bdab5ce1813aa5af9f9bdbdfb0",
+      "split_manifest_sha256": "b4abc85f8a2d5f00be0789327d2a76e331399396a50c9dcbd289ff222f56be67",
+      "threshold_policy_sha256": "4a9491b5ce0be6a5225ce8f0e0b4d72022e67a62ba38c6cf62aeb051acc7bcdb",
+      "windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625"
+    },
+    "r2": {
+      "boot_id": "308b109b-034a-4216-a88f-11d4e36c2f98",
+      "boot_started_at": 1790577324.0,
+      "host_id": null,
+      "monotonic_to_unix_offset": 1790577324.192982,
+      "sink_evidence": "tcp-sink.log sha256=7332b361099021652f33ab1530b23caf4ea78c39ae8f2d013d7b7ed4d2ddc349; udp-sink.log sha256=a160c49619e392dcb4fe663ae4ea21c1f43e23aa8bb69b6f44487268926c164a; validator status=partial_real_model_iot23_core; blocked tcp=0 udp=0; kernel_drops=0",
+      "t0_unix": 1790577399.320125
+    },
+    "r2_observation_phase": "at-close"
+  },
+  "run_id": "kan42-47f398c425a349b795070e488ee90297",
+  "started_at_unix": 1790577395.2117789,
+  "status": "completed"
+}
