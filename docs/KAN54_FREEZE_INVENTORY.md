@@ -1,9 +1,8 @@
-# KAN-54 results freeze inventory — preparation, updated 22 September 2026
+# KAN-54 results freeze inventory — final preparation, updated 28 September 2026
 
-**Status: not frozen.** This inventory names evidence that already has stable
-bytes and the measurements still missing for G13. It is not the G13 result set,
-a release manifest, or permission to choose a policy after seeing holdout data.
-The [reproduction guide](REPRODUCE.md) explains how to regenerate each path.
+**Status: freeze inputs complete; immutable manifest is generated from the clean
+decision commit.** The declaration is `G13_FREEZE_DECLARATION.json`. The
+[reproduction guide](REPRODUCE.md) explains how to regenerate each path.
 
 ## Existing byte-pinned inputs
 
@@ -33,32 +32,30 @@ not the frozen binary hash above. Do not substitute that replay artifact for
 the pinned operating model or call its identical threshold a byte-identical
 model reproduction.
 
-## Missing before G13 can pass
+## Inputs resolved for the final freeze
 
-1. **KAN-52:** the declared main false-quarantine/FPR and containment-leakage
-   experiment, including all misses, censored runs, source-attempt windows,
-   benign interruption and interval uncertainty. This card was `Yapılacaklar`
-   on 20 September; no final plot can be invented from the G8 lab probe.
-2. **KAN-42/43/45 as applicable:** N = 2 / 300 s validation policy is recorded
-   in ADR-0004 decision 7b and the KAN-51 report. Real-run manifests, stage
-   costs and telemetry volume still need complete provenance. A blank field is
-   missing, not zero. Freeze only figures whose accepted runs exist.
-3. **KAN-50:** independent owner review of real
-   StateEvent→UDS→MQTT→PostgreSQL→Grafana G10, including correlation and
-   completeness. KAN-49/G8 received independent exact-head approval and
-   merged as PR #41; that local acceptance does not establish G10. CI,
-   Compose health and seeded dashboards have narrower scope.
-4. **KAN-53:** an actual Pi 5/ARM64 functional run and KAN-46 load/throttle
-   evidence now exist in the
-   [constrained Pi bundle](evidence/PI5_2026-09-22_constrained/README.md).
-   The guard marked its timing invalid. Freeze the functional observation with
-   that verdict, and leave Pi performance figures absent rather than replacing
-   them with laptop values. KAN-53 review and G10 acceptance remain separate.
-5. **Final inventory:** exact Git commit, hashes of every input/output and plot,
-   run IDs, environment/image/package versions, clock/boot mapping, declared
-   data role, threshold/N/lease and reviewer decision. Include failed or
-   incomplete runs and reasons. Record the set *before* drawing summary plots.
+1. KAN-52 retains the declared false-quarantine/leakage report, censored reasons
+   and uncertainty limitations.
+2. KAN-42/43/45 real-run manifests and bounded compute/telemetry measurements
+   are retained under `docs/evidence`.
+3. G8 and G10 raw/validated bundles are retained separately from synthetic demo
+   evidence.
+4. Both the performance-invalid constrained Pi run and the accepted fresh
+   benign Pi run are retained; no laptop value is substituted for Pi timing.
+5. The runtime profile pins the selected model, metadata, threshold, N and lease.
+   Adverse external-transfer and rejected augmentation results remain included.
 
-KAN-54 remains `Yapılacaklar` until these inputs are accepted and a frozen
-manifest/plot set is produced. KAN-60 must use that exact frozen set, not a
-later hand-picked subset.
+KAN-60 must use the generated immutable set rather than a later hand-picked
+subset. KAN-59's actual three-person rehearsal remains an organisational gate,
+not a missing measurement file.
+
+## Freeze mechanism
+
+`python -m measure.result_freeze create` now builds the final inventory from an
+explicit declaration and one or more selected files/directories. It refuses a
+dirty repository, paths outside the repository, symlinks, an empty selection
+and an existing output. The manifest records the exact Git commit, declaration
+content/hash, and every selected file's relative path, byte length and SHA-256.
+`python -m measure.result_freeze verify` rechecks those bytes before the demo or
+release. The final command will be executed only after the Pi comparison and
+model decision are committed and the exact release candidate is clean.

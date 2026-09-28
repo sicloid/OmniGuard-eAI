@@ -1,0 +1,44 @@
+{
+  "spec_version": "pi-benign-candidate-comparison/1",
+  "card": "KAN-69",
+  "declared_before_scoring": true,
+  "source": {
+    "run_directory": "omniguard-benign-v3-20260928",
+    "capture_host": "Raspberry Pi 5",
+    "device_ip": "192.168.228.12",
+    "role": "external benign deployment check",
+    "minimum_duration_seconds": 3600,
+    "required_tcpdump_exit": 0,
+    "required_device_frames_minimum": 1,
+    "required_throttled_before": "0x0",
+    "required_throttled_after": "0x0"
+  },
+  "profiles": [
+    {
+      "name": "kan19_frozen",
+      "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+      "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+      "threshold": 0.9798815486832,
+      "n": 2,
+      "lease_seconds": 300
+    },
+    {
+      "name": "extra128_regularized_candidate",
+      "model_sha256": "5c8909d717e79ca30b667140894ef0a1661835cf298437b956fbe5e95b5f843a",
+      "metadata_sha256": "3e0246b0c899d88eefe8fe99d348ad628b36bec95b9e7e003b3a942134e12c29",
+      "threshold": 0.6963136347603625,
+      "n": 2,
+      "lease_seconds": 300
+    }
+  ],
+  "reporting": [
+    "window count and anomalous-window count",
+    "window false-positive rate",
+    "false quarantine episodes",
+    "quarantines per observed and span device-hour",
+    "blocked seconds per span device-hour",
+    "rule-of-three upper bound when zero events are observed",
+    "all capture and extractor rejection counters"
+  ],
+  "decision_rule": "Do not select a runtime profile from this one-device run alone. Combine this evidence with IoT-23 validation recall, CICIoT2023 device-disjoint benign results, CICIoT2023 Backdoor transfer stress results, and G8 enforcement evidence; disclose every trade-off."
+}

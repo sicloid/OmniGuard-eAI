@@ -1,0 +1,2555 @@
+{
+  "card": "KAN-23",
+  "models": [
+    {
+      "aggregate": {
+        "anomalous_windows": 634,
+        "detected_devices": 9,
+        "device_recall": 0.17647058823529413,
+        "devices": 51,
+        "malicious_time_blocked_fraction": 0.21580645161290324,
+        "window_recall": 0.25564516129032255,
+        "windows": 2480
+      },
+      "devices": [
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:00:02:75:f6:e3:cb",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 5,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 9
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:00:17:88:60:d6:4f",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 30,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 37
+        },
+        {
+          "anomalous_windows": 13,
+          "blocked_seconds": 175.0,
+          "detected": true,
+          "detection_delay_seconds": 1865.5,
+          "episodes": [
+            {
+              "end": 1676298725.5,
+              "ended_by": "still quarantined when the capture ended",
+              "start": 1676298550.5,
+              "window_ts": 1676298545.0
+            }
+          ],
+          "group": "device:08:7c:39:ce:6e:2a",
+          "malicious_time_blocked_fraction": 0.2040983606557377,
+          "quarantines": 1,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 56,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.10655737704918032,
+          "windows": 122
+        },
+        {
+          "anomalous_windows": 41,
+          "blocked_seconds": 845.0,
+          "detected": true,
+          "detection_delay_seconds": 65.5,
+          "episodes": [
+            {
+              "end": 1676297045.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676296745.5,
+              "window_ts": 1676296740.0
+            },
+            {
+              "end": 1676298260.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676297960.5,
+              "window_ts": 1676297955.0
+            },
+            {
+              "end": 1676298695.5,
+              "ended_by": "still quarantined when the capture ended",
+              "start": 1676298450.5,
+              "window_ts": 1676298445.0
+            }
+          ],
+          "group": "device:10:5a:17:97:a5:c6",
+          "malicious_time_blocked_fraction": 0.782608695652174,
+          "quarantines": 3,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 35,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.8913043478260869,
+          "windows": 46
+        },
+        {
+          "anomalous_windows": 1,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:18:69:d8:eb:d4:3e",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.058823529411764705,
+          "windows": 17
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:1c:9d:c2:8c:9a:94",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 59,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 66
+        },
+        {
+          "anomalous_windows": 24,
+          "blocked_seconds": 450.0,
+          "detected": true,
+          "detection_delay_seconds": 85.5,
+          "episodes": [
+            {
+              "end": 1676297065.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676296765.5,
+              "window_ts": 1676296760.0
+            },
+            {
+              "end": 1676298725.5,
+              "ended_by": "still quarantined when the capture ended",
+              "start": 1676298575.5,
+              "window_ts": 1676298570.0
+            }
+          ],
+          "group": "device:1c:fe:2b:98:16:dd",
+          "malicious_time_blocked_fraction": 0.39916666666666667,
+          "quarantines": 2,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 62,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.2,
+          "windows": 120
+        },
+        {
+          "anomalous_windows": 4,
+          "blocked_seconds": 160.0,
+          "detected": true,
+          "detection_delay_seconds": 1855.5,
+          "episodes": [
+            {
+              "end": 1676298705.5,
+              "ended_by": "still quarantined when the capture ended",
+              "start": 1676298545.5,
+              "window_ts": 1676298540.0
+            }
+          ],
+          "group": "device:24:05:88:30:6f:89",
+          "malicious_time_blocked_fraction": 0.17142857142857143,
+          "quarantines": 1,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 32,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.11428571428571428,
+          "windows": 35
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:24:a1:60:14:7f:f9",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 36,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:28:6d:97:7a:2b:2d",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 52,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.3956043956043956,
+          "windows": 91
+        },
+        {
+          "anomalous_windows": 32,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:28:6d:97:9e:f4:d5",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 51,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.4,
+          "windows": 80
+        },
+        {
+          "anomalous_windows": 17,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:2c:71:ff:05:f1:15",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 46,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.12781954887218044,
+          "windows": 133
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:2c:d2:6b:66:d2:87",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 35,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 37
+        },
+        {
+          "anomalous_windows": 4,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:30:23:03:f3:84:2b",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 1.0,
+          "windows": 4
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:34:75:63:73:f3:36",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 27,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 153
+        },
+        {
+          "anomalous_windows": 73,
+          "blocked_seconds": 835.0,
+          "detected": true,
+          "detection_delay_seconds": 10.5,
+          "episodes": [
+            {
+              "end": 1676296995.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676296695.5,
+              "window_ts": 1676296690.0
+            },
+            {
+              "end": 1676298315.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676298015.5,
+              "window_ts": 1676298010.0
+            },
+            {
+              "end": 1676298720.5,
+              "ended_by": "still quarantined when the capture ended",
+              "start": 1676298485.5,
+              "window_ts": 1676298480.0
+            }
+          ],
+          "group": "device:3c:37:86:6f:b9:51",
+          "malicious_time_blocked_fraction": 0.8289473684210527,
+          "quarantines": 3,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 54,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.9605263157894737,
+          "windows": 76
+        },
+        {
+          "anomalous_windows": 70,
+          "blocked_seconds": 840.0,
+          "detected": true,
+          "detection_delay_seconds": 10.5,
+          "episodes": [
+            {
+              "end": 1676296995.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676296695.5,
+              "window_ts": 1676296690.0
+            },
+            {
+              "end": 1676298260.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676297960.5,
+              "window_ts": 1676297955.0
+            },
+            {
+              "end": 1676298725.5,
+              "ended_by": "still quarantined when the capture ended",
+              "start": 1676298485.5,
+              "window_ts": 1676298480.0
+            }
+          ],
+          "group": "device:40:5d:82:35:14:c8",
+          "malicious_time_blocked_fraction": 0.8857142857142857,
+          "quarantines": 3,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 54,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 1.0,
+          "windows": 70
+        },
+        {
+          "anomalous_windows": 4,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:44:01:bb:ec:10:4a",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 45,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.06349206349206349,
+          "windows": 63
+        },
+        {
+          "anomalous_windows": 149,
+          "blocked_seconds": 895.0,
+          "detected": true,
+          "detection_delay_seconds": 20.5,
+          "episodes": [
+            {
+              "end": 1676297000.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676296700.5,
+              "window_ts": 1676296695.0
+            },
+            {
+              "end": 1676298255.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676297955.5,
+              "window_ts": 1676297950.0
+            },
+            {
+              "end": 1676298725.5,
+              "ended_by": "still quarantined when the capture ended",
+              "start": 1676298430.5,
+              "window_ts": 1676298425.0
+            }
+          ],
+          "group": "device:44:bb:3b:00:39:07",
+          "malicious_time_blocked_fraction": 0.9489010989010989,
+          "quarantines": 3,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 2,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.8186813186813187,
+          "windows": 182
+        },
+        {
+          "anomalous_windows": 12,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:48:a6:b8:f9:1b:88",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 17,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.42857142857142855,
+          "windows": 28
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:50:02:91:10:09:8f",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:50:02:91:10:ac:d8",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:50:02:91:1a:ce:e1",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:50:14:79:37:80:18",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 0,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 1
+        },
+        {
+          "anomalous_windows": 1,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:68:57:2d:56:ac:47",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 16,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.05555555555555555,
+          "windows": 18
+        },
+        {
+          "anomalous_windows": 16,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:6c:5a:b0:44:1d:90",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 20,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.6956521739130435,
+          "windows": 23
+        },
+        {
+          "anomalous_windows": 2,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:70:ee:50:68:0e:32",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 78,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.019801980198019802,
+          "windows": 101
+        },
+        {
+          "anomalous_windows": 27,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:7c:78:b2:86:0d:81",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 2,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.15,
+          "windows": 180
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:7c:a7:b0:cd:18:32",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 21,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 24
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:84:7a:b6:62:3a:6c",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 35,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 36
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:84:7a:b6:64:62:58",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 36,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 40
+        },
+        {
+          "anomalous_windows": 1,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:84:e3:42:42:ed:0b",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 16,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.05555555555555555,
+          "windows": 18
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:8c:85:80:6c:b6:47",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 44,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 68
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:9c:8e:cd:1d:ab:9f",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 43,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 51
+        },
+        {
+          "anomalous_windows": 1,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:b0:09:da:3e:82:6b",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 33,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.027777777777777776,
+          "windows": 36
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:b0:c5:54:59:2e:99",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:b8:5f:98:d0:76:e6",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 29,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 30
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:b8:f0:09:03:29:79",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:b8:f0:09:03:9a:af",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 43,
+          "blocked_seconds": 800.0,
+          "detected": true,
+          "detection_delay_seconds": 115.5,
+          "episodes": [
+            {
+              "end": 1676297115.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676296815.5,
+              "window_ts": 1676296810.0
+            },
+            {
+              "end": 1676298320.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676298020.5,
+              "window_ts": 1676298015.0
+            },
+            {
+              "end": 1676298720.5,
+              "ended_by": "still quarantined when the capture ended",
+              "start": 1676298520.5,
+              "window_ts": 1676298515.0
+            }
+          ],
+          "group": "device:c0:e7:bf:0a:79:d1",
+          "malicious_time_blocked_fraction": 0.6564102564102564,
+          "quarantines": 3,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 29,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.36752136752136755,
+          "windows": 117
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:c4:dd:57:0c:39:94",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:c4:dd:57:13:07:c6",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 14,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:cc:f4:11:9c:d0:00",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 42,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.15555555555555556,
+          "windows": 90
+        },
+        {
+          "anomalous_windows": 2,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:d4:a6:51:20:91:d1",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 15,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.1111111111111111,
+          "windows": 18
+        },
+        {
+          "anomalous_windows": 2,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:d4:a6:51:21:6c:29",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.11764705882352941,
+          "windows": 17
+        },
+        {
+          "anomalous_windows": 2,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:d4:a6:51:76:06:64",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.11764705882352941,
+          "windows": 17
+        },
+        {
+          "anomalous_windows": 2,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:d4:a6:51:78:97:4e",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.11764705882352941,
+          "windows": 17
+        },
+        {
+          "anomalous_windows": 1,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:d4:ad:fc:29:c8:a2",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 13,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.06666666666666667,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:dc:a6:32:c9:e4:c6",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 0,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 1
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:dc:a6:32:c9:e6:f4",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 0,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 1
+        },
+        {
+          "anomalous_windows": 40,
+          "blocked_seconds": 600.0,
+          "detected": true,
+          "detection_delay_seconds": 15.5,
+          "episodes": [
+            {
+              "end": 1676297000.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676296700.5,
+              "window_ts": 1676296695.0
+            },
+            {
+              "end": 1676298260.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676297960.5,
+              "window_ts": 1676297955.0
+            }
+          ],
+          "group": "device:e8:1b:69:f8:d6:e6",
+          "malicious_time_blocked_fraction": 0.8052631578947368,
+          "quarantines": 2,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 30,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.7017543859649122,
+          "windows": 57
+        }
+      ],
+      "metadata_sha256": "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+      "model_sha256": "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+      "name": "KAN-19 Random Forest",
+      "threshold": 0.9798815486832
+    },
+    {
+      "aggregate": {
+        "anomalous_windows": 159,
+        "detected_devices": 2,
+        "device_recall": 0.0392156862745098,
+        "devices": 51,
+        "malicious_time_blocked_fraction": 0.06314516129032258,
+        "window_recall": 0.06411290322580646,
+        "windows": 2480
+      },
+      "devices": [
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:00:02:75:f6:e3:cb",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 5,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 9
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:00:17:88:60:d6:4f",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 30,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 37
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:08:7c:39:ce:6e:2a",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 56,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 122
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:10:5a:17:97:a5:c6",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 35,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 46
+        },
+        {
+          "anomalous_windows": 1,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:18:69:d8:eb:d4:3e",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.058823529411764705,
+          "windows": 17
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:1c:9d:c2:8c:9a:94",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 59,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 66
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:1c:fe:2b:98:16:dd",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 62,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 120
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:24:05:88:30:6f:89",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 32,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 35
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:24:a1:60:14:7f:f9",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:28:6d:97:7a:2b:2d",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 52,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 91
+        },
+        {
+          "anomalous_windows": 1,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:28:6d:97:9e:f4:d5",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 51,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0125,
+          "windows": 80
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:2c:71:ff:05:f1:15",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 46,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 133
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:2c:d2:6b:66:d2:87",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 35,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 37
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:30:23:03:f3:84:2b",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 3,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 4
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:34:75:63:73:f3:36",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 27,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 153
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:3c:37:86:6f:b9:51",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 54,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 76
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:40:5d:82:35:14:c8",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 54,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 70
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:44:01:bb:ec:10:4a",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 45,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 63
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:44:bb:3b:00:39:07",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 2,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 182
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:48:a6:b8:f9:1b:88",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 17,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 28
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:50:02:91:10:09:8f",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:50:02:91:10:ac:d8",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:50:02:91:1a:ce:e1",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:50:14:79:37:80:18",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 0,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 1
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:68:57:2d:56:ac:47",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 16,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 18
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:6c:5a:b0:44:1d:90",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 20,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 23
+        },
+        {
+          "anomalous_windows": 2,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:70:ee:50:68:0e:32",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 78,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.019801980198019802,
+          "windows": 101
+        },
+        {
+          "anomalous_windows": 7,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:7c:78:b2:86:0d:81",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 2,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.03888888888888889,
+          "windows": 180
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:7c:a7:b0:cd:18:32",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 21,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 24
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:84:7a:b6:62:3a:6c",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 35,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 36
+        },
+        {
+          "anomalous_windows": 1,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:84:7a:b6:64:62:58",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 36,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.025,
+          "windows": 40
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:84:e3:42:42:ed:0b",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 16,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 18
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:8c:85:80:6c:b6:47",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 44,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 68
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:9c:8e:cd:1d:ab:9f",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 43,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 51
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:b0:09:da:3e:82:6b",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 33,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 36
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:b0:c5:54:59:2e:99",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:b8:5f:98:d0:76:e6",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 29,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 30
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:b8:f0:09:03:29:79",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:b8:f0:09:03:9a:af",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 103,
+          "blocked_seconds": 890.0,
+          "detected": true,
+          "detection_delay_seconds": 10.5,
+          "episodes": [
+            {
+              "end": 1676297010.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676296710.5,
+              "window_ts": 1676296705.0
+            },
+            {
+              "end": 1676298265.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676297965.5,
+              "window_ts": 1676297960.0
+            },
+            {
+              "end": 1676298720.5,
+              "ended_by": "still quarantined when the capture ended",
+              "start": 1676298430.5,
+              "window_ts": 1676298425.0
+            }
+          ],
+          "group": "device:c0:e7:bf:0a:79:d1",
+          "malicious_time_blocked_fraction": 0.9376068376068376,
+          "quarantines": 3,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 29,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.8803418803418803,
+          "windows": 117
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:c4:dd:57:0c:39:94",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:c4:dd:57:13:07:c6",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:cc:f4:11:9c:d0:00",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 42,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 90
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:d4:a6:51:20:91:d1",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 15,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 18
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:d4:a6:51:21:6c:29",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 17
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:d4:a6:51:76:06:64",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 17
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:d4:a6:51:78:97:4e",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 14,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 17
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:d4:ad:fc:29:c8:a2",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 13,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 15
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:dc:a6:32:c9:e4:c6",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 0,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 1
+        },
+        {
+          "anomalous_windows": 0,
+          "blocked_seconds": 0,
+          "detected": false,
+          "detection_delay_seconds": null,
+          "episodes": [],
+          "group": "device:dc:a6:32:c9:e6:f4",
+          "malicious_time_blocked_fraction": 0.0,
+          "quarantines": 0,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 0,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.0,
+          "windows": 1
+        },
+        {
+          "anomalous_windows": 44,
+          "blocked_seconds": 600.0,
+          "detected": true,
+          "detection_delay_seconds": 10.5,
+          "episodes": [
+            {
+              "end": 1676296995.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676296695.5,
+              "window_ts": 1676296690.0
+            },
+            {
+              "end": 1676298260.5,
+              "ended_by": "lease expired; not a clean bill",
+              "start": 1676297960.5,
+              "window_ts": 1676297955.0
+            }
+          ],
+          "group": "device:e8:1b:69:f8:d6:e6",
+          "malicious_time_blocked_fraction": 0.8228070175438597,
+          "quarantines": 2,
+          "rejections": {
+            "duplicate": 0,
+            "future": 0,
+            "misaligned": 0,
+            "stale": 0
+          },
+          "resets": {
+            "gap": 30,
+            "invalidated": 0,
+            "model_change": 0
+          },
+          "window_recall": 0.7719298245614035,
+          "windows": 57
+        }
+      ],
+      "metadata_sha256": "3e0246b0c899d88eefe8fe99d348ad628b36bec95b9e7e003b3a942134e12c29",
+      "model_sha256": "5c8909d717e79ca30b667140894ef0a1661835cf298437b956fbe5e95b5f843a",
+      "name": "KAN-67 regularized ExtraTrees candidate",
+      "threshold": 0.6963136347603625
+    }
+  ],
+  "pack_windows_sha256": "a59787d9073522f6d89edf4698c7fd1fda72fd211333221c1323fb8f66aee691",
+  "source_limit": "CICIoT2023 Backdoor_Malware folder-level declaration; not flow-level ground truth",
+  "spec_sha256": "b33fc2a0d99149dcb9240cf9e8ba2f9774ecfc74c5659a2916de749d975f1e0d"
+}

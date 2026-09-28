@@ -1,5 +1,37 @@
 # Development status — 2026-09-12
 
+## 28 September 2026 update
+
+PR #57 is the current release candidate. Sixty downloaded CICIoT2023 PCAPs
+(116,007,104,493 bytes) were inventoried; four benign captures produced 322,393
+five-second windows across 59 stable device groups. The frozen KAN-19 model
+failed this external benign check at 19.55% development FPR and 21.97% one-shot
+holdout FPR. The existing regularized ExtraTrees candidate reduced development
+FPR to 0.957%, but on the separate folder-labelled CIC Backdoor EGRESS stress
+set its window recall was only 6.41%, versus 25.56% for KAN-19. No model is
+silently promoted from one favourable metric.
+
+The candidate passed orderly and controller-SIGKILL/kernel-TTL G8 regressions
+with its exact model and metadata hashes. The current suite passes 694 tests
+with three platform skips; Ruff and hosted Linux/Windows/macOS/platform checks
+pass. A full `./demo.sh` rehearsal passed platform health/access, synthetic
+isolated containment, cleanup and sealed G10 verification; the committed log
+is explicitly labelled synthetic wiring rather than G8 accuracy evidence.
+
+The fresh Raspberry Pi benign comparison is complete. The accepted one-hour
+run retained 4,749 device frames with `tcpdump_exit=0` and `throttled=0x0`
+before and after. Frozen KAN-19 produced 75.00% window FPR, ten false
+quarantines and 2,980 blocked seconds; the ExtraTrees candidate produced zero
+anomalous windows and zero quarantine in the same 328-window pack. The zero is
+bounded by only 0.4556 observed device-hours and is reported with a rule-of-three
+upper rate of 6.58 per observed device-hour.
+
+The candidate is selected as the bounded competition/demo runtime profile. It
+retains the 99.16% worst-seed IoT-23 validation result, the 0.957% CIC benign
+development FPR and passed hash-pinned G8, but its 6.41% CIC Backdoor stress
+recall remains a material limitation. G13 final freeze, exact-head review, the
+three-person Q&A record and the final release tag remain open.
+
 ## 22 September 2026 update
 
 PRs #43 and #44 are merged. The Lead froze validation policy N = 2 / lease =

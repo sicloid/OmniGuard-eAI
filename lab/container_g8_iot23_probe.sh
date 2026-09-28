@@ -2,6 +2,8 @@
 # Frozen RF + hash-pinned, explicitly transformed IoT-23 SYN slice in owned lab.
 set -Eeuo pipefail
 EVIDENCE=/tmp/g8-iot23-evidence
+MODEL_SHA256=${OMNIGUARD_MODEL_SHA256:-d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b}
+METADATA_SHA256=${OMNIGUARD_METADATA_SHA256:-917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad}
 mkdir -p "$EVIDENCE"
 pids=()
 core_pid=''
@@ -44,8 +46,8 @@ if [[ -n ${G10_EVENT_SOCKET:-} ]]; then
 fi
 ip netns exec og-b python -m lab.g8_core \
     --artifact-dir /opt/g8-model \
-    --model-sha256 d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b \
-    --metadata-sha256 917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad \
+    --model-sha256 "$MODEL_SHA256" \
+    --metadata-sha256 "$METADATA_SHA256" \
     --seconds 24 --n 1 --lease-seconds 6 "${g10_args[@]}" \
     > "$EVIDENCE/core.jsonl" 2> "$EVIDENCE/core.err" &
 core_pid=$!

@@ -116,6 +116,8 @@ def _run_core(args, bridge: GatewayEventBridge | None) -> int:
             "ready",
             model_id=detector.spec.model_id,
             model_version=detector.spec.model_version,
+            model_sha256=args.model_sha256,
+            metadata_sha256=args.metadata_sha256,
             start=start,
             threshold=detector.spec.threshold,
             n=args.n,

@@ -79,6 +79,7 @@ class CaptureSpec:
     conn_log: Path | None = None
     declared_label: str | None = None
     notes: str = ""
+    group_by_device: bool = False
 
     def __post_init__(self) -> None:
         if not self.group_id.strip():
@@ -203,10 +204,14 @@ def build_sample_pack(
                 continue
             label = _label_window(packets, index, spec.declared_label, counts)
             counts.windows[label] += 1
+            # External multi-capture sources can repeat the same physical device in
+            # several files. Group only by stable device identity so no capture name
+            # can put that device on both sides of a split.
+            group_id = f"device:{device_id}" if spec.group_by_device else spec.group_id
             lines.append(
                 json.dumps(
                     {
-                        "group": spec.group_id,
+                        "group": group_id,
                         "device_id": device_id,
                         "window_start": start,
                         "label": label,
@@ -232,6 +237,7 @@ def build_sample_pack(
                 "lan_cidrs": list(spec.lan_cidrs),
                 "devices": dict(spec.devices),
                 "label_source": "declared" if spec.declared_label else "flow-log",
+                "split_grouping": "capture+device" if spec.group_by_device else "capture",
                 "notes": notes,
                 "packets": {
                     "read": counts.packets,

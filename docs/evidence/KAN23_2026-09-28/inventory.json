@@ -1,0 +1,369 @@
+{
+  "capture_count": 60,
+  "captures": [
+    {
+      "attack_or_role": "Backdoor_Malware",
+      "bytes": 10544806,
+      "path": "Backdoor_Malware/Backdoor_Malware.pcap",
+      "sha256": "7b0a7cb3a9c569939526e3bc97e29ddfd1599e2c7af099b0e04d50ca8a4e3bd8"
+    },
+    {
+      "attack_or_role": "Benign_Final",
+      "bytes": 2048000100,
+      "path": "Benign_Final/BenignTraffic.pcap",
+      "sha256": "549a89337f529412f2507f862d06394c95e5966b9c01aaa980511590657d1dc8"
+    },
+    {
+      "attack_or_role": "Benign_Final",
+      "bytes": 2048002499,
+      "path": "Benign_Final/BenignTraffic1.pcap",
+      "sha256": "7af057c6681e076151cc28e123a44ea6ff0e3b174d39d456ba7ccf1ac22d24c0"
+    },
+    {
+      "attack_or_role": "Benign_Final",
+      "bytes": 2048001991,
+      "path": "Benign_Final/BenignTraffic2.pcap",
+      "sha256": "ddafc1c1d3432bdde55340423196ceee79bba47b48b14179ae48d561cca341b8"
+    },
+    {
+      "attack_or_role": "Benign_Final",
+      "bytes": 853841091,
+      "path": "Benign_Final/BenignTraffic3.pcap",
+      "sha256": "af98016449742052bca87d7ac598cf6e4e4558c33480cdb665f93da7b60b6e11"
+    },
+    {
+      "attack_or_role": "DDoS-SYN_Flood",
+      "bytes": 2048000063,
+      "path": "DDoS-SYN_Flood/DDoS-SYN_Flood.pcap",
+      "sha256": "5e8124a87e12483af05cb5b4f36dc095c2a979b08f2ee4e18918c26ad3b041b8"
+    },
+    {
+      "attack_or_role": "DDoS-SYN_Flood",
+      "bytes": 2048000055,
+      "path": "DDoS-SYN_Flood/DDoS-SYN_Flood1.pcap",
+      "sha256": "ff5c25cd6d5eb7fd15b599a93e5e53b3c74bc2d528b8f0429c95ab2114ef6fc5"
+    },
+    {
+      "attack_or_role": "DDoS-SYN_Flood",
+      "bytes": 2048000072,
+      "path": "DDoS-SYN_Flood/DDoS-SYN_Flood10.pcap",
+      "sha256": "ea6223afa0458d117e90bb2972145cfa002d2172f7a5a706ca32d5fa4c59f1c9"
+    },
+    {
+      "attack_or_role": "DDoS-SYN_Flood",
+      "bytes": 2048000057,
+      "path": "DDoS-SYN_Flood/DDoS-SYN_Flood11.pcap",
+      "sha256": "316100adea79bea0f6c06b0fa2bf0b3fef3dd1a761b92f96eb9235e4e08a0654"
+    },
+    {
+      "attack_or_role": "DDoS-SYN_Flood",
+      "bytes": 2048000017,
+      "path": "DDoS-SYN_Flood/DDoS-SYN_Flood12.pcap",
+      "sha256": "382a6605f154610e87912fc9d9f92b339e9879c964765d81afcd484070df550b"
+    },
+    {
+      "attack_or_role": "DDoS-SYN_Flood",
+      "bytes": 2048000068,
+      "path": "DDoS-SYN_Flood/DDoS-SYN_Flood13.pcap",
+      "sha256": "5f06d1b1a00d8a8966e04d3631c8141ff0ffaaee60df1bb6bf4f8af1fb41a285"
+    },
+    {
+      "attack_or_role": "DDoS-SYN_Flood",
+      "bytes": 2048000064,
+      "path": "DDoS-SYN_Flood/DDoS-SYN_Flood14.pcap",
+      "sha256": "613ef49b7b8723e1d00a2c65e0102e922efa2cf7220dbf5f3b901fa08cae63fa"
+    },
+    {
+      "attack_or_role": "DDoS-SYN_Flood",
+      "bytes": 1059387506,
+      "path": "DDoS-SYN_Flood/DDoS-SYN_Flood15.pcap",
+      "sha256": "cac4947ac5b84447b7da9e49ff31dfdc394b4f8f60f9af83987d1fb02be355aa"
+    },
+    {
+      "attack_or_role": "DDoS-SYN_Flood",
+      "bytes": 2048000075,
+      "path": "DDoS-SYN_Flood/DDoS-SYN_Flood3.pcap",
+      "sha256": "c1e9ef4c0ddf6e75f9fe8bdf65a05b74ab8929ff100734a3b3364d6f5504cf94"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000061,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood.pcap",
+      "sha256": "541250a7494dca056bdf584e8c6705a346c85c8561319d251e3afc167c6c00c4"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000020,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood1.pcap",
+      "sha256": "f08e10bf3a7ab20a537d86abf15f286b35cab37e301d2a5c16ffb2c069904c04"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000067,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood10.pcap",
+      "sha256": "a6917e8804d31b9a7f042ed55d5bc693fd006742892ce52d8d375fef70e86e89"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000047,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood11.pcap",
+      "sha256": "64d9fe56e87b3a098b2f7916df87b41628874f182968e090274094ac21aabc9c"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000058,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood12.pcap",
+      "sha256": "32e837652d520cefaaa2b4b9670bd1b904db9426b39092663738545c57de5aa9"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000028,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood13.pcap",
+      "sha256": "f82039b5e71ee73d54c90d10931026275fcda1a43a6c31cdad6bba0a34d8da2c"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000021,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood14.pcap",
+      "sha256": "4af3c7b444b8e24d3bda8881c8bc10ca3e3ecba690d7c7114d5e2dff820ae8d6"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000029,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood15.pcap",
+      "sha256": "cbdd61a6f2b853fee8be0ba57e5706d3a83a57ed7875f107783e2722a8d2908d"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000011,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood16.pcap",
+      "sha256": "dd5f7089c3c7d53ff184c19c217718bd18d201a055c8efbafc9be224f1361ccf"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000043,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood17.pcap",
+      "sha256": "1af22e893dd444e873f459dc932b02ee0e8caff29a278ff7c5c393b5cca07820"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000003,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood18.pcap",
+      "sha256": "d11cfe504dac289c319fcf8e7f37ead0da0126d5a0599dd092299abee86be2b2"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000015,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood19.pcap",
+      "sha256": "d2bbc486f08bced59c9ca7543aec88dfd1ee91e5352644eafd9b69a0a7844cd9"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000056,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood2.pcap",
+      "sha256": "f552c9f1964ae00d50251200fa4ec816011e166a9ecf4db86d009d4f694584b2"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 603450025,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood20.pcap",
+      "sha256": "810369adfc1722adcd254a6200ed6860962375be644cbbde7090752567408808"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000022,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood3.pcap",
+      "sha256": "e03426f22e98c7ca82fd68dd02721a31aa4b84095ad553e641efe9374b8fde5d"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000075,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood4.pcap",
+      "sha256": "57f2333f40c5ced8e31ac2962049951fd982223f1f682e37b4e5730ce71481b7"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000049,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood5.pcap",
+      "sha256": "a0e8aa257fd7fdc56b213afb4d107cf2f508b59985291917865c1af71d826a94"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000012,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood6.pcap",
+      "sha256": "d2952aded639e88fb8e63cddbe71fddd944a4b37bdd4304b8e5effa0ebe288db"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000049,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood7.pcap",
+      "sha256": "93fb5eb5d63703b3ddd89cf144b96c6ad2aed6cbb3880d6c352276c8879fa434"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000071,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood8.pcap",
+      "sha256": "8a933b48e5b94437e185a257a63fa4502a935c33fba7654d71d675749bceafa6"
+    },
+    {
+      "attack_or_role": "DDoS-UDP_Flood",
+      "bytes": 2048000005,
+      "path": "DDoS-UDP_Flood/DDoS-UDP_Flood9.pcap",
+      "sha256": "caf77f26d3b210258e828a7e1d65177cc7268072b3249a964e6219b41401b7c2"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000451,
+      "path": "Mirai-udpplain/Mirai-udpplain.pcap",
+      "sha256": "845a8c833c5841203b75d776a353526f55a7fbcd9ca3079b53848e85a62ed3a7"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000496,
+      "path": "Mirai-udpplain/Mirai-udpplain1.pcap",
+      "sha256": "89b83d20f1e737e4fe564644a9e837f36e2a3743eaffb7ea13647fb8b09753e7"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000226,
+      "path": "Mirai-udpplain/Mirai-udpplain10.pcap",
+      "sha256": "29fea51297340c0dad7a5281ceea07f38c761c6f4be9f746f953b4b922623e1b"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000479,
+      "path": "Mirai-udpplain/Mirai-udpplain11.pcap",
+      "sha256": "fa7ca9115aa04fc7528ad266bd86c1ecf8f5223ad54d1ff0860f577988b2391f"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000417,
+      "path": "Mirai-udpplain/Mirai-udpplain12.pcap",
+      "sha256": "0dadeb1f47ab24a0d44a1f63d390901444cac03a5b44a634a10242c4d6ab9ef3"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000261,
+      "path": "Mirai-udpplain/Mirai-udpplain13.pcap",
+      "sha256": "567d15250fcb61683811b135dedccf2f4a60398fb45f1c2aafaaaa6e909779cb"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000317,
+      "path": "Mirai-udpplain/Mirai-udpplain14.pcap",
+      "sha256": "89d7dc3433c9f1eb06cb8c15e21b1b33b3214f177567dc93f984168e517c5c10"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000196,
+      "path": "Mirai-udpplain/Mirai-udpplain15.pcap",
+      "sha256": "eba8391ea5b9f0332750c23e2296d34ef8cb53f2384690ef34b620f53f60e64e"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000120,
+      "path": "Mirai-udpplain/Mirai-udpplain16.pcap",
+      "sha256": "e2f9f59d79474b464683c73a3d43461429c9f4ce884ad913d0522b542ba75ff6"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000536,
+      "path": "Mirai-udpplain/Mirai-udpplain17.pcap",
+      "sha256": "b8b099c768ba8cdc314232d49fce9521bfa84494bb39da93c5f6e5783de73d66"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000217,
+      "path": "Mirai-udpplain/Mirai-udpplain18.pcap",
+      "sha256": "fce989b43bb9f434c3e02fb94536ab22bb3f8cecbf273ece5688e1f9873cf520"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000027,
+      "path": "Mirai-udpplain/Mirai-udpplain19.pcap",
+      "sha256": "3a475cc4f482dad87238b97035855202d02b5638a1d023e5f9f831adc33bd2e5"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000520,
+      "path": "Mirai-udpplain/Mirai-udpplain2.pcap",
+      "sha256": "47c00e6f2a204ccdd01e0a0df33aeee64135cf35bb8153ebf0419870031afdf3"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000174,
+      "path": "Mirai-udpplain/Mirai-udpplain20.pcap",
+      "sha256": "9d4fec1b223d5c98a218e9b1d82384a2a2a20e20db0722aee9aa65fe3206e218"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000401,
+      "path": "Mirai-udpplain/Mirai-udpplain21.pcap",
+      "sha256": "0d66080b1d72a78aa18acb08e6eb6d8d176b95f2b653e87c429d2088fa4e4a11"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000513,
+      "path": "Mirai-udpplain/Mirai-udpplain22.pcap",
+      "sha256": "9454ddf13b2ae7660d30a0fa9851fdcaabad811512af1360396eb9bb7ab7c512"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000103,
+      "path": "Mirai-udpplain/Mirai-udpplain23.pcap",
+      "sha256": "6fbebf55063dcf0b0b25c9a2e4acf037efb548ecd6f58e9fa492296f5f2aec08"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 839868044,
+      "path": "Mirai-udpplain/Mirai-udpplain24.pcap",
+      "sha256": "adff7dcd1a9f2c19ca01c6df051555bfefdc2acf59277bd9dbe0dab3bd9791f5"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000539,
+      "path": "Mirai-udpplain/Mirai-udpplain3.pcap",
+      "sha256": "c32784ab3998d2e1d5299e6f3cda9254a42d547c94d1d010829bb8c31be63294"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000057,
+      "path": "Mirai-udpplain/Mirai-udpplain4.pcap",
+      "sha256": "519b5469e7c2182e0e0266cbb1e16f3d8f8d5ffc6e5c30932913557e7b8d8562"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000522,
+      "path": "Mirai-udpplain/Mirai-udpplain5.pcap",
+      "sha256": "859b3329aa34c700c7ef541b16b6be40d3b45b3cae212419669d1f6739261c5a"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000007,
+      "path": "Mirai-udpplain/Mirai-udpplain6.pcap",
+      "sha256": "2f9566dcae476b0db8ede6114466bfdabaf3d7bdff8c565bf6b4c16275eca25e"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000003,
+      "path": "Mirai-udpplain/Mirai-udpplain7.pcap",
+      "sha256": "85c1b93dea5b76ef3015241fb002e9f7012263c4a7f7d2f9f85caa72da5f2fb6"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000102,
+      "path": "Mirai-udpplain/Mirai-udpplain8.pcap",
+      "sha256": "e21d2ffb9829edc20375285db0a7e91803e4c11b94a5e7061aefdd41b64531ae"
+    },
+    {
+      "attack_or_role": "Mirai-udpplain",
+      "bytes": 2048000534,
+      "path": "Mirai-udpplain/Mirai-udpplain9.pcap",
+      "sha256": "c4517770ecdcf88b702d8dd2812b81aa08dc433234038a932ec1a20ff865ea0a"
+    }
+  ],
+  "root_name": "PCAP",
+  "schema": "omniguard.ciciot2023-local-inventory/1",
+  "total_bytes": 116007104493,
+  "warning": "Inventory is provenance, not authorization for training. Direction/topology and data role must be accepted before a capture enters an experiment."
+}

@@ -1,19 +1,32 @@
 """Check real RF/IoT-23 live integration without claiming the process-kill gate."""
 
 import json
+import os
 import sys
 from pathlib import Path
 
 from lab.g8_probe_evidence import assess_protocol
 
-MODEL_ID = "rf-iot23"
+MODEL_SHA256 = os.environ.get(
+    "OMNIGUARD_MODEL_SHA256",
+    "d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b",
+)
+METADATA_SHA256 = os.environ.get(
+    "OMNIGUARD_METADATA_SHA256",
+    "917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad",
+)
+LEGACY_IDENTITY = ("rf-iot23", "0.1.0-seed1-kan19")
 
 
 def validate(root: Path) -> dict:
     records = [json.loads(line) for line in (root / "core.jsonl").read_text().splitlines()]
     ready = next(item for item in records if item["kind"] == "ready")
-    if ready["model_id"] != MODEL_ID or ready["model_version"] != "0.1.0-seed1-kan19":
-        raise ValueError("not the frozen KAN-19 model")
+    has_pins = "model_sha256" in ready and "metadata_sha256" in ready
+    if has_pins:
+        if ready["model_sha256"] != MODEL_SHA256 or ready["metadata_sha256"] != METADATA_SHA256:
+            raise ValueError("ready record carries different artifact pins")
+    elif (ready["model_id"], ready["model_version"]) != LEGACY_IDENTITY:
+        raise ValueError("legacy ready record is not the frozen KAN-19 identity")
     replay_dirs = list((root / "replay-runs").iterdir())
     if len(replay_dirs) != 1:
         raise ValueError("expected exactly one replay")
@@ -73,6 +86,16 @@ def validate(root: Path) -> dict:
         raise ValueError("local service did not remain available during gateway block")
     return {
         "status": "partial_real_model_iot23_core",
+        **(
+            {
+                "model_id": ready["model_id"],
+                "model_version": ready["model_version"],
+                "model_sha256": ready["model_sha256"],
+                "metadata_sha256": ready["metadata_sha256"],
+            }
+            if has_pins
+            else {}
+        ),
         "not_yet_proven": ["process-kill/kernel-TTL run", "independent owner review"],
         "prepared_pcap_sha256": replay["prepared_pcap_sha256"],
         "replay_t0_send_begin_ns": t0,

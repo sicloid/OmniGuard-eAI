@@ -1,0 +1,7 @@
+{"type": "clock_mapping", "utc_ns": 1790547053017450995, "monotonic_before_ns": 2892526647893, "monotonic_after_ns": 2892526648704}
+{"type": "send_begin", "record": 1, "capture_ts": "1533047044.299948", "scheduled_ns": 2892526648704, "intent_ns": 2892526695320, "l3_bytes": 60}
+{"type": "send_return", "record": 1, "capture_ts": "1533047044.299948", "scheduled_ns": 2892526648704, "intent_ns": 2892526695320, "l3_bytes": 60, "send_begin_ns": 2892526706611, "send_return_ns": 2892526750001}
+{"type": "send_begin", "record": 2, "capture_ts": "1533047045.371332", "scheduled_ns": 2893598032704, "intent_ns": 2893598120509, "l3_bytes": 60}
+{"type": "send_return", "record": 2, "capture_ts": "1533047045.371332", "scheduled_ns": 2893598032704, "intent_ns": 2893598120509, "l3_bytes": 60, "send_begin_ns": 2893598179037, "send_return_ns": 2893598234168}
+{"type": "send_begin", "record": 3, "capture_ts": "1533047047.451406", "scheduled_ns": 2895678106704, "intent_ns": 2895678184338, "l3_bytes": 60}
+{"type": "send_return", "record": 3, "capture_ts": "1533047047.451406", "scheduled_ns": 2895678106704, "intent_ns": 2895678184338, "l3_bytes": 60, "send_begin_ns": 2895678238548, "send_return_ns": 2895678268012}

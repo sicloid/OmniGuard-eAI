@@ -1,0 +1,116 @@
+{
+  "candidates": {
+    "extra128_augmented": {
+      "kind": "extra_trees",
+      "max_depth": 12,
+      "min_samples_leaf": 10,
+      "n_estimators": 128
+    },
+    "extra256_augmented": {
+      "kind": "extra_trees",
+      "max_depth": 16,
+      "min_samples_leaf": 5,
+      "n_estimators": 256
+    },
+    "rf128_augmented": {
+      "kind": "random_forest",
+      "max_depth": 16,
+      "min_samples_leaf": 5,
+      "n_estimators": 128
+    }
+  },
+  "card": "KAN-69",
+  "ciciot_pack": {
+    "master_spec_sha256": "46d9668bd385bfc9ca6047c21b3934ff7e71a19092ff13a9e27a4b681e5c8498",
+    "windows_sha256": "f4c2dfc5005a857f8fdaa49ab5c581b868ebc8a57c2711291d929727003e903e"
+  },
+  "ciciot_split": {
+    "algorithm": "sort sha256(domain-augmented-v1:stable-device-group); first floor(20%) of predeclared development devices is domain validation",
+    "forbidden_holdout": [
+      "device:18:69:d8:eb:d4:3e",
+      "device:2c:71:ff:05:f1:15",
+      "device:48:a6:b8:f9:1b:88",
+      "device:7c:78:b2:86:0d:81",
+      "device:ac:17:02:05:34:27",
+      "device:ac:f1:08:4e:00:82",
+      "device:b0:f1:ec:d3:e7:98",
+      "device:b8:5f:98:d0:76:e6",
+      "device:d4:a6:51:78:97:4e",
+      "device:dc:a6:32:c9:e5:02",
+      "device:f4:cf:a2:34:48:6b"
+    ],
+    "train": [
+      "device:00:02:75:f6:e3:cb",
+      "device:00:17:88:60:d6:4f",
+      "device:08:3a:f2:1f:bc:68",
+      "device:08:7c:39:ce:6e:2a",
+      "device:1c:fe:2b:98:16:dd",
+      "device:24:05:88:30:6f:89",
+      "device:24:a1:60:14:7f:f9",
+      "device:28:6d:97:7a:2b:2d",
+      "device:28:6d:97:9e:f4:d5",
+      "device:2c:d2:6b:66:d2:87",
+      "device:30:23:03:f3:57:cb",
+      "device:3c:37:86:6f:b9:51",
+      "device:44:01:bb:ec:10:4a",
+      "device:50:02:91:10:09:8f",
+      "device:50:02:91:10:ac:d8",
+      "device:50:02:91:1a:ce:e1",
+      "device:50:14:79:37:80:18",
+      "device:68:57:2d:56:ac:47",
+      "device:6c:5a:b0:44:1d:90",
+      "device:70:ee:50:6b:a8:1a",
+      "device:84:7a:b6:62:3a:6c",
+      "device:84:7a:b6:64:62:58",
+      "device:84:e3:42:42:ed:0b",
+      "device:8c:85:80:6c:b6:47",
+      "device:9c:8e:cd:1d:ab:9f",
+      "device:b0:09:da:3e:82:6c",
+      "device:b8:f0:09:03:29:79",
+      "device:b8:f0:09:03:9a:af",
+      "device:c4:dd:57:0c:39:94",
+      "device:c4:dd:57:13:07:c6",
+      "device:cc:f4:11:9c:d0:00",
+      "device:d4:a6:51:20:91:d1",
+      "device:d4:a6:51:21:6c:29",
+      "device:d4:a6:51:30:64:b7",
+      "device:d4:a6:51:76:06:64",
+      "device:d4:ad:fc:29:c8:a2",
+      "device:dc:a6:32:c9:e4:c6",
+      "device:e8:1b:69:f8:d6:e6",
+      "device:f0:b4:d2:f9:60:95"
+    ],
+    "validation": [
+      "device:10:5a:17:97:a5:c6",
+      "device:1c:9d:c2:8c:9a:94",
+      "device:34:75:63:73:f3:36",
+      "device:40:5d:82:35:14:c8",
+      "device:44:bb:3b:00:39:07",
+      "device:56:4f:8a:e1:f3:2d",
+      "device:70:ee:50:68:0e:32",
+      "device:b0:c5:54:59:2e:99",
+      "device:dc:a6:32:c9:e6:f4"
+    ]
+  },
+  "forbidden_roles": [
+    "IoT-23 test",
+    "CICIoT2023 one-shot holdout",
+    "Raspberry Pi fresh benign"
+  ],
+  "iot23_pack": {
+    "windows_sha256": "4b97fb954270a2727544724aa331d20354f9e10f6aa5d1bbbf62a5f3c40c6625"
+  },
+  "max_window_fpr_by_source": {
+    "ciciot_domain_validation": 0.01,
+    "iot23_validation_benign": 0.01
+  },
+  "purpose": "Train with IoT-23 training groups plus CICIoT2023 development-only benign device groups; select on IoT-23 validation recall under separate <=1% IoT and CIC domain-validation FPR budgets. Do not use IoT test, CIC one-shot holdout or Pi.",
+  "runtime_adoption": false,
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "selection": "Highest worst-seed IoT-23 validation recall among candidates meeting both source-specific FPR budgets in every seed; then mean recall, then lower worst CIC domain-validation FPR. External Backdoor and Pi are post-selection stress/generalization evidence and cannot tune this run.",
+  "version": "domain-augmented-candidates/1"
+}
