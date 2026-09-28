@@ -71,13 +71,17 @@ Evidence: `core/features.py`, `gateway/pipeline.py`, `sources/reorder.py`,
 readback plus an **independent TCP and UDP sink** — both, because a TCP-only
 sink would miss the protocol most of this traffic actually uses.
 
-The lease is finite (300 s in the frozen profile) with rearm/reconcile. In the
-indexed 20 September run both sinks received nothing during the blocked interval
-despite 24 source attempts per protocol, and deliveries resumed after release.
-The SIGKILL run killed the Python controller after `APPLIED`, and the readback
-stayed active — containment is held by the kernel TTL, not by the controller
-process, so killing the controller does not silently unblock the device. Both
-sinks had zero deliveries against 12 source attempts per protocol there.
+The bounded competition runtime profile uses N = 2 and a finite 300 s lease with
+rearm/reconcile. The cited 20 September G8 acceptance run deliberately used a
+shorter **N = 1 / 6 s laboratory profile** so apply, kernel expiry and restore
+could all be observed in a bounded test; it is not evidence that the N = 2 /
+300 s runtime profile itself was exercised end to end. In that G8 run both sinks
+received nothing during the blocked interval despite 24 source attempts per
+protocol, and deliveries resumed after release. The corresponding SIGKILL run
+killed the Python controller after `APPLIED`, and the readback stayed active —
+containment is held by the kernel TTL, not by the controller process, so killing
+the controller does not silently unblock the device. Both sinks had zero
+deliveries against 12 source attempts per protocol there.
 
 The two traps: an empty sink log **when the source sent nothing** proves nothing
 and the run is censored; and an `APPLIED` event whose kernel readback or sink log
