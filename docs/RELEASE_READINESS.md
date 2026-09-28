@@ -1,18 +1,20 @@
 # G15 release readiness (KAN-60)
 
-Status at 22 September 2026: **not ready to tag**. This file is the lead's
-review checklist and current evidence map. It is not a release declaration.
-Do not create a release tag by treating a missing gate as a warning.
+Status at 28 September 2026: **technical candidate accepted; team rehearsal
+still required before tagging**. PR #57 merged as `b76426c` and PR #58 merged
+as `ff18170`. Onur and Gabriel approved the final work, hosted CI is green, and
+the integrated Linux suite passed 701 tests with three platform skips. Do not
+create the release tag until KAN-59 records the actual three-person rehearsal.
 
 | Gate | Required evidence | Current state |
 |---|---|---|
 | G8 / KAN-49 | Real pinned RF and audited development capture through extractor, policy and nftables; independent TCP/UDP sink stop, restore and SIGKILL/kernel expiry | Accepted at the [bounded development-validation scope](G8_RUNBOOK.md); PR #41 merged. |
-| G10 / KAN-50 | Real StateEvent through UDS, MQTT, PostgreSQL and Grafana, plus decision/application correlation, dedup, outage recovery and completeness/loss report | Accepted in the final-product integration branch at the bounded local evidence scope; retain owner review and the exact evidence links before release tagging. |
-| G13 / KAN-54 | Exact frozen result set with run IDs, hashes, data role, failed/censored attempts, declared N/lease and plots | KAN-52 validation plus test confirmation, KAN-71 malware holdout and KAN-42 measurements are inventoried; final freeze and independent review remain open. |
-| Pi / KAN-53 | Separate ARM64 evidence with environment and load; no laptop number copied into Pi results | [Real Pi lab](evidence/PI5_2026-09-22_constrained/README.md) passed functionally. Guard invalidated its timing; no accepted Pi performance estimate. |
-| Reproduction / KAN-55 | Clean checkout from locked environment through data, training, lab, platform, G8/G10 and fallback | [Reproduction map](REPRODUCE.md) is updated for the accepted bounded G8/G10 paths and remains in review for final release reproducibility. |
-| Demo / KAN-58 | Pi path, laptop fallback, fault handling and cleanup | [Runbook](DEMO_RUNBOOK.md) is in review; keep missing gates visible in the demo. |
-| Team / KAN-59 | Şükrü, Onur and Gabriel each explain every contract and trade-off; date, gaps and reviewed runs recorded | [Rehearsal script](TEAM_QA_REHEARSAL.md) prepared; actual three-person rehearsal has not been recorded. |
+| G10 / KAN-50 | Real StateEvent through UDS, MQTT, PostgreSQL and Grafana, plus decision/application correlation, dedup, outage recovery and completeness/loss report | Accepted at the bounded local scope. Sealed normal, duplicate and broker-outage/recovery evidence is under `docs/evidence/G10_2026-09-24/`. |
+| G13 / KAN-54 | Exact frozen result set with run IDs, hashes, data role, failed/censored attempts, declared N/lease and plots | Accepted. The final 437-file inventory pins commit `83ae2873…` and manifest SHA-256 `70a5a7dc…3926`; earlier freezes remain as audit history. |
+| Pi / KAN-53/KAN-66 | Separate ARM64 evidence with environment and load; no laptop number copied into Pi results | Functional ARM64 lab retained with invalid timing. A later one-hour fresh-benign Pi capture completed with no throttle bits and is used only for functional/generalisation evidence, not performance. |
+| Reproduction / KAN-55 | Clean checkout from locked environment through data, training, lab, platform, G8/G10 and fallback | Accepted in PR #57. [`REPRODUCE.md`](REPRODUCE.md) and `./demo.sh evidence` bind the final evidence checks. |
+| Demo / KAN-58 | Pi path, laptop fallback, fault handling and cleanup | Accepted. The Linux/Docker rehearsal, cleanup and sealed fallback log are under `docs/evidence/KAN58_2026-09-28/`. |
+| Team / KAN-59 | Şükrü, Onur and Gabriel each explain every contract and trade-off; date, gaps and reviewed runs recorded | Script and individual preparation exist; actual three-person rehearsal record is the sole open release gate. |
 
 ## When the prerequisites pass
 

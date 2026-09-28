@@ -25,7 +25,14 @@ evidence_demo() {
     python3 docs/evidence/KAN43_2026-09-23/verify.py >/dev/null
     python3 platform/g10_report.py docs/evidence/G10_2026-09-24 >/dev/null
     (cd docs/evidence/G10_2026-09-24 && sha256sum -c SHA256SUMS >/dev/null)
-    echo "PASS: sealed telemetry and end-to-end G10 evidence verified"
+    (cd docs/evidence/KAN45_2026-09-28_runtime && \
+        sha256sum -c SHA256SUMS >/dev/null)
+    sha256sum -c docs/evidence/KAN66_PI_2026-09-28/SHA256SUMS >/dev/null
+    python3 -m measure.result_freeze verify \
+        --root . docs/evidence/G13_2026-09-28-final/result-freeze.json >/dev/null
+    (cd docs/evidence/G13_2026-09-28-final && \
+        sha256sum -c result-freeze.json.sha256 >/dev/null)
+    echo "PASS: sealed G10, compute-budget, Pi and final G13 evidence verified"
 }
 
 real_demo() {

@@ -143,15 +143,22 @@ KAN-49 and the laptop-only KAN-35 demo are complete within this stated scope.
 
 ## 7. G10 and results freeze
 
-KAN-50 requires one **real** gateway StateEvent through UDS, MQTT, PostgreSQL and
-Grafana, including duplicate/outage/recovery and completeness evidence. Compose
-smoke or a stub event is insufficient. KAN-54 freezes the exact commit, artifact,
-environment, feature/threshold/N/lease policy, split and run hashes, plus failed
-runs and clock/hardware mapping. The [KAN-54 freeze inventory](KAN54_FREEZE_INVENTORY.md)
-names the byte-pinned inputs already available and the experiments still missing;
-it is preparation, not a frozen result set. KAN-52's measured FPR/containment
-plot is still a prerequisite. Until the corresponding Jira acceptance evidence
-exists, report `G10/G13: not passed/frozen`.
+G10 is accepted at its bounded local scope: real gateway StateEvents crossed
+verified UDS framing, MQTT QoS 1, PostgreSQL and the Grafana query boundary;
+duplicate delivery and broker outage/recovery were also exercised. Verify the
+sealed evidence and final G13 inventory without external data or model files:
+
+```sh
+./demo.sh evidence
+```
+
+The final G13 manifest is
+`docs/evidence/G13_2026-09-28-final/result-freeze.json`. It inventories 437
+files from commit `83ae2873360955facc35f0c088993371796ea303`, including failed,
+rejected and censored attempts, selected policy and runtime profile, Pi
+generalisation evidence and both compute-budget experiments. Its manifest
+SHA-256 is `70a5a7dcd5b07676ee9de29ae430b4093df86d0d929312f259cf6230ecbc3926`.
+Compose health or seeded rows remain demonstrations and cannot replace G10.
 
 ## 8. Pi path and laptop fallback
 
@@ -165,8 +172,10 @@ functional Docker run and its guard samples are now preserved in the
 [22 September ARM64 evidence](evidence/PI5_2026-09-22_constrained/README.md).
 The lab passed, but the guard invalidated its timing because the host started
 above its declared load limit. Keep the functional result and the invalid
-measurement visibly separate. KAN-44 private management and KAN-46 guard
-behavior are accepted; KAN-53 still needs its own review and G10 prerequisite.
+measurement visibly separate. KAN-44 private management, KAN-46 guard behavior
+and the bounded functional Pi result are accepted. The later KAN-66 one-hour
+fresh-benign capture is retained as functional/generalisation evidence with its
+actual power and cooling limits, not as a performance benchmark.
 When the Pi is unavailable, use the laptop-only path after G8 and label results
 `Linux x86_64`; never copy a laptop number into the Pi column.
 
