@@ -88,6 +88,68 @@ def offset_seconds(mapping: dict) -> float:
     return (mapping["utc_ns"] - middle) / 1e9
 
 
+CGROUP = Path("/sys/fs/cgroup")
+
+
+def cgroup_limits(root: Path = CGROUP) -> dict:
+    """The cgroup v2 limits this container runs under, as the kernel reports them.
+
+    `max` means unlimited and is kept as such: an unbudgeted run records that it had
+    no budget rather than looking like a budgeted one. Missing files are reported,
+    not guessed.
+    """
+    try:
+        quota, period = (root / "cpu.max").read_text().split()
+        memory = (root / "memory.max").read_text().strip()
+    except (OSError, ValueError) as error:
+        return {"unavailable": f"{type(error).__name__}: {error}"}
+    return {
+        "cpu_max": f"{quota} {period}",
+        "cpu_cores": None if quota == "max" else int(quota) / int(period),
+        "memory_max_bytes": None if memory == "max" else int(memory),
+        "budgeted": quota != "max" and memory != "max",
+    }
+
+
+def _keyed(path: Path) -> dict:
+    return {
+        key: int(value) for key, value in (line.split() for line in path.read_text().splitlines())
+    }
+
+
+def cgroup_usage(root: Path = CGROUP) -> dict:
+    """CPU accounting and memory events for the whole container, read at one instant."""
+    try:
+        return {
+            "cpu_stat": _keyed(root / "cpu.stat"),
+            "memory_peak_bytes": int((root / "memory.peak").read_text()),
+            "memory_events": _keyed(root / "memory.events"),
+        }
+    except (OSError, ValueError) as error:
+        return {"unavailable": f"{type(error).__name__}: {error}"}
+
+
+def cgroup_delta(before: dict, after: dict) -> dict:
+    """What the budget did during the lab: throttling and memory pressure between reads."""
+    if "unavailable" in before or "unavailable" in after:
+        return {"unavailable": before.get("unavailable") or after.get("unavailable")}
+    cpu = {
+        key: after["cpu_stat"][key] - before["cpu_stat"].get(key, 0)
+        for key in ("usage_usec", "nr_periods", "nr_throttled", "throttled_usec")
+        if key in after["cpu_stat"]
+    }
+    events = {
+        key: value - before["memory_events"].get(key, 0)
+        for key, value in after["memory_events"].items()
+    }
+    return {
+        "cpu": cpu,
+        "memory_events": events,
+        # memory.peak is a high-water mark since the container started, not a delta.
+        "memory_peak_bytes": after["memory_peak_bytes"],
+    }
+
+
 def r1_from(model_dir: Path) -> ProvenanceFromR1:
     frozen = json.loads((model_dir / "provenance.json").read_text(encoding="utf-8"))
     return ProvenanceFromR1(
@@ -151,6 +213,7 @@ def main() -> int:
         "calibration": mapping
         | {"half_width_ns": (mapping["monotonic_after_ns"] - mapping["monotonic_before_ns"]) // 2},
         "code_sha256": {name: sha256(ROOT / name) for name in MEASURED_PATH},
+        "cgroup": cgroup_limits(),
         "input_sha256": {
             "model.joblib": sha256(args.model_dir / "model.joblib"),
             "model.meta.json": sha256(args.model_dir / "model.meta.json"),
@@ -170,11 +233,13 @@ def main() -> int:
         ),
     )
     manifest.freeze()
+    usage_before = cgroup_usage()
     (args.evidence / "manifest.frozen").write_text(run_id + "\n")
     done = args.evidence / "lab.done"
     while not done.exists():
         time.sleep(0.2)
     lab_status = done.read_text().strip()
+    usage_after = cgroup_usage()
     stages_path = args.evidence / "stages.json"
     try:
         stages = json.loads(stages_path.read_text())
@@ -188,6 +253,12 @@ def main() -> int:
             "lab_exit": lab_status,
             "stages_sha256": sha256(stages_path),
             "core_jsonl_sha256": sha256(args.evidence / "core.jsonl"),
+            # The whole container: lab processes, sinks, replay and this process.
+            "cgroup": {
+                "before": usage_before,
+                "after": usage_after,
+                "during_lab": cgroup_delta(usage_before, usage_after),
+            },
         }
         # A lab that did not exit cleanly is closed as failed, with what it did record.
         status = "completed" if lab_status == "0" else FAILED

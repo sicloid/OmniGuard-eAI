@@ -32,7 +32,14 @@ git -C "$REPO" rev-parse HEAD > "$OUT/commit"
 git -C "$REPO" status --porcelain > "$OUT/worktree-status"
 docker build -q -t omniguard-g8:local -f "$REPO/lab/Dockerfile.g8" "$REPO" > "$OUT/image"
 
-container=$(docker create --network none --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add NET_RAW \
+# KAN-45: an optional cgroup v2 budget for the whole lab container. Unset means no
+# budget, and the manifest records the limits the container actually saw either way.
+budget=()
+[[ -z ${KAN42_CPUS:-} ]] || budget+=(--cpus "$KAN42_CPUS")
+[[ -z ${KAN42_MEMORY:-} ]] || budget+=(--memory "$KAN42_MEMORY" --memory-swap "$KAN42_MEMORY")
+echo "${budget[*]:-none}" > "$OUT/budget"
+container=$(docker create "${budget[@]}" --network none \
+    --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add NET_RAW \
     --security-opt apparmor=unconfined --security-opt systempaths=unconfined \
     --mount "type=bind,src=$(native "$MODEL_DIR"),dst=/opt/g8-model,readonly" \
     --mount "type=bind,src=$(native "$PREPARED_DIR"),dst=/opt/g8-input,readonly" \
