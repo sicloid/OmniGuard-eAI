@@ -26,16 +26,13 @@ G1 contracts are team-approved and frozen as `0.1.0`. The repository includes
 the real IoT-23 data audit, pinned RF artifact loader, live capture/window/policy pipeline,
 runtime nftables enforcer, UDS/MQTT/DB adapters and Grafana dashboard. The
 real-model G8 orderly and process-kill runs passed their bounded local
-sink/kernel checks on Linux; Gabriel independently approved the exact head,
-PR #41 merged, and KAN-49 is complete. A separate local integration
-run on 20 September carried two actual G8 StateEvents through peer-verified
-UDS, broker PUBACK, PostgreSQL and Grafana. Duplicate replay did not create a
-second row, and a broker outage spooled two real events which were delivered
-with unchanged IDs after restart. This run used a **local composite commit**
-`ce5bdbf` of PR #41 and main, not a merged/reviewed G10 release. The frozen
-model binary and capture remain outside Git. KAN-50 still needs
-decision-to-application correlation, an end-to-end completeness/loss report,
-and owner acceptance. G10 is not declared a closed gate.
+sink/kernel checks on Linux. The accepted G10 evidence carries real gateway
+StateEvents through peer-verified UDS, MQTT QoS 1, PostgreSQL and Grafana, with
+deduplication and broker-outage recovery. The selected bounded competition
+runtime profile, external benign/transfer results, fresh Pi capture and failed
+or rejected candidates are pinned by the final 437-file G13 inventory. The
+frozen model binaries and raw captures remain outside Git and are represented
+by exact hashes.
 See the [G8 runbook](docs/G8_RUNBOOK.md), [reproduction map](docs/REPRODUCE.md),
 [Pi benign capture boundary](docs/KAN66_PI_BENIGN.md), and
 [current status](docs/STATUS.md) for scope and remaining work.
@@ -98,8 +95,8 @@ end-to-end detection pipeline. Do not cite its output as research measurements.
 All three collaborators were verified on 2026-09-10. AI work
 supports human module owners; every change still needs owner review.
 
-Next: G10 correlation/completeness evidence, accepted experimental measurements,
-team rehearsal and final release. A real Pi 5 ARM64 functional lab run is
+The remaining release gate is the recorded three-person Q&A rehearsal, followed
+by the final tag. A real Pi 5 ARM64 functional lab run is
 [recorded separately](docs/evidence/PI5_2026-09-22_constrained/README.md):
 the lab passed, while high pre-run load invalidated its timing. No Pi
 performance number is claimed from that run.

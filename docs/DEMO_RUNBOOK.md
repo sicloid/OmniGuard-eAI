@@ -71,15 +71,15 @@ with the invalid performance verdict beside it.
    is not enforcement proof.
 5. Start the self-hosted Compose stack with the sequence in
    [REPRODUCE.md](REPRODUCE.md), including migration and role provisioning.
-   The KAN-41 dashboard may show labelled `seed_demo` events only as a UI and
-   storage demonstration. The 20 September local composite run traced two real
-   gateway events through UDS→MQTT→PostgreSQL→Grafana and exercised duplicate
-   and broker-outage recovery; its raw evidence is outside Git. It does not
-   establish the still-missing correlation/completeness report or owner-reviewed
-   G10 gate. Until KAN-50 passes, show the platform smoke and label G10 pending;
-   present the local integration run separately with its exact commit and scope.
-6. Present KAN-54 frozen results only when the exact run set and all failed or
-   censored attempts are included. Separate laptop and Pi observations. Discuss
+   Label `seed_demo` rows as UI/storage fixtures. Present the accepted G10 run
+   separately: real gateway StateEvents crossed verified UDS framing, MQTT QoS
+   1, deduplicating PostgreSQL persistence and the Grafana query boundary;
+   duplicate and broker-outage/recovery scenarios are sealed under
+   `docs/evidence/G10_2026-09-24/`. State that this is a bounded local run, not
+   production availability evidence.
+6. Verify the final G13 inventory with `./demo.sh evidence`, then present the
+   exact frozen results including failed, rejected and censored attempts.
+   Separate laptop and Pi observations. Discuss
    per-capture benign false positives, observation loss, finite quarantine and
    incomplete generalisation without a deployment-quality claim.
 

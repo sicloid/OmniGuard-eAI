@@ -2,7 +2,7 @@
 
 ## 28 September 2026 update
 
-PR #57 is the current release candidate. Sixty downloaded CICIoT2023 PCAPs
+PR #57 merged as `b76426c`; PR #58 merged as `ff18170`. Sixty downloaded CICIoT2023 PCAPs
 (116,007,104,493 bytes) were inventoried; four benign captures produced 322,393
 five-second windows across 59 stable device groups. The frozen KAN-19 model
 failed this external benign check at 19.55% development FPR and 21.97% one-shot
@@ -12,7 +12,7 @@ set its window recall was only 6.41%, versus 25.56% for KAN-19. No model is
 silently promoted from one favourable metric.
 
 The candidate passed orderly and controller-SIGKILL/kernel-TTL G8 regressions
-with its exact model and metadata hashes. The current suite passes 694 tests
+with its exact model and metadata hashes. The integrated suite passes 701 tests
 with three platform skips; Ruff and hosted Linux/Windows/macOS/platform checks
 pass. A full `./demo.sh` rehearsal passed platform health/access, synthetic
 isolated containment, cleanup and sealed G10 verification; the committed log
@@ -29,8 +29,9 @@ upper rate of 6.58 per observed device-hour.
 The candidate is selected as the bounded competition/demo runtime profile. It
 retains the 99.16% worst-seed IoT-23 validation result, the 0.957% CIC benign
 development FPR and passed hash-pinned G8, but its 6.41% CIC Backdoor stress
-recall remains a material limitation. G13 final freeze, exact-head review, the
-three-person Q&A record and the final release tag remain open.
+recall remains a material limitation. The final G13 inventory freezes 437 files
+from commit `83ae2873…` and passed verification; owner reviews and PR merges are
+complete. Only the three-person Q&A record and final release tag remain open.
 
 ## 22 September 2026 update
 
