@@ -1,5 +1,12 @@
 # KAN-49 — real core gate runbook
 
+The current bounded competition/demo selection is pinned in
+`model/runtime_profile.json`. The G8 runners read its model and metadata hashes
+by default and therefore require the matching ExtraTrees artifact directory.
+Set both `OMNIGUARD_MODEL_SHA256` and `OMNIGUARD_METADATA_SHA256` only when
+replaying an explicitly named historical profile. The KAN-19 evidence below is
+retained as the original gate history rather than silently rewritten.
+
 The gate is **not passed** by unit tests, the stub enforcer probe, or the
 synthetic RF wiring smoke. The exact KAN-19 `model.joblib` was supplied in
 `omniguard-kan19-model.zip` outside Git and independently verified against the
@@ -44,10 +51,17 @@ verification; do not disable peer verification merely to make the demo pass.
   --parent ~/omniguard-data/iot23/CTU-IoT-Malware-Capture-8-1/2018-07-31-15-15-09-192.168.100.113.pcap \
   --out ~/omniguard-data/g8-prepared-8-1
 bash lab/run_g8_iot23_docker.sh \
-  ~/omniguard-data/omniguard-kan19-model ~/omniguard-data/g8-prepared-8-1
+  ~/omniguard-data/omniguard-competition-demo-model ~/omniguard-data/g8-prepared-8-1
 bash lab/run_g8_iot23_kill_docker.sh \
-  ~/omniguard-data/omniguard-kan19-model ~/omniguard-data/g8-prepared-8-1
+  ~/omniguard-data/omniguard-competition-demo-model ~/omniguard-data/g8-prepared-8-1
 ```
+
+The selected artifact pins are model
+`5c8909d717e79ca30b667140894ef0a1661835cf298437b956fbe5e95b5f843a`
+and metadata
+`3e0246b0c899d88eefe8fe99d348ad628b36bec95b9e7e003b3a942134e12c29`.
+The preserved KAN-69 evidence contains successful orderly and
+SIGKILL/kernel-TTL runs for those exact bytes.
 
 The orderly run loaded the **exact** frozen model, captured the replayed real
 packets through AF_PACKET, extracted `features-1`, recorded an anomalous RF

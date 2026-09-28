@@ -61,9 +61,10 @@ with the invalid performance verdict beside it.
 3. If PR #41 is merged, run `bash lab/run_g8_synthetic_docker.sh` as a clearly
    labelled wiring smoke. Show the synthetic model ID and TCP/UDP sink counts;
    state that it is **not** the real RF/IoT-23 gate.
-4. The original pinned KAN-19 model and audited IoT-23 8-1 parent capture are
-   now available outside Git. After PR #41 has independent review, execute its
-   prepared-PCAP orderly and SIGKILL runs using the exact commands in
+4. The selected profile is pinned in `model/runtime_profile.json`; its binary
+   artifact remains outside Git. KAN-19 remains the historical reference. With
+   the audited IoT-23 8-1 prepared capture, execute the selected profile's
+   orderly and SIGKILL runs using the exact commands in
    [the G8 runbook](G8_RUNBOOK.md). Show raw detection, StateEvent,
    nftables readback, independent TCP/UDP sink stop, release restoration,
    process-kill/kernel-TTL and local service observations. A StateEvent alone

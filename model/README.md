@@ -49,6 +49,19 @@ tests inject the deserializer; RF round-trip tests use the actual locked librari
 `.venv/bin/python -m unittest discover -s tests -p test_artifact.py -v`.
 They prove contract behavior, not model quality.
 
+## Selected runtime profile
+
+`runtime_profile.json` is the deployment-side source of truth for the bounded
+competition/demo model, threshold and N/lease policy. Its hashes are trusted
+configuration and are never derived from the artifact being loaded. The G8
+runners read those pins by default; environment overrides are reserved for an
+explicitly labelled historical replay. The binary remains outside Git.
+
+The selected ExtraTrees profile fixes the severe external benign failure of the
+KAN-19 reference, including the fresh Pi result, but has only 6.41% recall on
+the separate CIC Backdoor EGRESS stress set. This limitation travels with the
+profile and must remain visible in demos and reports.
+
 ## V3 design follow-up
 
 V3 önceliği: eğitimden önce capture topolojisi/yönü ve device-window etiket

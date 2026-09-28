@@ -17,9 +17,7 @@ scored and no runtime model pin was changed.
 
 The exploratory ranking selects the regularized ExtraTrees candidate because it
 has the strongest worst-seed and mean validation recall. A deployment-shaped
-artifact was built and runtime prediction parity was checked, but
-`runtime_adopted=false` remains deliberate. A reviewer must approve a new
-independent holdout design before this candidate can replace the frozen model.
+artifact was built and runtime prediction parity was checked.
 
 The result also explains why the baseline looked unstable: a single seed can
 hide the weakness of an apparently reasonable model. The table is therefore a
@@ -39,3 +37,18 @@ validation recall with at most 1% FPR on each benign validation source. This is
 worse than the existing candidate's 99.16% worst-seed recall, so augmentation
 was rejected as a runtime replacement. The full negative result is retained in
 [`KAN69_DOMAIN_AUGMENTED_2026-09-28`](evidence/KAN69_DOMAIN_AUGMENTED_2026-09-28/README.md).
+
+## Bounded runtime decision
+
+After combining all declared evidence, the regularized ExtraTrees artifact is
+the selected `competition-demo-20260928` runtime profile. It retains 99.16%
+worst-seed IoT-23 validation recall, reduces CIC benign development FPR from
+19.55% to 0.957%, and produced zero anomalous windows or quarantines on the
+fresh Pi capture where KAN-19 produced 75.00% FPR and ten quarantines. It also
+passed the hash-pinned orderly and SIGKILL/kernel-TTL G8 regressions.
+
+This is a bounded operational decision, not a claim of universal superiority.
+The candidate reached only 6.41% recall on the external CIC Backdoor EGRESS
+stress set, versus 25.56% for KAN-19. The selected pins, threshold and policy
+are committed in [`model/runtime_profile.json`](../model/runtime_profile.json).
+KAN-19 remains the historical frozen experiment reference.

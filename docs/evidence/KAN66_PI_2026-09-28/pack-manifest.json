@@ -1,0 +1,58 @@
+{
+  "captures": [
+    {
+      "conn_log_sha256": null,
+      "devices": {
+        "192.168.228.12": "d8:3a:dd:de:75:ca"
+      },
+      "group_id": "Pi5-b038e6af-ea70-411c-b463-790176aceafc",
+      "label_source": "declared",
+      "lan_cidrs": [
+        "192.168.228.0/24"
+      ],
+      "license": "owner-generated evidence",
+      "notes": "One-hour endpoint capture with explicit device-IP BPF; scripted scenarios and power/thermal provenance are pinned in the source manifest. Label is an assumption from the dataset description (benign), not measured from a flow log.",
+      "packets": {
+        "egress": 504,
+        "multicast_or_broadcast": 4,
+        "read": 2852
+      },
+      "pcap": "benign-pi5.pcap",
+      "pcap_sha256": "5400cd3aef6f206b5d304909bcacbcd5feb8507f71c1a206251e8cc52acb59b9",
+      "source_url": "owner-controlled Raspberry Pi KAN-66 capture",
+      "split_grouping": "capture+device",
+      "truncated_tail": false,
+      "windows": {
+        "benign": 328,
+        "dropped_truncated_tail": 0,
+        "malicious": 0,
+        "malicious_with_unmatched_packets": 0,
+        "unknown": 0,
+        "without_egress": 0
+      }
+    }
+  ],
+  "egress_exclusions": [
+    "224.0.0.0/4",
+    "255.255.255.255/32",
+    "169.254.0.0/16",
+    "0.0.0.0/32",
+    "ff00::/8",
+    "fe80::/10",
+    "::/128"
+  ],
+  "feature_schema_version": "features-1",
+  "flow_match_tolerance_s": 1.0,
+  "label_rule": "malicious if any egress packet matches a Malicious flow; unknown if any packet is unmatched or ambiguous; benign only if every packet matched Benign",
+  "label_rule_version": "window-label-1",
+  "manifest_version": 2,
+  "tool": "data.samplepack.build",
+  "totals": {
+    "benign": 328,
+    "malicious": 0,
+    "unknown": 0
+  },
+  "window_seconds": 5,
+  "windows_file": "windows.jsonl",
+  "windows_sha256": "6dbff73e31af91eb15b4f1ea45e97f29bc81fd911b8ca668d87513ec92599b5d"
+}

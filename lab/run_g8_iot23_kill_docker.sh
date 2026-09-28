@@ -5,8 +5,9 @@ MODEL_DIR=${1:?usage: bash lab/run_g8_iot23_kill_docker.sh MODEL_DIR PREPARED_DI
 PREPARED_DIR=${2:?usage: bash lab/run_g8_iot23_kill_docker.sh MODEL_DIR PREPARED_DIR}
 MODEL_DIR=$(realpath -- "$MODEL_DIR")
 PREPARED_DIR=$(realpath -- "$PREPARED_DIR")
-MODEL_SHA256=${OMNIGUARD_MODEL_SHA256:-d30725a9e913a5f1d4c652796e7a6a15dcd00cc482ef162f5a387fa18b57de6b}
-METADATA_SHA256=${OMNIGUARD_METADATA_SHA256:-917504c156951eee6d4438409c4529ad309d90b67a6e53a0ed2a5040f0f200ad}
+RUNTIME_PROFILE=${OMNIGUARD_RUNTIME_PROFILE:-$ROOT/model/runtime_profile.json}
+MODEL_SHA256=${OMNIGUARD_MODEL_SHA256:-$(python3 "$ROOT/model/runtime_profile.py" "$RUNTIME_PROFILE" model_sha256)}
+METADATA_SHA256=${OMNIGUARD_METADATA_SHA256:-$(python3 "$ROOT/model/runtime_profile.py" "$RUNTIME_PROFILE" metadata_sha256)}
 [[ $(sha256sum "$MODEL_DIR/model.joblib" | cut -d ' ' -f 1) == "$MODEL_SHA256" ]]
 [[ $(sha256sum "$MODEL_DIR/model.meta.json" | cut -d ' ' -f 1) == "$METADATA_SHA256" ]]
 [[ -f "$PREPARED_DIR/prepared.pcap" && -f "$PREPARED_DIR/provenance.json" ]]

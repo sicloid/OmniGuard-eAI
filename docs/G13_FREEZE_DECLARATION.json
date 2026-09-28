@@ -1,0 +1,30 @@
+{
+  "card": "KAN-54",
+  "data_roles": {
+    "ciciot2023_benign": "device-disjoint external benign development and one-shot holdout",
+    "ciciot2023_backdoor": "folder-labelled EGRESS transfer stress, not packet-level ground truth",
+    "iot23": "development, validation and consumed holdout roles recorded by each experiment",
+    "pi_benign": "fresh owner-controlled one-device-hour external benign check"
+  },
+  "failed_or_rejected_results_retained": [
+    "KAN-19 external benign failure",
+    "CIC Backdoor transfer weakness",
+    "domain-augmented candidate rejection",
+    "constrained Pi performance-invalid run",
+    "first Pi manifest-serialization failure described in KAN-66 documentation"
+  ],
+  "limitations": [
+    "The selected profile has 6.41% recall on the CIC Backdoor EGRESS stress set.",
+    "The accepted Pi evidence covers one constrained-power device-hour and is not a performance or population estimate.",
+    "The CIC Backdoor folder label is not packet-level ground truth.",
+    "The malware holdout was consumed and is not available for further model selection.",
+    "Synthetic demo evidence validates wiring, not model efficacy."
+  ],
+  "policy": {
+    "lease_seconds": 300,
+    "n": 2
+  },
+  "runtime_profile": "competition-demo-20260928",
+  "scope": "competition demonstration and bounded research prototype",
+  "selection_rule": "Select using the combined IoT-23 validation, device-disjoint CIC benign, CIC Backdoor transfer, fresh Pi benign and hash-pinned G8 evidence; retain adverse results and do not claim production IDS generalisation."
+}

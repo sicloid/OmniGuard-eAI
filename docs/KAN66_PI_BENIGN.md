@@ -42,6 +42,21 @@ passes string values through environment variables and `os.environ`; no shell
 quoted value is emitted as Python syntax. The clean run directory declared
 before scoring is `omniguard-benign-v3-20260928`.
 
+## Accepted result
+
+The declared run completed for exactly 3,600 seconds on Raspberry Pi 5 ARM64.
+It retained 4,749 IPv4 device frames, exited with `tcpdump_exit=0`, and recorded
+`throttled=0x0` both before and after capture. The raw PCAP SHA-256 is
+`5400cd3aef6f206b5d304909bcacbcd5feb8507f71c1a206251e8cc52acb59b9`.
+
+The shared extractor produced 328 benign windows. Frozen KAN-19 marked 246
+anomalous (75.00% window FPR), caused 10 false quarantine episodes and blocked
+2,980 seconds. The ExtraTrees candidate marked zero anomalous windows and
+caused no quarantine in this run. Because observed traffic occupied only
+0.4556 device-hours, its zero-event rule-of-three upper bound is still 6.58
+false quarantines per observed device-hour. See the
+[hash-pinned evidence](evidence/KAN66_PI_2026-09-28/README.md).
+
 ## Evaluation boundary
 
 After validation, the raw PCAP is converted with the same five-second feature

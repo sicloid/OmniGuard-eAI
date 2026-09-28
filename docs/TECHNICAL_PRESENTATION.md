@@ -35,9 +35,11 @@ limits together; the candidate-model table is validation-only.
    regularized ExtraTrees candidate reduced CIC benign development FPR to
    0.957% and false quarantines to 0.192 per observed device-hour. Then show the
    cost: on the folder-labelled CIC Backdoor EGRESS stress set its window recall
-   was 6.41%, versus 25.56% for KAN-19. The candidate therefore remains a
-   comparison profile until fresh Pi evidence and the full trade-off decision;
-   neither model supports a general production-IDS claim.
+   was 6.41%, versus 25.56% for KAN-19. On the fresh Pi run, KAN-19 produced
+   75.00% FPR, ten false quarantines and 2,980 blocked seconds; the candidate
+   produced zero anomalous windows and zero quarantine across 328 windows.
+   The candidate is therefore selected for the bounded competition/demo
+   runtime profile, while neither model supports a general production-IDS claim.
 9. **Containment evidence — Şükrü, 60 s.** Explain the real Linux G8 path:
    TCP and UDP sink behavior, kernel enforcement, release and expiry. State the
    exact bounded development-validation scope.
@@ -59,9 +61,10 @@ limits together; the candidate-model table is validation-only.
     on development data, and the conflict between benign FPR and external attack
     recall. The CIC Backdoor folder label is not packet-level ground truth.
 15. **Conclusion and next step — Şükrü, 45 s.** The prototype closes the
-    detect-to-contain-to-observe loop with auditable contracts. The next honest
-    milestone is a fresh benign-device holdout and independently reviewed
-    candidate freeze.
+    detect-to-contain-to-observe loop with auditable contracts. The selected
+    demo profile controls benign disruption on both CIC and fresh Pi evidence;
+    the next honest milestone is improving unseen-family recall without losing
+    that safety property.
 
 ## Demo sequence
 
@@ -91,8 +94,8 @@ it represents.
   run establishes functional and fresh-benign behavior under the available
   supply and an externally powered 100% fan. `get_throttled`, temperature and
   load are retained, but the run is not a full-power Pi performance estimate.
-- **Why not simply deploy the candidate with lower benign FPR?** Because the
-  same candidate had lower recall on the external CIC Backdoor EGRESS stress
-  set. Runtime promotion requires an explicit safety trade-off, fresh Pi
-  evidence and the already-passed hash-pinned G8 regression; a single favourable
-  metric is insufficient.
+- **Why deploy the candidate despite lower Backdoor stress recall?** The bounded
+  competition/demo profile must avoid disrupting a benign device: KAN-19 blocked
+  2,980 seconds in the fresh Pi hour, while the candidate caused no quarantine
+  and also met the IoT-23 validation and hash-pinned G8 gates. We disclose the
+  6.41% external stress recall and do not call it a production IDS.
